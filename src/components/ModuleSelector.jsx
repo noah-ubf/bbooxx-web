@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, onChapterSelected}) => {
+const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, openChapter=null, onChapterSelected}) => {
   const [open, setOpen] = useState(isOpen);
   const [searchString, setSearchString] = useState(false);
   const { handlers: { search } } = useAppContext();
@@ -94,6 +94,7 @@ const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, onChapterSe
                 isOpen={book.FullName === openBook || book.ShortName.indexOf(openBook) !== -1}
                 tabId={tabId}
                 onChapterSelected={onChapterSelected}
+                openChapter={(book.FullName === openBook || book.ShortName.indexOf(openBook) !== -1) ? openChapter : null}
               />
             ))
           }

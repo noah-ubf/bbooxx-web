@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { makeStyles } from "@mui/styles";
 
 import {useAppContext} from "@lib/appContext";
+import classNames from "classnames";
 
 const useStyles = makeStyles((theme) => ({
   bookSelector: {
@@ -51,15 +52,21 @@ const useStyles = makeStyles((theme) => ({
     },
 
     [theme.breakpoints.down('sm')]: {
-      fontSize: '1.5rem',
+      fontSize: '1.3rem',
       width: '2rem',
       height: '2rem',
       lineHeight: '2rem',
+      '&:nth-child(n+100)': {
+        fontSize: '1rem',
+      },
     },
+  },
+  selectedChapter: {
+    background: '#ddddff',
   }
 }));
 
-const BookSelector = ({module, book, tabId, isOpen, onChapterSelected}) => {
+const BookSelector = ({module, book, openChapter=null, tabId, isOpen, onChapterSelected}) => {
   const [open, setOpen] = useState(isOpen);
   const classes = useStyles();
   const ref = useRef();
@@ -82,7 +89,7 @@ const BookSelector = ({module, book, tabId, isOpen, onChapterSelected}) => {
         {
           [...chapterRange].map((_, i) => (
             <div key={i}
-              className={classes.chapter}
+              className={classNames(classes.chapter, {[classes.selectedChapter]: (+openChapter === i+1)})}
               onClick={async () => {
                 await loadChapter(module, book, i+1, tabId);
                 if (onChapterSelected) onChapterSelected(module, book, i+1);

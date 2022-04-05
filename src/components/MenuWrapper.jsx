@@ -9,6 +9,8 @@ import { useTranslation } from "react-i18next";
 import i18n from "i18next";
 import "@translations/i18n";
 import Popover from '@mui/material/Popover';
+import { useSprings, animated } from '@react-spring/web'
+import { useDrag } from '@use-gesture/react'
 
 // import { useViewContext } from "@lib/viewContext";
 import { useAppContext } from "@lib/appContext";
@@ -68,12 +70,18 @@ const MenuWrapper = ({children}) => {
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
   const classes = useStyles();
   // const { store: { showStrongs }, handlers: { toggleStrongs } } = useViewContext();
-  const { store: { modules, mobileAppView, mobileActiveTab, tabs }, handlers: { setAppView } } = useAppContext();
+  const {
+    store: { modules, mobileAppView, mobileActiveTab, tabs },
+    getters: { getNearChapterDescriptors },
+    handlers: { setAppView, loadText }
+  } = useAppContext();
   const activeTabTitle = tabs[mobileActiveTab] ? tr(tabs[mobileActiveTab].description) : '';
 
   const [textSelectorAnchorEl, setTextSelectorAnchorEl] = useState(null);
   const handleShowTextSelector = (e) => {
-    window.location.hash = "#textSelector";
+    if (!tabs[mobileActiveTab] || !tabs[mobileActiveTab].verses) return;
+    const hash = window.location.hash.split('/')[0];
+    window.location.hash = `${hash}/textSelector`;
     setTextSelectorAnchorEl(e.currentTarget);
   }
   const handleHideTextSelector = () => {
@@ -84,7 +92,8 @@ const MenuWrapper = ({children}) => {
 
   const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
   const handleShowSettings = (e) => {
-    window.location.hash = "#settings";
+    const hash = window.location.hash.split('/')[0];
+    window.location.hash = `${hash}/settings`;
     setSettingsAnchorEl(e.currentTarget);
   }
   const handleCloseSettings = () => {
@@ -93,26 +102,44 @@ const MenuWrapper = ({children}) => {
   }
   const settingsOpen = Boolean(settingsAnchorEl);
 
+  const tab = tabs[mobileActiveTab];
+  const descriptor = tab && tab.descriptor;
+
   const getCurrentScripture = () => {
-    const descriptorItems = tabs[mobileActiveTab].descriptor ? tabs[mobileActiveTab].descriptor.split(';') : null;
+    if (!tab || !tab.verses) return [];
+    const descriptorItems = tab.descriptor ? tab.descriptor.split(';') : null;
     const isMulty = descriptorItems && descriptorItems.length > 1;
     if (!descriptorItems || isMulty) return [0, 0];
-    const parts = /^\(([^)]+)\)([^.]+)\./.exec(descriptorItems[0]);
-    console.log(parts);
-    return [parts[1], parts[2]];
+    const parts = /^\(([^)]+)\)([^.]+)\.(\d+)/.exec(descriptorItems[0]);
+    return [parts[1], parts[2], parts[3]];
   }
-  const [currentModuleName, currentBook] = getCurrentScripture();
+  const [currentModuleName, currentBook, currentChapter] = getCurrentScripture();
   const currentModule = modules.find(m => m.BibleShortName === currentModuleName);
 
+  const nearest = getNearChapterDescriptors(descriptor);
 
   useEffect(() => {
     const onHashChange = () => {
-      setTextSelectorAnchorEl(window.location.hash === "#textSelector" ? textSelectorAnchorEl : null);
-      setSettingsAnchorEl(window.location.hash === "#settings" ? settingsAnchorEl : null);
+      const hashParts = window.location.hash.split('/');
+      setTextSelectorAnchorEl(hashParts[1] === "textSelector" ? textSelectorAnchorEl : null);
+      setSettingsAnchorEl(hashParts[1] === "settings" ? settingsAnchorEl : null);
     }
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, [settingsAnchorEl, textSelectorAnchorEl]);
+
+
+  const bind = useDrag(({ active, movement: [mx], direction: [xDir], cancel }) => {
+    if (active && Math.abs(mx) > window.innerWidth / 4) {
+      const direction = xDir > 0 ? 'prev' : 'next';
+      if (nearest[direction]) {
+        loadText(nearest[direction].descriptor, nearest[direction].descriptor, mobileActiveTab);
+      }
+      cancel();
+    }
+  }, {
+    axis: 'x',
+  });
 
 
   return (
@@ -140,12 +167,13 @@ const MenuWrapper = ({children}) => {
         {children}
       </div>
 
-      <span
+      <div
         className={classNames(classes.tabName, classes.mobile)}
         onClick={handleShowTextSelector}
+        {...bind()}
       >
         {activeTabTitle}
-      </span>
+      </div>
 
       <IconButton
         className={classNames(classes.iconButton, classes.desktop)}
@@ -184,6 +212,7 @@ const MenuWrapper = ({children}) => {
               module={currentModule}
               isOpen={true}
               openBook={currentBook}
+              openChapter={currentChapter}
               tabId={mobileActiveTab}
               onChapterSelected={handleHideTextSelector} 
             />

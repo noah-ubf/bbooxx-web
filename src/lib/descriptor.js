@@ -34,7 +34,7 @@ export const parseDescriptor = descr => {
     return {
       module: moduleDescr,
       book: bookDescr,
-      chapter: chapterDescr,
+      chapter: +chapterDescr,
       verses,
     };
   }));

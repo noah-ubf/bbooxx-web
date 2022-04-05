@@ -1,7 +1,7 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import { fetchURI } from '@lib/requests';
-import { getDescriptorFromList } from "@lib/descriptor";
+import { getDescriptorFromList, parseDescriptor } from "@lib/descriptor";
 
 const AppContext = createContext({});
 
@@ -80,7 +80,21 @@ export const AppContextProvider = ({ children }) => {
   window.localStorage.setItem('tabs', JSON.stringify(tabs));
   window.localStorage.setItem('areas', JSON.stringify(areas));
 
-  console.log({areas, tabs, mobileActiveTab});
+  const setActiveTab = (tabId) => {
+    setMobileActiveTab(tabId);
+    window.location.hash = `#${tabId}`;
+  }
+
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = window.location.hash.split('/')[0];
+      setMobileActiveTab(hash.substring(1));
+    }
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  // console.log({areas, tabs, mobileActiveTab});
 
   const context = useMemo(() => {
     const loadText = async (descriptor, description, tabId='initial') => {
@@ -91,7 +105,7 @@ export const AppContextProvider = ({ children }) => {
         area.tabIds.indexOf(tabId) !== -1 ? { ...area, activeTab: tabId } : area
       )));
       setMobileAppView('content');
-      setMobileActiveTab(tabId);
+      setActiveTab(tabId);
     };
 
     return ({
@@ -102,6 +116,41 @@ export const AppContextProvider = ({ children }) => {
         areas,
         mobileActiveTab,
         mobileAppView,
+      },
+
+      getters: {
+        getNearChapterDescriptors: (descriptor) => {
+          const parsed = parseDescriptor(descriptor);
+          if (parsed.length !== 1 || parsed[0].verses) return null; // only 1 chapter is supported
+          const { module, book, chapter } = parsed[0];
+          const currentModule = modules.find(m => m.BibleShortName === module);
+          if (!currentModule) return null;
+          const bookIndex = currentModule.books.findIndex((b) => b.FullName === book || b.ShortName.indexOf(book) !== -1);
+          if (bookIndex === -1) return null;
+
+          const prev = chapter > 1
+            ? { bookIndex, chapter: chapter - 1 }
+            : bookIndex === 0
+              ? null
+              : { bookIndex: bookIndex-1, chapter: currentModule.books[bookIndex+1].ChapterQty };
+
+          const next = chapter < currentModule.books[bookIndex].ChapterQty
+            ? { bookIndex, chapter: chapter + 1 }
+            : bookIndex === currentModule.books.length - 1
+              ? null
+              : { bookIndex: bookIndex+1, chapter: 1 };
+
+          const prevBook = prev && currentModule.books[prev.bookIndex];
+          const nextBook = next && currentModule.books[next.bookIndex];
+          const prevDescriptor = prev && `(${module})${prevBook.FullName}.${prev.chapter}`;
+          const nextDescriptor = next && `(${module})${nextBook.FullName}.${next.chapter}`;
+  
+          return {
+            prev: prev && {module, book: prevBook.FullName, chapter: prev.chapter, descriptor: prevDescriptor},
+            current: {module, book, chapter, descriptor},
+            next: next && {module, book: nextBook.FullName, chapter: next.chapter, descriptor: nextDescriptor},
+          };
+          },
       },
 
       handlers: {
@@ -123,7 +172,6 @@ export const AppContextProvider = ({ children }) => {
         loadText,
 
         cloneTab: (tabId, clean) => {
-          console.log('[cloneTab]: ', tabId, clean);
           if (!tabs[tabId]) return;
           const newTabId = getId();
           const newTab = { ...tabs[tabId], id: newTabId, locked: true };
@@ -162,7 +210,7 @@ export const AppContextProvider = ({ children }) => {
           setAreas(areas.map((area) => (
             area.id === 'centerCol' ? { ...area, tabIds: [...area.tabIds, newTabId], activeTab: newTabId } : area
           )));
-          setMobileActiveTab(newTabId);
+          setActiveTab(newTabId);
           setMobileAppView('content');
         },
 
@@ -170,7 +218,7 @@ export const AppContextProvider = ({ children }) => {
           setAreas(areas.map((area) => (
             area.tabIds.indexOf(tabId) !== -1 ? { ...area, activeTab: tabId } : area
           )));
-          setMobileActiveTab(tabId);
+          setActiveTab(tabId);
           setMobileAppView('content');
         },
 
@@ -192,7 +240,7 @@ export const AppContextProvider = ({ children }) => {
             if (key !== tabId) newTabs[key] = tabs[key];
           });
           setTabs(newTabs);
-          setMobileActiveTab(newActiveTab);
+          setActiveTab(newActiveTab);
         },
 
         showReferences: async (verse) => {
@@ -218,7 +266,7 @@ export const AppContextProvider = ({ children }) => {
               : area
           )));
 
-          setMobileActiveTab(newTabId);
+          setActiveTab(newTabId);
           setMobileAppView('content');
         },
 
