@@ -6,6 +6,7 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import { useAppContext } from "@lib/appContext";
 import BookSelector from "@components/BookSelector";
+import { useViewContext } from '@lib/viewContext';
 
 const useStyles = makeStyles((theme) => ({
   moduleSelector: {
@@ -59,10 +60,17 @@ const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, openChapter
   const [searchString, setSearchString] = useState(false);
   const { handlers: { search } } = useAppContext();
   const classes = useStyles();
+  const { handlers: { startLoading, finishLoading } } = useViewContext();
+
+  const handleSearch = async () => {
+    startLoading();
+    await search(module, searchString);
+    finishLoading();
+  }
 
   const keyDown = (e) => {
     if (e.key === 'Enter') {
-      search(module, searchString);
+      handleSearch();
     }
   }
 
@@ -80,7 +88,7 @@ const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, openChapter
             />
             <IconButton
               className={classes.iconButton}
-              onClick={() => search(module, searchString)}
+              onClick={handleSearch}
               aria-label="search"
             >
               <SearchIcon />

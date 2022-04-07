@@ -1,3 +1,5 @@
+import { useViewContext } from "@lib/viewContext";
+
 const API = `http://${window.location.hostname}:6069/api/`;
 const respCache = [];
 const CACHE_SIZE = 1000;
@@ -12,4 +14,14 @@ async function fetchURI(uri) {
   return data;
 }
 
-export { fetchURI };
+function useFetch() {
+  const { handlers: { startLoading, finishLoading } } = useViewContext();
+  return async (uri) => {
+    startLoading();
+    const data = await fetchURI(uri);
+    finishLoading();
+    return data;
+  }
+}
+
+export { fetchURI, useFetch };

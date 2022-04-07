@@ -132,7 +132,7 @@ export const AppContextProvider = ({ children }) => {
             ? { bookIndex, chapter: chapter - 1 }
             : bookIndex === 0
               ? null
-              : { bookIndex: bookIndex-1, chapter: currentModule.books[bookIndex+1].ChapterQty };
+              : { bookIndex: bookIndex-1, chapter: currentModule.books[bookIndex-1].ChapterQty };
 
           const next = chapter < currentModule.books[bookIndex].ChapterQty
             ? { bookIndex, chapter: chapter + 1 }

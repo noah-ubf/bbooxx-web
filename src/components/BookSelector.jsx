@@ -4,6 +4,7 @@ import { makeStyles } from "@mui/styles";
 
 import {useAppContext} from "@lib/appContext";
 import classNames from "classnames";
+import { useViewContext } from '@lib/viewContext';
 
 const useStyles = makeStyles((theme) => ({
   bookSelector: {
@@ -70,6 +71,7 @@ const BookSelector = ({module, book, openChapter=null, tabId, isOpen, onChapterS
   const [open, setOpen] = useState(isOpen);
   const classes = useStyles();
   const ref = useRef();
+  const { handlers: { startLoading, finishLoading } } = useViewContext();
 
   const { handlers: { loadChapter } } = useAppContext();
 
@@ -91,7 +93,12 @@ const BookSelector = ({module, book, openChapter=null, tabId, isOpen, onChapterS
             <div key={i}
               className={classNames(classes.chapter, {[classes.selectedChapter]: (+openChapter === i+1)})}
               onClick={async () => {
+                startLoading();
                 await loadChapter(module, book, i+1, tabId);
+                await new Promise((s,r) => {
+                  setTimeout(() => { s() }, 5000);
+                });
+                finishLoading();
                 if (onChapterSelected) onChapterSelected(module, book, i+1);
               }}
             >

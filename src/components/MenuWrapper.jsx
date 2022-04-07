@@ -5,6 +5,8 @@ import classNames from "classnames";
 // import MenuBookIcon from '@mui/icons-material/MenuBook';
 import StorageIcon from '@mui/icons-material/Storage';
 import SettingsIcon from '@mui/icons-material/Settings';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { useTranslation } from "react-i18next";
 import i18n from "i18next";
 import "@translations/i18n";
@@ -22,6 +24,7 @@ import Settings from "./Settings";
 import ModuleSelector from "./ModuleSelector";
 import ModuleList from "./ModuleList";
 import { BOLD } from "draft-js/lib/DefaultDraftInlineStyle";
+import { useViewContext } from '@lib/viewContext';
 
 const useStyles = makeStyles((theme) => ({
   menuWrapper: {
@@ -62,7 +65,13 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none !important',
     }
-  }
+  },
+  iconButton: {
+    '&:not([disabled]) svg': {
+      color: '#339999',
+    },
+    // padding: '0 !important',
+  },
 }));
 
 const MenuWrapper = ({children}) => {
@@ -76,6 +85,7 @@ const MenuWrapper = ({children}) => {
     handlers: { setAppView, loadText }
   } = useAppContext();
   const activeTabTitle = tabs[mobileActiveTab] ? tr(tabs[mobileActiveTab].description) : '';
+  const { handlers: { startLoading, finishLoading } } = useViewContext();
 
   const [textSelectorAnchorEl, setTextSelectorAnchorEl] = useState(null);
   const handleShowTextSelector = (e) => {
@@ -129,17 +139,28 @@ const MenuWrapper = ({children}) => {
   }, [settingsAnchorEl, textSelectorAnchorEl]);
 
 
-  const bind = useDrag(({ active, movement: [mx], direction: [xDir], cancel }) => {
+  const bind = useDrag(async ({ active, movement: [mx], direction: [xDir], cancel }) => {
     if (active && Math.abs(mx) > window.innerWidth / 4) {
-      const direction = xDir > 0 ? 'prev' : 'next';
-      if (nearest[direction]) {
-        loadText(nearest[direction].descriptor, nearest[direction].descriptor, mobileActiveTab);
-      }
+      xDir > 0 ? handlePrev() : handleNext();
       cancel();
     }
   }, {
     axis: 'x',
   });
+
+  const handlePrev = async () => {
+    if (!nearest || !nearest.prev) return;
+    startLoading();
+    await loadText(nearest.prev.descriptor, nearest.prev.descriptor, mobileActiveTab);
+    finishLoading();
+  }
+
+  const handleNext = async () => {
+    if (!nearest || !nearest.next) return;
+    startLoading();
+    await loadText(nearest.next.descriptor, nearest.next.descriptor, mobileActiveTab);
+    finishLoading();
+  }
 
 
   return (
@@ -162,6 +183,22 @@ const MenuWrapper = ({children}) => {
       >
         <StorageIcon />
       </span>
+
+      <IconButton
+        className={classNames(classes.iconButton)}
+        onClick={handlePrev}
+        disabled={!nearest || !nearest.prev}
+      >
+        <ArrowBackIosNewIcon />
+      </IconButton>
+
+      <IconButton
+        className={classNames(classes.iconButton)}
+        onClick={handleNext}
+        disabled={!nearest || !nearest.next}
+      >
+        <ArrowForwardIosIcon />
+      </IconButton>
 
       <div className={classes.childrenWrapper}>
         {children}
