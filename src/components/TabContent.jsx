@@ -5,6 +5,7 @@ import VerseList from "@components/VerseList";
 import Settings from "@components/Settings";
 import {useAppContext} from "@lib/appContext";
 import Memo from "@components/Memo";
+import { useEffect, useRef } from "react";
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -33,6 +34,17 @@ const useStyles = makeStyles((theme) => ({
 const TabContent = ({tabId}) => {
   const classes = useStyles();
   const { store: { tabs }, handlers: { updateMemo } } = useAppContext();
+  const ref = useRef();
+  const xxx = tabs[tabId] ? tabs[tabId].verses : tabId;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (ref.current) setTimeout(() => {
+      console.log('qq', ref.current.scrollTop);
+      ref.current.scrollTop = 0
+    }, 100);
+  }, [xxx])
+
 
   if (!tabs[tabId]) return (
     <div className={classes.content}>
@@ -46,7 +58,7 @@ const TabContent = ({tabId}) => {
     case 'settings': return <Settings/>;
     default: return (
       <>
-        <div className={classes.content} tabIndex={1}>
+        <div className={classes.content} tabIndex={1} ref={ref}>
           <VerseList verses={ tabs[tabId].verses } />
         </div>
         <div className={classes.status}>{`${tabs[tabId].verses.length} verses`}</div>

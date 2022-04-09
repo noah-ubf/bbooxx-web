@@ -95,9 +95,6 @@ const BookSelector = ({module, book, openChapter=null, tabId, isOpen, onChapterS
               onClick={async () => {
                 startLoading();
                 await loadChapter(module, book, i+1, tabId);
-                await new Promise((s,r) => {
-                  setTimeout(() => { s() }, 5000);
-                });
                 finishLoading();
                 if (onChapterSelected) onChapterSelected(module, book, i+1);
               }}

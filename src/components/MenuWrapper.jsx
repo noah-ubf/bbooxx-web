@@ -7,6 +7,7 @@ import StorageIcon from '@mui/icons-material/Storage';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { useTranslation } from "react-i18next";
 import i18n from "i18next";
 import "@translations/i18n";
@@ -72,6 +73,23 @@ const useStyles = makeStyles((theme) => ({
     },
     // padding: '0 !important',
   },
+  floatMenu: {
+    [theme.breakpoints.down('sm')]: {
+      position: 'fixed',
+      bottom: '2rem',
+      left: '50vw',
+      width: '120px',
+      marginLeft: '-60px',
+      borderRadius: '40px',
+      background: '#99ffff',
+      transform: 'scale(140%)',
+    },
+  },
+  mobileHidden: {
+    [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+  },
 }));
 
 const MenuWrapper = ({children}) => {
@@ -86,6 +104,7 @@ const MenuWrapper = ({children}) => {
   } = useAppContext();
   const activeTabTitle = tabs[mobileActiveTab] ? tr(tabs[mobileActiveTab].description) : '';
   const { handlers: { startLoading, finishLoading } } = useViewContext();
+  const [touched, setTouched] = useState(false);
 
   const [textSelectorAnchorEl, setTextSelectorAnchorEl] = useState(null);
   const handleShowTextSelector = (e) => {
@@ -162,6 +181,27 @@ const MenuWrapper = ({children}) => {
     finishLoading();
   }
 
+  useEffect(() => {
+    let interval = null;
+    const handleInteraction = () => {
+      setTouched(true);
+
+      if(interval) clearTimeout(interval);
+      interval = setTimeout(() => {
+        setTouched(false);
+        interval = null;
+      }, 3000);
+    }
+
+    document.addEventListener('scroll', handleInteraction);
+    document.addEventListener('touchend', handleInteraction);
+
+    return () => {
+      document.removeEventListener('scroll', handleInteraction);
+      document.addEventListener('touchend', handleInteraction);
+    }
+  });
+
 
   return (
     <div className={classes.menuWrapper}>
@@ -184,21 +224,30 @@ const MenuWrapper = ({children}) => {
         <StorageIcon />
       </span>
 
-      <IconButton
-        className={classNames(classes.iconButton)}
-        onClick={handlePrev}
-        disabled={!nearest || !nearest.prev}
-      >
-        <ArrowBackIosNewIcon />
-      </IconButton>
+      <div className={classNames(classes.floatMenu, {[classes.mobileHidden]: !touched})}>
+        <IconButton
+          className={classNames(classes.iconButton)}
+          onClick={handlePrev}
+          disabled={!nearest || !nearest.prev}
+        >
+          <ArrowBackIosNewIcon />
+        </IconButton>
 
-      <IconButton
-        className={classNames(classes.iconButton)}
-        onClick={handleNext}
-        disabled={!nearest || !nearest.next}
-      >
-        <ArrowForwardIosIcon />
-      </IconButton>
+        <IconButton
+          className={classNames(classes.iconButton, classes.mobile)}
+          onClick={handleShowTextSelector}
+        >
+          <LibraryBooksIcon />
+        </IconButton>
+
+        <IconButton
+          className={classNames(classes.iconButton)}
+          onClick={handleNext}
+          disabled={!nearest || !nearest.next}
+        >
+          <ArrowForwardIosIcon />
+        </IconButton>
+      </div>
 
       <div className={classes.childrenWrapper}>
         {children}

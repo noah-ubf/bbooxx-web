@@ -1,6 +1,7 @@
 import { makeStyles } from "@mui/styles";
 
 import Verse from "@components/Verse";
+import { useEffect, useRef } from "react";
 
 const useStyles = makeStyles((theme) => ({
   verseList: {
@@ -63,6 +64,13 @@ const VerseList = ({verses}) => {
   // const { store: { verses: storedVerses } } = useAppContext();
   const classes = useStyles();
   let descriptor = null;
+  const ref = useRef();
+
+  useEffect(() => {
+    console.log(ref.current);
+    window.scrollTo(0, 0);
+    if (ref.current) ref.current.scrollTop = 0;
+  }, [])
 
   return <div className={classes.verseList}>
     {/* <div>
@@ -72,7 +80,7 @@ const VerseList = ({verses}) => {
       </IconButton>
     </div> */}
 
-    <div className={classes.content}>
+    <div className={classes.content} ref={ref}>
     {
       verses.map((verse) => {
         const descr = descriptor;
