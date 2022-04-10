@@ -67,7 +67,6 @@ const VerseList = ({verses}) => {
   const ref = useRef();
 
   useEffect(() => {
-    console.log(ref.current);
     window.scrollTo(0, 0);
     if (ref.current) ref.current.scrollTop = 0;
   }, [])

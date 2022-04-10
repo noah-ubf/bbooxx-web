@@ -8,6 +8,13 @@ const AppContext = createContext({});
 const initialTabs = window.localStorage.getItem('tabs')
 ? JSON.parse(window.localStorage.getItem('tabs'))
 : {
+  tabs: {
+    id: 'tabs',
+    type: 'tabs',
+    description: {i18n: 'tablist'},
+    locked: true,
+    hidden: true,
+  },
   modules: {
     id: 'modules',
     type: 'modules',
@@ -74,7 +81,6 @@ export const AppContextProvider = ({ children }) => {
   const [tabs, setTabs] = useState(initialTabs);
   const [areas, setAreas] = useState(initialAreas);
   const [mobileActiveTab, setMobileActiveTab] = useState(initialMobileActiveTab || 'modules');
-  const [mobileAppView, setMobileAppView] = useState('content');
   
   window.localStorage.setItem('mobileActiveTab', mobileActiveTab);
   window.localStorage.setItem('tabs', JSON.stringify(tabs));
@@ -104,7 +110,6 @@ export const AppContextProvider = ({ children }) => {
       setAreas(areas.map((area) => (
         area.tabIds.indexOf(tabId) !== -1 ? { ...area, activeTab: tabId } : area
       )));
-      setMobileAppView('content');
       setActiveTab(tabId);
     };
 
@@ -115,7 +120,6 @@ export const AppContextProvider = ({ children }) => {
         tabs,
         areas,
         mobileActiveTab,
-        mobileAppView,
       },
 
       getters: {
@@ -154,8 +158,6 @@ export const AppContextProvider = ({ children }) => {
       },
 
       handlers: {
-        setAppView: (view) => setMobileAppView(view),
-
         fetchModules: async () => {
           if (!loaded) {
             const data = await fetchURI('modules');
@@ -211,7 +213,6 @@ export const AppContextProvider = ({ children }) => {
             area.id === 'centerCol' ? { ...area, tabIds: [...area.tabIds, newTabId], activeTab: newTabId } : area
           )));
           setActiveTab(newTabId);
-          setMobileAppView('content');
         },
 
         toggleTab: (tabId) => {
@@ -219,7 +220,6 @@ export const AppContextProvider = ({ children }) => {
             area.tabIds.indexOf(tabId) !== -1 ? { ...area, activeTab: tabId } : area
           )));
           setActiveTab(tabId);
-          setMobileAppView('content');
         },
 
         closeTab: (tabId) => {
@@ -267,7 +267,6 @@ export const AppContextProvider = ({ children }) => {
           )));
 
           setActiveTab(newTabId);
-          setMobileAppView('content');
         },
 
         moveTab: (tab, tgtAreaId, receiveId=null) => {
@@ -334,7 +333,6 @@ export const AppContextProvider = ({ children }) => {
       areas,
       tabs,
       mobileActiveTab,
-      mobileAppView,
     ]
   );
 

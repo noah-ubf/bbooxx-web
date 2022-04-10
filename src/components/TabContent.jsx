@@ -5,6 +5,7 @@ import VerseList from "@components/VerseList";
 import Settings from "@components/Settings";
 import {useAppContext} from "@lib/appContext";
 import Memo from "@components/Memo";
+import TabList from "@components/TabList";
 import { useEffect, useRef } from "react";
 
 const useStyles = makeStyles((theme) => ({
@@ -33,16 +34,13 @@ const useStyles = makeStyles((theme) => ({
 
 const TabContent = ({tabId}) => {
   const classes = useStyles();
-  const { store: { tabs }, handlers: { updateMemo } } = useAppContext();
+  const { store: { tabs }, handlers: { updateMemo, toggleTab } } = useAppContext();
   const ref = useRef();
   const xxx = tabs[tabId] ? tabs[tabId].verses : tabId;
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    if (ref.current) setTimeout(() => {
-      console.log('qq', ref.current.scrollTop);
-      ref.current.scrollTop = 0
-    }, 100);
+    if (ref.current) ref.current.scrollTop = 0
   }, [xxx])
 
 
@@ -52,16 +50,23 @@ const TabContent = ({tabId}) => {
     </div>
   );
 
+  const handleFocus = () => {
+    toggleTab(tabId);
+  }
+
   switch(tabs[tabId].type) {
     case 'memo': return <Memo defaultValue={tabs[tabId].content || ''} onChange={(e) => updateMemo(tabId, e)}/>;
     case 'modules': return <ModuleList/>;
     case 'settings': return <Settings/>;
-    default: return (
+    case 'tabs': return <TabList />;
+    default:
+      const count = tabs[tabId].verses && tabs[tabId].verses.length;
+    return (
       <>
-        <div className={classes.content} tabIndex={1} ref={ref}>
+        <div className={classes.content} tabIndex={1} ref={ref} onFocus={handleFocus}>
           <VerseList verses={ tabs[tabId].verses } />
         </div>
-        <div className={classes.status}>{`${tabs[tabId].verses.length} verses`}</div>
+        <div className={classes.status}>{`${count} verses`}</div>
       </>
     );
   }

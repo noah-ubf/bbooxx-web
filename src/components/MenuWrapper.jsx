@@ -20,11 +20,10 @@ import { useAppContext } from "@lib/appContext";
 import { IconButton } from "@mui/material";
 import US from "@ressources/US.png";
 import UA from "@ressources/UA.png";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Settings from "./Settings";
 import ModuleSelector from "./ModuleSelector";
 import ModuleList from "./ModuleList";
-import { BOLD } from "draft-js/lib/DefaultDraftInlineStyle";
 import { useViewContext } from '@lib/viewContext';
 
 const useStyles = makeStyles((theme) => ({
@@ -96,11 +95,12 @@ const MenuWrapper = ({children}) => {
   const { t } = useTranslation();
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
   const classes = useStyles();
+  const ref = useRef();
   // const { store: { showStrongs }, handlers: { toggleStrongs } } = useViewContext();
   const {
-    store: { modules, mobileAppView, mobileActiveTab, tabs },
+    store: { modules, mobileActiveTab, tabs },
     getters: { getNearChapterDescriptors },
-    handlers: { setAppView, loadText }
+    handlers: { loadText, toggleTab }
   } = useAppContext();
   const activeTabTitle = tabs[mobileActiveTab] ? tr(tabs[mobileActiveTab].description) : '';
   const { handlers: { startLoading, finishLoading } } = useViewContext();
@@ -150,11 +150,19 @@ const MenuWrapper = ({children}) => {
   useEffect(() => {
     const onHashChange = () => {
       const hashParts = window.location.hash.split('/');
-      setTextSelectorAnchorEl(hashParts[1] === "textSelector" ? textSelectorAnchorEl : null);
-      setSettingsAnchorEl(hashParts[1] === "settings" ? settingsAnchorEl : null);
+
+      setTimeout(() => {
+        if (hashParts[1] === "textSelector") setTextSelectorAnchorEl(ref.current);
+        if (hashParts[1] === "settings") setSettingsAnchorEl(ref.current);
+      }, 0);
     }
+
+    window.addEventListener("load", onHashChange);
     window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
+    return () => {
+      window.removeEventListener("load", onHashChange);
+      window.removeEventListener("hashchange", onHashChange);
+    }
   }, [settingsAnchorEl, textSelectorAnchorEl]);
 
 
@@ -204,7 +212,7 @@ const MenuWrapper = ({children}) => {
 
 
   return (
-    <div className={classes.menuWrapper}>
+    <div ref={ref} className={classes.menuWrapper}>
       {/* <IconButton onClick={toggleStrongs} >
         <NumbersIcon color={showStrongs ? 'secondary' : 'action'} />
       </IconButton> */}
@@ -219,35 +227,37 @@ const MenuWrapper = ({children}) => {
 
       <span
         className={classNames(classes.menuButton, classes.mobile)}
-        onClick={() => setAppView(mobileAppView === 'tablist' ? 'content' : 'tablist')}
+        onClick={() => toggleTab('tabs')}
       >
         <StorageIcon />
       </span>
 
-      <div className={classNames(classes.floatMenu, {[classes.mobileHidden]: !touched})}>
-        <IconButton
-          className={classNames(classes.iconButton)}
-          onClick={handlePrev}
-          disabled={!nearest || !nearest.prev}
-        >
-          <ArrowBackIosNewIcon />
-        </IconButton>
+      {tab.verses &&
+        <div className={classNames(classes.floatMenu, {[classes.mobileHidden]: !touched})}>
+          <IconButton
+            className={classNames(classes.iconButton)}
+            onClick={handlePrev}
+            disabled={!nearest || !nearest.prev}
+          >
+            <ArrowBackIosNewIcon />
+          </IconButton>
 
-        <IconButton
-          className={classNames(classes.iconButton, classes.mobile)}
-          onClick={handleShowTextSelector}
-        >
-          <LibraryBooksIcon />
-        </IconButton>
+          <IconButton
+            className={classNames(classes.iconButton, classes.mobile)}
+            onClick={handleShowTextSelector}
+          >
+            <LibraryBooksIcon />
+          </IconButton>
 
-        <IconButton
-          className={classNames(classes.iconButton)}
-          onClick={handleNext}
-          disabled={!nearest || !nearest.next}
-        >
-          <ArrowForwardIosIcon />
-        </IconButton>
-      </div>
+          <IconButton
+            className={classNames(classes.iconButton)}
+            onClick={handleNext}
+            disabled={!nearest || !nearest.next}
+          >
+            <ArrowForwardIosIcon />
+          </IconButton>
+        </div>
+      }
 
       <div className={classes.childrenWrapper}>
         {children}
@@ -282,43 +292,47 @@ const MenuWrapper = ({children}) => {
         <SettingsIcon />
       </IconButton>
 
-      <Popover
-        id={'textSelectorPopover'}
-        open={textSelectorOpen}
-        anchorEl={textSelectorAnchorEl}
-        onClose={handleHideTextSelector}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-        { currentModule
-          ? (
-            <ModuleSelector
-              module={currentModule}
-              isOpen={true}
-              openBook={currentBook}
-              openChapter={currentChapter}
-              tabId={mobileActiveTab}
-              onChapterSelected={handleHideTextSelector} 
-            />
-          )
-          : <ModuleList tabId={mobileActiveTab} onChapterSelected={handleHideTextSelector} />
-        }
-      </Popover>
+      {textSelectorOpen &&
+        <Popover
+          id={'textSelectorPopover'}
+          open={textSelectorOpen}
+          anchorEl={textSelectorAnchorEl}
+          onClose={handleHideTextSelector}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          { currentModule
+            ? (
+              <ModuleSelector
+                module={currentModule}
+                isOpen={true}
+                openBook={currentBook}
+                openChapter={currentChapter}
+                tabId={mobileActiveTab}
+                onChapterSelected={handleHideTextSelector} 
+              />
+            )
+            : <ModuleList tabId={mobileActiveTab} onChapterSelected={handleHideTextSelector} />
+          }
+        </Popover>
+      }
 
-      <Popover
-        id={'settingsPopover'}
-        open={settingsOpen}
-        anchorEl={settingsAnchorEl}
-        onClose={handleCloseSettings}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-        <Settings/>
-      </Popover>
+      {settingsOpen &&
+        <Popover
+          id={'settingsPopover'}
+          open={settingsOpen}
+          anchorEl={settingsAnchorEl}
+          onClose={handleCloseSettings}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <Settings/>
+        </Popover>
+      }
     </div>
   );
 }

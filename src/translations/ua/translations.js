@@ -6,6 +6,8 @@ export const TRANSLATIONS_UA = {
   refs: 'ПП до {{descriptor}}',
   reset: 'Стерти всі дані програми',
   resetData: 'Дійсно бажааєте стерти всі дані програми?',
+  search: 'Шукати',
   searchResults: '({{module}}): Пошук "{{text}}"',
   settings: 'Налаштування',
+  tablist: 'Всі вкладки',
 };

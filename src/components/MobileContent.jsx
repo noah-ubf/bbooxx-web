@@ -5,14 +5,16 @@ import MobileMenu from "@components/MobileMenu";
 
 const MobileContent = () => {
   const {
-    store: { mobileActiveTab, mobileAppView },
+    store: { mobileActiveTab },
   } = useAppContext();
 
-  switch (mobileAppView) {
-    case 'menu': return <MobileMenu />;
-    case 'tablist': return <TabList />;
-    default: return <TabContent tabId={mobileActiveTab} />
-  }
+  return <TabContent tabId={mobileActiveTab} />
+
+  // switch (mobileAppView) {
+  //   case 'menu': return <MobileMenu />;
+  //   case 'tablist': return <TabList />;
+  //   default: return <TabContent tabId={mobileActiveTab} />
+  // }
 }
 
 export default MobileContent;

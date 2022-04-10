@@ -2,7 +2,7 @@ import { makeStyles } from "@mui/styles";
 import CloseIcon from '@mui/icons-material/Close';
 // import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import LockIcon from '@mui/icons-material/Lock';
+// import LockIcon from '@mui/icons-material/Lock';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useTranslation } from "react-i18next";
 import { Divider } from "@mui/material";
@@ -37,7 +37,7 @@ const TabList = () => {
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
   const classes = useStyles();
   const {
-    store: { tabs, mobileActiveTab, mobileAppView },
+    store: { tabs, mobileActiveTab },
     handlers: { cloneTab, closeTab, toggleTab, resetTabs }
   } = useAppContext();
 
@@ -51,12 +51,12 @@ const TabList = () => {
       <List>
         {
           tabsArray.map((tab) => (
-            <ListItem key={tab.id} disablePadding>
+            <ListItem key={tab.id} disablePadding selected={tab.id === mobileActiveTab}>
               <ListItemButton>
                 <ListItemText primary={tr(tab.description)} onClick={() => toggleTab(tab.id)}/>
                 <ListItemIcon>
                   { tab.locked
-                    ? (tab.id === 'initial' ? <PushPinOutlinedIcon onClick={() => cloneTab(tab.id, true)} /> : <LockIcon />)
+                    ? (tab.id === 'initial' ? <PushPinOutlinedIcon onClick={() => cloneTab(tab.id, true)} /> : false)
                     : <CloseIcon onClick={() => closeTab(tab.id)}/>
                   }
                 </ListItemIcon>

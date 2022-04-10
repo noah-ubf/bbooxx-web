@@ -3,6 +3,7 @@ import { useState } from "react";
 import { makeStyles } from "@mui/styles";
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
+import { useTranslation } from "react-i18next";
 
 import { useAppContext } from "@lib/appContext";
 import BookSelector from "@components/BookSelector";
@@ -61,6 +62,7 @@ const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, openChapter
   const { handlers: { search } } = useAppContext();
   const classes = useStyles();
   const { handlers: { startLoading, finishLoading } } = useViewContext();
+  const { t } = useTranslation();
 
   const handleSearch = async () => {
     startLoading();
@@ -84,7 +86,7 @@ const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, openChapter
               className={classes.searchInput}
               onKeyDown={keyDown}
               onChange={(e) => setSearchString(e.target.value)}
-              placeholder={'Search'}
+              placeholder={t('search')}
             />
             <IconButton
               className={classes.iconButton}
