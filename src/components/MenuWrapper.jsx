@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'stretch',
     alignItems: 'center',
     padding: theme.spacing(1),
+    position: 'relative',
   },
   childrenWrapper: {
     flexGrow: 1,
@@ -88,6 +89,17 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
+  },
+  progressWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 3,
+  },
+  progress: {
+    height: '100%',
+    background: '#339999',
   },
 }));
 
@@ -146,6 +158,10 @@ const MenuWrapper = ({children}) => {
   const currentModule = modules.find(m => m.BibleShortName === currentModuleName);
 
   const nearest = getNearChapterDescriptors(descriptor);
+
+  const percentage = nearest && nearest.current
+    ? (nearest.current.chapter / nearest.current.chapterCount) * 100
+    : false;
 
   useEffect(() => {
     const onHashChange = () => {
@@ -210,6 +226,10 @@ const MenuWrapper = ({children}) => {
     }
   });
 
+  if (!tab) {
+    setTimeout(() => toggleTab(Object.keys(tabs)[0]), 0);
+    return null
+  }
 
   return (
     <div ref={ref} className={classes.menuWrapper}>
@@ -291,6 +311,12 @@ const MenuWrapper = ({children}) => {
       >
         <SettingsIcon />
       </IconButton>
+
+      {
+        percentage && <div className={classes.progressWrapper}>
+          <div className={classes.progress} style={{width: `${percentage}%`}}></div>
+        </div>
+      }
 
       {textSelectorOpen &&
         <Popover

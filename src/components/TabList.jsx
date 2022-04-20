@@ -2,6 +2,7 @@ import { makeStyles } from "@mui/styles";
 import CloseIcon from '@mui/icons-material/Close';
 // import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 // import LockIcon from '@mui/icons-material/Lock';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useTranslation } from "react-i18next";
@@ -14,9 +15,11 @@ import ListItemText from '@mui/material/ListItemText';
 import i18n from "i18next";
 
 import {useAppContext} from "@lib/appContext";
+import TabNameDialog from '@components/TabNameDialog';
 import "@translations/i18n";
 import US from "@ressources/US.png";
 import UA from "@ressources/UA.png";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   tabList: {
@@ -38,13 +41,40 @@ const TabList = () => {
   const classes = useStyles();
   const {
     store: { tabs, mobileActiveTab },
-    handlers: { cloneTab, closeTab, toggleTab, resetTabs }
+    handlers: { cloneTab, closeTab, toggleTab, resetTabs, renameTab }
   } = useAppContext();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [[tabId, dialogText, isRename], setDialogProps] = useState([]);
 
   const tabsArray = Object.keys(tabs)
     .map((key) => ({id: key, ...tabs[key]}))
-    .filter((tab) => (tab && !tab.hidden && (tab.id !== 'initial' || tab.verses.length > 0)))
+    .filter((tab) => (
+      tab
+      && !tab.hidden
+      && (!['initial', 'collection'].includes(tab.id) || tab.verses.length > 0))
+    )
     .sort((a,b) => (a.locked ? a : b));
+
+  const handlePin = (tab) => {
+    if (tab.id === 'collection') {
+      setDialogProps([tab.id, tab.description, false]);
+      setDialogOpen(true);
+    } else {
+      cloneTab(tab.id, true);
+    }
+  }
+
+  const handleRename = (tab) => {
+    console.log({tab})
+    setDialogProps([tab.id, tab.description, true]);
+    setDialogOpen(true);
+  }
+
+  const handleConfirmPin = (text) => {
+    if (isRename) renameTab(tabId, text);
+    else cloneTab(tabId, true, text);
+    setDialogOpen(false);
+  }
 
   return (
     <div className={classes.tabList} >
@@ -55,8 +85,13 @@ const TabList = () => {
               <ListItemButton>
                 <ListItemText primary={tr(tab.description)} onClick={() => toggleTab(tab.id)}/>
                 <ListItemIcon>
+                  {(tab.id !== 'collection' && tab.custom) && (
+                    <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tab)}} />
+                  )}
+                </ListItemIcon>
+                <ListItemIcon>
                   { tab.locked
-                    ? (tab.id === 'initial' ? <PushPinOutlinedIcon onClick={() => cloneTab(tab.id, true)} /> : false)
+                    ? (['initial', 'collection'].includes(tab.id) ? <PushPinOutlinedIcon onClick={() => handlePin(tab)} /> : false)
                     : <CloseIcon onClick={() => closeTab(tab.id)}/>
                   }
                 </ListItemIcon>
@@ -105,6 +140,13 @@ const TabList = () => {
           </ListItemButton>
         </ListItem>
       </List>
+
+      <TabNameDialog
+        open={dialogOpen}
+        onConfirm={handleConfirmPin}
+        onCancel={() => setDialogOpen(false)}
+        description={dialogText}
+      />
     </div>
   );
 }

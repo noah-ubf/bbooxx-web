@@ -34,7 +34,7 @@ const Sizer = ({children, initialSize, side}) => {
   const [size, setSize] = useState(initialSize);
   const [start, setStart] = useState(0);
   const [size0, setSize0] = useState(0);
-  const maxSize = 500;
+  const maxSize = 700;
   const minSize = 20;
 
   const getOwnSize = () => {
@@ -78,7 +78,9 @@ const Sizer = ({children, initialSize, side}) => {
     }
   }
 
-  if (ref.current && !size) setSize(Math.max(Math.min(getOwnSize(), maxSize), minSize));
+  if (ref.current && !size) {
+    setTimeout(() => setSize(Math.max(Math.min(getOwnSize(), maxSize), minSize)), 0);
+  }
 
   const sizeStart = (e) => {
     e.preventDefault();

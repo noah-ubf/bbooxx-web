@@ -2,6 +2,9 @@ import { useState } from "react";
 import { makeStyles } from "@mui/styles";
 import { Menu } from "@mui/material";
 import LinkIcon from '@mui/icons-material/Link';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -49,9 +52,9 @@ const useStyles = makeStyles({
   }
 });
 
-const Verse = ({verse}) => {
+const Verse = ({verse, onRemove}) => {
   const { t } = useTranslation();
-  const { handlers: { showReferences } } = useAppContext();
+  const { handlers: { showReferences, copyToCollection, addToMemo } } = useAppContext();
   const { store: { showStrongs } } = useViewContext();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -67,6 +70,16 @@ const Verse = ({verse}) => {
 
   const handleShowReferences = () => {
     showReferences(verse);
+    setAnchorEl(null);
+  }
+
+  const handleCopyToCollection = () => {
+    copyToCollection(verse);
+    setAnchorEl(null);
+  }
+
+  const handleAddToMemo = () => {
+    addToMemo(verse);
     setAnchorEl(null);
   }
 
@@ -96,7 +109,27 @@ const Verse = ({verse}) => {
             <LinkIcon/>
           </ListItemIcon>
           <ListItemText>{t('crossrefs')}</ListItemText>
-        </MenuItem>   
+        </MenuItem>
+        <MenuItem onClick={handleCopyToCollection}>
+          <ListItemIcon>
+            <PlaylistAddIcon/>
+          </ListItemIcon>
+          <ListItemText>{t('copyToCollection')}</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleAddToMemo}>
+          <ListItemIcon>
+            <NoteAddIcon/>
+          </ListItemIcon>
+          <ListItemText>{t('addToMemo')}</ListItemText>
+        </MenuItem>
+        { onRemove &&
+          <MenuItem onClick={onRemove}>
+            <ListItemIcon>
+              <PlaylistRemoveIcon color={'warning'}/>
+            </ListItemIcon>
+            <ListItemText>{t('removeFromCollection')}</ListItemText>
+          </MenuItem>
+        }
       </Menu>
     </div>
   );

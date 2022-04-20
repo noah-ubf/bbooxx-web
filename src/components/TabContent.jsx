@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 
 const TabContent = ({tabId}) => {
   const classes = useStyles();
-  const { store: { tabs }, handlers: { updateMemo, toggleTab } } = useAppContext();
+  const { store: { tabs }, handlers: { updateMemo, toggleTab, removeVerse } } = useAppContext();
   const ref = useRef();
   const xxx = tabs[tabId] ? tabs[tabId].verses : tabId;
 
@@ -55,7 +55,7 @@ const TabContent = ({tabId}) => {
   }
 
   switch(tabs[tabId].type) {
-    case 'memo': return <Memo defaultValue={tabs[tabId].content || ''} onChange={(e) => updateMemo(tabId, e)}/>;
+    case 'memo': return <Memo value={tabs[tabId].content || ''} onChange={(e) => updateMemo(tabId, e)}/>;
     case 'modules': return <ModuleList/>;
     case 'settings': return <Settings/>;
     case 'tabs': return <TabList />;
@@ -64,7 +64,10 @@ const TabContent = ({tabId}) => {
     return (
       <>
         <div className={classes.content} tabIndex={1} ref={ref} onFocus={handleFocus}>
-          <VerseList verses={ tabs[tabId].verses } />
+          <VerseList
+            verses={ tabs[tabId].verses }
+            onRemove={tabs[tabId].custom ? (i) => removeVerse(i, tabId) : null}
+          />
         </div>
         <div className={classes.status}>{`${count} verses`}</div>
       </>

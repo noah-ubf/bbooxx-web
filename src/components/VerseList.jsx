@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const VerseList = ({verses}) => {
+const VerseList = ({verses, onRemove}) => {
   // const { store: { verses: storedVerses } } = useAppContext();
   const classes = useStyles();
   let descriptor = null;
@@ -69,7 +69,7 @@ const VerseList = ({verses}) => {
   useEffect(() => {
     window.scrollTo(0, 0);
     if (ref.current) ref.current.scrollTop = 0;
-  }, [])
+  }, [verses])
 
   return <div className={classes.verseList}>
     {/* <div>
@@ -81,7 +81,7 @@ const VerseList = ({verses}) => {
 
     <div className={classes.content} ref={ref}>
     {
-      verses.map((verse) => {
+      verses.map((verse, i) => {
         const descr = descriptor;
         descriptor = `(${verse.module})${verse.book}.${verse.chapter}`;
 
@@ -90,7 +90,7 @@ const VerseList = ({verses}) => {
             descr === descriptor ? null
             : <div key={descriptor} className={classes.descriptor}><span className={classes.descriptorContent}>{descriptor}</span></div>
           ),
-          (<Verse key={verse.descriptor} verse={verse}/>),
+          (<Verse key={verse.descriptor} verse={verse} onRemove={onRemove && (() => onRemove(i))}/>),
         ];
       })
     }

@@ -4,7 +4,7 @@ import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { EditorState, convertToRaw, ContentState } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   memo: {
@@ -53,15 +53,39 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Memo = ({defaultValue, onChange}) => {
+const Memo = ({value, onChange}) => {
   const classes = useStyles();
-  const contentBlock = htmlToDraft(defaultValue);
-  const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
-  const [editorState, setEditorState] = useState(EditorState.createWithContent(contentState));
+  const [extValue, setExtValue] = useState(value);
+
+  const createState = (html='', editorState=null) => {
+    const selectionState = editorState && editorState.getSelection();
+    console.log({selectionState});
+    const contentBlock = htmlToDraft(html);
+    const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
+    const newState = EditorState.createWithContent(contentState);
+
+    return editorState ? EditorState.moveFocusToEnd(newState) : newState;
+    // return editorState ? EditorState.create({
+    //   currentContent: contentState,
+    //   selection: selectionState,  // make sure the new editor has the old editor's selection state
+    //   decorator: decorator
+    // }) : EditorState.moveFocusToEnd(newState);
+  };
+
+  const [editorState, setEditorState] = useState(createState(value));  
+
+  useEffect(() => {
+    if (value !== extValue) {
+      setEditorState(createState(value, editorState));
+      setExtValue(value);
+    }
+  }, [value, extValue, editorState]);
 
   const handleChange = (state) => {
+    const html = draftToHtml(convertToRaw(editorState.getCurrentContent()));
+    setExtValue(html);
     setEditorState(state);
-    onChange(draftToHtml(convertToRaw(editorState.getCurrentContent())));
+    onChange(html);
   }
 
   return <div className={classes.memo}>

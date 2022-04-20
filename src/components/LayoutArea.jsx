@@ -2,7 +2,8 @@ import { makeStyles } from "@mui/styles";
 import CloseIcon from '@mui/icons-material/Close';
 // import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
-import LockIcon from '@mui/icons-material/Lock';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+// import LockIcon from '@mui/icons-material/Lock';
 // import ShareIcon from '@mui/icons-material/Share';
 // import classNames from "classnames";
 import { useTranslation } from "react-i18next";
@@ -10,7 +11,9 @@ import { useTranslation } from "react-i18next";
 import {useAppContext} from "@lib/appContext";
 import { NiftyTabs, NiftyTab } from '@components/NiftyTabs';
 import TabContent from "@components/TabContent";
+import TabNameDialog from '@components/TabNameDialog';
 import "@translations/i18n";
+import { useState } from "react";
 
 const useStyles = makeStyles((theme) => ({
   layoutArea: {
@@ -74,7 +77,13 @@ const LayoutArea = ({ area }) => {
 
   const classes = useStyles();
   const { activeTab, tabIds } = area;
-  const { store: { tabs }, handlers: { toggleTab, closeTab, moveTab, cloneTab, updateMemo } } = useAppContext();
+  const {
+    store: { tabs },
+    handlers: { toggleTab, closeTab, moveTab, cloneTab, renameTab }
+  } = useAppContext();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [[tabId, dialogText, isRename], setDialogProps] = useState([]);
 
   const allowDrop = (e) => e.preventDefault();
   const drag = (e) => e.dataTransfer.setData("text", e.target.id);
@@ -94,6 +103,27 @@ const LayoutArea = ({ area }) => {
     }
   }
 
+  const handlePin = (tab) => {
+    if (tab.id === 'collection') {
+      setDialogProps([tab.id, tab.description, false]);
+      setDialogOpen(true);
+    } else {
+      cloneTab(tab.id, true);
+    }
+  }
+
+  const handleRename = (tab) => {
+    console.log({tab})
+    setDialogProps([tab.id, tab.description, true]);
+    setDialogOpen(true);
+  }
+
+  const handleConfirmPin = (text) => {
+    if (isRename) renameTab(tabId, text);
+    else cloneTab(tabId, true, text);
+    setDialogOpen(false);
+  }
+
   return (
     <div
       className={classes.layoutArea}
@@ -110,24 +140,26 @@ const LayoutArea = ({ area }) => {
         >
         {
           tabIds.map((tabId, i) => (
-          !!tabs[tabId] && (tabId !== 'initial' || tabs[tabId].verses.length > 0) &&
+          !!tabs[tabId] && (!['initial', 'collection'].includes(tabId) || tabs[tabId].verses.length > 0) &&
             <NiftyTab key={i}
               id={ ['ntab', area.id, tabId].join('__') }
               wrapped
               value={tabId}
               label={
                 <div className={classes.tabContent}>
-                  {(tabs[tabId].locked) && <LockIcon title={'Default tab'} /> }
-
                   <span className={tabId === 'initial' ? classes.initial : null}>
                     { tr(tabs[tabId].description) }
                   </span>
 
-                  {(tabId === 'initial' && tabId === activeTab && tabs[tabId].verses.length > 0) && (
-                    <PushPinOutlinedIcon onClick={() => cloneTab(tabId, true)} /> 
+                  {(['initial', 'collection'].includes(tabId) && tabId === activeTab && tabs[tabId].verses.length > 0) && (
+                    <PushPinOutlinedIcon onClick={() => handlePin(tabs[tabId])} /> 
                   )}
 
                   {/* <ShareIcon onClick={() => shareTab(tabs[tabId])} /> */}
+
+                  {(tabId !== 'collection' && tabs[tabId].custom && tabId === activeTab) && (
+                    <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tabs[tabId])}} />
+                  )}
 
                   {(!tabs[tabId].locked && tabId === activeTab) && (
                     <CloseIcon onClick={(e) => {e.stopPropagation(); closeTab(tabId)}} />
@@ -144,6 +176,13 @@ const LayoutArea = ({ area }) => {
         </NiftyTabs>
       }
       <TabContent tabId={activeTab} />
+
+      {dialogOpen && <TabNameDialog
+        open={dialogOpen}
+        onConfirm={handleConfirmPin}
+        onCancel={() => setDialogOpen(false)}
+        description={dialogText}
+      />}
     </div>
   );
 }
