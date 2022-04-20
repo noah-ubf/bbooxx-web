@@ -1,5 +1,5 @@
 const mem = (
-  {areas, tabs},
+  {areas, tabs, mobileActiveTab},
   {setAreas, setActiveTab, setTabs}
 ) => {
   return (tabId) => {
@@ -19,7 +19,7 @@ const mem = (
     Object.keys(tabs).forEach((key) => {
       if (key !== tabId) newTabs[key] = tabs[key];
     });
-    setActiveTab(newActiveTab);
+    if (mobileActiveTab !== 'tabs') setActiveTab(newActiveTab);
     setTabs(newTabs);
   }
 }
