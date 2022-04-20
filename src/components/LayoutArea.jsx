@@ -71,6 +71,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const isBasic = (tab) => ['initial', 'collection'].includes(tab.id);
+const hasVerses = (tab) => (tab.loaded && tab.verses.length > 0)
+
 const LayoutArea = ({ area }) => {
   const { t } = useTranslation();
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
@@ -113,7 +116,6 @@ const LayoutArea = ({ area }) => {
   }
 
   const handleRename = (tab) => {
-    console.log({tab})
     setDialogProps([tab.id, tab.description, true]);
     setDialogOpen(true);
   }
@@ -140,7 +142,7 @@ const LayoutArea = ({ area }) => {
         >
         {
           tabIds.map((tabId, i) => (
-          !!tabs[tabId] && (!['initial', 'collection'].includes(tabId) || tabs[tabId].verses.length > 0) &&
+          !!tabs[tabId] && (!isBasic(tabs[tabId]) || hasVerses(tabs[tabId])) &&
             <NiftyTab key={i}
               id={ ['ntab', area.id, tabId].join('__') }
               wrapped
@@ -151,13 +153,13 @@ const LayoutArea = ({ area }) => {
                     { tr(tabs[tabId].description) }
                   </span>
 
-                  {(['initial', 'collection'].includes(tabId) && tabId === activeTab && tabs[tabId].verses.length > 0) && (
+                  {(isBasic(tabs[tabId]) && hasVerses(tabs[tabId])) && (
                     <PushPinOutlinedIcon onClick={() => handlePin(tabs[tabId])} /> 
                   )}
 
                   {/* <ShareIcon onClick={() => shareTab(tabs[tabId])} /> */}
 
-                  {(tabId !== 'collection' && tabs[tabId].custom && tabId === activeTab) && (
+                  {(!isBasic(tabs[tabId]) && tabs[tabId].custom && tabId === activeTab) && (
                     <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tabs[tabId])}} />
                   )}
 

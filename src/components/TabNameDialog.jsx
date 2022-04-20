@@ -14,7 +14,7 @@ const TabNameDialog = ({open, onConfirm, onCancel, description}) => {
   const tr = (key) => (key && key.i18n ? t(key.i18n, key.params) : t(key));
   const initialText = tr(description) || t('newList');
   const [text, setText] = useState(initialText);
-console.log({description})
+
   return (
     <Dialog open={open} onClose={onCancel}>
       <DialogTitle>{t('renameTab')}</DialogTitle>

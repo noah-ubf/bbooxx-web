@@ -24,7 +24,6 @@ import { useEffect, useRef, useState } from "react";
 import Settings from "./Settings";
 import ModuleSelector from "./ModuleSelector";
 import ModuleList from "./ModuleList";
-import { useViewContext } from '@lib/viewContext';
 
 const useStyles = makeStyles((theme) => ({
   menuWrapper: {
@@ -103,6 +102,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const isBasic = (tab) => ['initial', 'collection'].includes(tab.id);
+const hasVerses = (tab) => (tab.loaded && tab.verses.length > 0)
+
 const MenuWrapper = ({children}) => {
   const { t } = useTranslation();
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
@@ -115,7 +117,6 @@ const MenuWrapper = ({children}) => {
     handlers: { loadText, toggleTab }
   } = useAppContext();
   const activeTabTitle = tabs[mobileActiveTab] ? tr(tabs[mobileActiveTab].description) : '';
-  const { handlers: { startLoading, finishLoading } } = useViewContext();
   const [touched, setTouched] = useState(false);
 
   const [textSelectorAnchorEl, setTextSelectorAnchorEl] = useState(null);
@@ -191,18 +192,14 @@ const MenuWrapper = ({children}) => {
     axis: 'x',
   });
 
-  const handlePrev = async () => {
+  const handlePrev = () => {
     if (!nearest || !nearest.prev) return;
-    startLoading();
-    await loadText(nearest.prev.descriptor, nearest.prev.descriptor, mobileActiveTab);
-    finishLoading();
+    loadText(nearest.prev.descriptor, nearest.prev.descriptor, mobileActiveTab);
   }
 
   const handleNext = async () => {
     if (!nearest || !nearest.next) return;
-    startLoading();
-    await loadText(nearest.next.descriptor, nearest.next.descriptor, mobileActiveTab);
-    finishLoading();
+    loadText(nearest.next.descriptor, nearest.next.descriptor, mobileActiveTab);
   }
 
   useEffect(() => {

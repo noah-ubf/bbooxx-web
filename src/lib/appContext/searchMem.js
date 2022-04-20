@@ -1,20 +1,17 @@
 import getId from './getId';
-import { fetchURI } from '@lib/requests';
-import { getDescriptorFromList } from "@lib/descriptor";
 
 const mem = (
   {areas, tabs},
   {setAreas, setActiveTab, setTabs}
 ) => {
-  return async (module, text) => {
+  return (module, text) => {
     if (!text || text === '') return;
-    const data = await fetchURI(`modules/${module.BibleShortName}/search/${encodeURIComponent(text)}`);
     const newTabId = getId();
     const newTab = {
       id: newTabId,
-      descriptor: getDescriptorFromList(data),
+      source: {type: 'search', module: module.BibleShortName, text},
+      loaded: false,
       description: {i18n: 'searchResults', params: {module: module.BibleShortName, text}},
-      verses: data
     };
     setTabs({...tabs, [newTabId]: newTab});
     setAreas(areas.map((area) => (

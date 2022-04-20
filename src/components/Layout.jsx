@@ -7,8 +7,6 @@ import {useAppContext} from "@lib/appContext";
 import Sizer from "@components/Sizer";
 import MobileContent from "@components/MobileContent";
 import useWindowSize from "@lib/useWindowSize";
-import { CircularProgress } from "@mui/material";
-import { useViewContext } from "../lib/viewContext";
 
 const useStyles = makeStyles((theme) => ({
   layoutRoot: {
@@ -81,7 +79,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Layout = () => {
-  const { store: { loading } } = useViewContext();
   const docSize = useWindowSize();
   const docWidth = docSize.width;
   const theme = useTheme();
@@ -109,9 +106,7 @@ const Layout = () => {
   if (isMobile) return (
     <div className={classes.layoutRoot}>
       <div className={classes.menuWrapper}>
-        <MenuWrapper>
-          {loading && <CircularProgress />}
-        </MenuWrapper>
+        <MenuWrapper />
       </div>
       <div className={classes.content}>
         <MobileContent />
@@ -122,9 +117,7 @@ const Layout = () => {
   return (
     <div className={classes.layoutRoot}>
       <div className={classes.menuWrapper}>
-        <MenuWrapper>
-          {loading && <CircularProgress />}
-        </MenuWrapper>
+        <MenuWrapper />
       </div>
       <div className={classes.content}>
         <Sizer side="right" initialSize={300}>

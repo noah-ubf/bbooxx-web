@@ -65,7 +65,7 @@ const TabContent = ({tabId}) => {
       <>
         <div className={classes.content} tabIndex={1} ref={ref} onFocus={handleFocus}>
           <VerseList
-            verses={ tabs[tabId].verses }
+            tab={ tabs[tabId] }
             onRemove={tabs[tabId].custom ? (i) => removeVerse(i, tabId) : null}
           />
         </div>

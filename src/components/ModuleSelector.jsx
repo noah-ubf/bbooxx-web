@@ -64,9 +64,9 @@ const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, openChapter
   const { handlers: { startLoading, finishLoading } } = useViewContext();
   const { t } = useTranslation();
 
-  const handleSearch = async () => {
+  const handleSearch = () => {
     startLoading();
-    await search(module, searchString);
+    search(module, searchString);
     finishLoading();
   }
 

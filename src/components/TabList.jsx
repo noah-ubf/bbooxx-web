@@ -13,6 +13,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import i18n from "i18next";
+import { CircularProgress } from "@mui/material";
 
 import {useAppContext} from "@lib/appContext";
 import TabNameDialog from '@components/TabNameDialog';
@@ -51,7 +52,7 @@ const TabList = () => {
     .filter((tab) => (
       tab
       && !tab.hidden
-      && (!['initial', 'collection'].includes(tab.id) || tab.verses.length > 0))
+      && (!['initial', 'collection'].includes(tab.id) || (tab.loaded && tab.verses.length > 0)))
     )
     .sort((a,b) => (a.locked ? a : b));
 
@@ -65,7 +66,6 @@ const TabList = () => {
   }
 
   const handleRename = (tab) => {
-    console.log({tab})
     setDialogProps([tab.id, tab.description, true]);
     setDialogOpen(true);
   }
@@ -84,11 +84,16 @@ const TabList = () => {
             <ListItem key={tab.id} disablePadding selected={tab.id === mobileActiveTab}>
               <ListItemButton>
                 <ListItemText primary={tr(tab.description)} onClick={() => toggleTab(tab.id)}/>
-                <ListItemIcon>
-                  {(tab.id !== 'collection' && tab.custom) && (
+                {(tab.id !== 'collection' && tab.custom) && (
+                  <ListItemIcon>
                     <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tab)}} />
-                  )}
-                </ListItemIcon>
+                  </ListItemIcon>
+                )}
+                {(tab.loaded === false) && (
+                  <ListItemIcon>
+                    <CircularProgress size={20} color={'grey'} />
+                  </ListItemIcon>
+                )}
                 <ListItemIcon>
                   { tab.locked
                     ? (['initial', 'collection'].includes(tab.id) ? <PushPinOutlinedIcon onClick={() => handlePin(tab)} /> : false)

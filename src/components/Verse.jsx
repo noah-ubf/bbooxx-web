@@ -52,9 +52,9 @@ const useStyles = makeStyles({
   }
 });
 
-const Verse = ({verse, onRemove}) => {
+const Verse = ({tab, vOrder, verse, onRemove}) => {
   const { t } = useTranslation();
-  const { handlers: { showReferences, copyToCollection, addToMemo } } = useAppContext();
+  const { handlers: { showReferences, copyToCollection, addToMemo, moveVerse } } = useAppContext();
   const { store: { showStrongs } } = useViewContext();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -83,11 +83,27 @@ const Verse = ({verse, onRemove}) => {
     setAnchorEl(null);
   }
 
+  const drag = (e) => e.dataTransfer.setData("text", e.target.id);
+  const drop = (e) => {
+    e.preventDefault();
+    const [srcType, ord, tabId] = e.dataTransfer.getData("text").split('__');
+    if (srcType === 'verse') {
+      moveVerse(tabId, ord, tab.id, vOrder);
+    }
+  }
+
   const open = Boolean(anchorEl);
 
   return (
-    <div key={verse.descriptor} className={classes.verse}>
-      <span aria-describedby={vid} className={classes.verseMenuToggler} onClick={handleClick}>
+    <div key={verse.descriptor} className={classes.verse} onDrop={drop}>
+      <span
+        aria-describedby={vid}
+        className={classes.verseMenuToggler}
+        onClick={handleClick}
+        draggable={!!tab.custom}
+        onDragStart={drag}
+        id={ ['verse', vOrder, tab.id].join('__') }
+      >
         {verse.num}
       </span>
       <span className={classes.verseContent}>

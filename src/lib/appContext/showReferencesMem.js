@@ -1,4 +1,3 @@
-import { fetchURI } from '@lib/requests';
 import getId from './getId';
 
 const mem = (
@@ -8,17 +7,15 @@ const mem = (
   return async (verse) => {
     const descriptor = `(${verse.module})`
       + verse.xrefs.map((x) => (x[2] === x[5] ? `${x[0]}.${x[1]}:${x[2]}` : `${x[0]}.${x[1]}:${x[2]}-${x[5]}`)).join(';');
-    const encodedDescriptor = encodeURIComponent(descriptor);
-    const data = await fetchURI(`text/${encodedDescriptor}`);
     const newTabId = getId();
 
     setTabs({
       ...tabs,
       [newTabId]: {
         id: newTabId,
-        descriptor,
+        source: {type: 'refs', descriptor},
+        loaded: false,
         description: {i18n: 'refs', params: {descriptor: verse.descriptor}},
-        verses: data
       }
     });
 
