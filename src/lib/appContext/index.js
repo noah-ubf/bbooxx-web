@@ -57,6 +57,7 @@ export const AppContextProvider = ({ children }) => {
   const [tabs, setTabs] = useState(initialTabs);
   const [areas, setAreas] = useState(initialAreas);
   const [mobileActiveTab, setMobileActiveTab] = useState(initialMobileActiveTab || 'modules');
+  const [lastActiveDataTab, setLastActiveDataTab] = useState('modules');
   
   window.localStorage.setItem('mobileActiveTab', mobileActiveTab);
   window.localStorage.setItem('tabs', JSON.stringify(cleanTabs(tabs)));
@@ -64,6 +65,7 @@ export const AppContextProvider = ({ children }) => {
 
   const setActiveTab = (tabId) => {
     setMobileActiveTab(tabId);
+    if (tabId !== 'tabs') setLastActiveDataTab(tabId);
     window.location.hash = `#${tabId}`;
   }
 
@@ -79,7 +81,7 @@ export const AppContextProvider = ({ children }) => {
   // console.log({areas, tabs, mobileActiveTab});
 
   const context = useMemo(() => {
-    const allData = {loaded, modules, tabs, areas, mobileActiveTab};
+    const allData = {loaded, modules, tabs, areas, mobileActiveTab, lastActiveDataTab};
     const allSetters = {setLoaded, setModules, setTabs, setAreas, setMobileActiveTab, setActiveTab};
 
     const loadText = (descriptor, description, tabId='initial') => {

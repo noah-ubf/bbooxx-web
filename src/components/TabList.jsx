@@ -41,7 +41,7 @@ const TabList = () => {
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
   const classes = useStyles();
   const {
-    store: { tabs, mobileActiveTab },
+    store: { tabs, mobileActiveTab, lastActiveDataTab },
     handlers: { cloneTab, closeTab, toggleTab, resetTabs, renameTab }
   } = useAppContext();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -81,7 +81,7 @@ const TabList = () => {
       <List>
         {
           tabsArray.map((tab) => (
-            <ListItem key={tab.id} disablePadding selected={tab.id === mobileActiveTab}>
+            <ListItem key={tab.id} disablePadding selected={tab.id === lastActiveDataTab}>
               <ListItemButton>
                 <ListItemText primary={tr(tab.description)} onClick={() => toggleTab(tab.id)}/>
                 {(tab.id !== 'collection' && tab.custom) && (
