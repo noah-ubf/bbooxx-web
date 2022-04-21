@@ -90,6 +90,7 @@ const Layout = () => {
   const rightColArea = areas.find((a) => a.id === 'rightCol');
   const bottomColArea = areas.find((a) => a.id === 'bottomCol');
   const isMobile = (docWidth <= sm);
+  const isDesktop = (docWidth > sm);
 
   useEffect(() => {
     if (!loaded) {
@@ -114,33 +115,37 @@ const Layout = () => {
     </div>
   );
 
-  return (
-    <div className={classes.layoutRoot}>
-      <div className={classes.menuWrapper}>
-        <MenuWrapper />
-      </div>
-      <div className={classes.content}>
-        <Sizer side="right" initialSize={300}>
-          <LayoutArea area={ leftColArea } />
-        </Sizer>
-        <div className={classes.centerCol}>
-          <div className={classes.centerTop}>
-            <LayoutArea area={ centerColArea } />
+  if (isDesktop) {
+    return (
+      <div className={classes.layoutRoot}>
+        <div className={classes.menuWrapper}>
+          <MenuWrapper />
+        </div>
+        <div className={classes.content}>
+          <Sizer side="right" initialSize={300}>
+            <LayoutArea area={ leftColArea } />
+          </Sizer>
+          <div className={classes.centerCol}>
+            <div className={classes.centerTop}>
+              <LayoutArea area={ centerColArea } />
+            </div>
+            <div className={classes.centerBottom}>
+              <Sizer side="top" initialSize={100}>
+                <LayoutArea area={ bottomColArea } />
+              </Sizer>
+            </div>
           </div>
-          <div className={classes.centerBottom}>
-            <Sizer side="top" initialSize={100}>
-              <LayoutArea area={ bottomColArea } />
+          <div className={classes.rightCol}>
+            <Sizer side="left" initialSize={200}>
+              <LayoutArea area={ rightColArea } />
             </Sizer>
           </div>
         </div>
-        <div className={classes.rightCol}>
-          <Sizer side="left" initialSize={200}>
-            <LayoutArea area={ rightColArea } />
-          </Sizer>
-        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return (<></>)
 }
 
 export default Layout;
