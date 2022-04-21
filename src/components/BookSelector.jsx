@@ -92,7 +92,8 @@ const BookSelector = ({module, book, openChapter=null, tabId, isOpen, onChapterS
           [...chapterRange].map((_, i) => (
             <div key={i}
               className={classNames(classes.chapter, {[classes.selectedChapter]: (+openChapter === i+1)})}
-              onClick={async () => {
+              onClick={async (e) => {
+                e.stopPropagation();
                 startLoading();
                 await loadChapter(module, book, i+1, tabId);
                 finishLoading();

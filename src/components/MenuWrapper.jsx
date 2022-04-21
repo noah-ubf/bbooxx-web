@@ -121,14 +121,15 @@ const MenuWrapper = ({children}) => {
 
   const [textSelectorAnchorEl, setTextSelectorAnchorEl] = useState(null);
   const handleShowTextSelector = (e) => {
+    e.stopPropagation();
     if (!tabs[mobileActiveTab] || !tabs[mobileActiveTab].verses) return;
     const hash = window.location.hash.split('/')[0];
     window.location.hash = `${hash}/textSelector`;
     setTextSelectorAnchorEl(e.currentTarget);
   }
-  const handleHideTextSelector = () => {
+  function handleHideTextSelector() {
+    // window.history.back();
     setTextSelectorAnchorEl(null);
-    window.history.back();
   }
   const textSelectorOpen = Boolean(textSelectorAnchorEl);
 

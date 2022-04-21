@@ -5,9 +5,10 @@ const mem = (
 ) => {
   return (descriptor) => {
     const parsed = parseDescriptor(descriptor);
-    if (parsed.length !== 1 || parsed[0].verses) return null; // only 1 chapter is supported
+    if (parsed.length !== 1) return null;
     const { module, book, chapter } = parsed[0];
     const currentModule = modules.find(m => m.BibleShortName === module);
+    if ((parsed[0].verses && parsed[0].verses[0] !== 1)) return null; // only 1 chapter is supported
     if (!currentModule) return null;
     const bookIndex = currentModule.books.findIndex((b) => b.FullName === book || b.ShortName.indexOf(book) !== -1);
     if (bookIndex === -1) return null;

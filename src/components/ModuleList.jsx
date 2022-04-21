@@ -11,7 +11,7 @@ const useStyles = makeStyles({
   },
 });
 
-const ModuleList = ({ tabId }) => {
+const ModuleList = ({ tabId, onChapterSelected }) => {
   const { store: { loaded, modules }, handlers: { fetchModules } } = useAppContext();
   const classes = useStyles();
 
@@ -25,7 +25,7 @@ const ModuleList = ({ tabId }) => {
     {
       modules.map((module) => (
         <div key={module.BibleShortName}>
-          <ModuleSelector module={module} tabId={tabId}/>
+          <ModuleSelector module={module} tabId={tabId} onChapterSelected={onChapterSelected} />
         </div>
       ))
     }

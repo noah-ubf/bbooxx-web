@@ -44,7 +44,7 @@ export const getDescriptorFromList = (verses) => {
   return compactDescriptor(verses.map(v => v.descriptor).join(';'));
 }
 
-export function compactDescriptor(descriptor) {
+export function compactDescriptor(descriptor, ) {
   const list = parseDescriptor(descriptor);
   let res = [];
 
