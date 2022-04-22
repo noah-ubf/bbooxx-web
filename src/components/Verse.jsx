@@ -88,7 +88,7 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
     e.preventDefault();
     const [srcType, ord, tabId] = e.dataTransfer.getData("text").split('__');
     if (srcType === 'verse') {
-      moveVerse(tabId, ord, tab.id, vOrder);
+      moveVerse(tabId, parseInt(ord), tab.id, vOrder);
     }
   }
 
@@ -126,12 +126,13 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
           </ListItemIcon>
           <ListItemText>{t('crossrefs')}</ListItemText>
         </MenuItem>
-        <MenuItem onClick={handleCopyToCollection}>
-          <ListItemIcon>
-            <PlaylistAddIcon/>
-          </ListItemIcon>
-          <ListItemText>{t('copyToCollection')}</ListItemText>
-        </MenuItem>
+        { tab.id !== 'collection' && <MenuItem onClick={handleCopyToCollection}>
+            <ListItemIcon>
+              <PlaylistAddIcon/>
+            </ListItemIcon>
+            <ListItemText>{t('copyToCollection')}</ListItemText>
+          </MenuItem>
+        }
         <MenuItem onClick={handleAddToMemo}>
           <ListItemIcon>
             <NoteAddIcon/>

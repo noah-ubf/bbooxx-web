@@ -84,16 +84,18 @@ const Layout = () => {
   const theme = useTheme();
   const sm = +theme.breakpoints.values.sm;
   const classes = useStyles();
-  const { store: { loaded, areas }, handlers: { loadText } } = useAppContext();
+  const { store: { loaded, areas }, handlers: { loadText, fetchModules } } = useAppContext();
   const leftColArea = areas.find((a) => a.id === 'leftCol');
   const centerColArea = areas.find((a) => a.id === 'centerCol');
   const rightColArea = areas.find((a) => a.id === 'rightCol');
   const bottomColArea = areas.find((a) => a.id === 'bottomCol');
-  const isMobile = (docWidth <= sm);
-  const isDesktop = (docWidth > sm);
+  const isMobile = loaded && (docWidth <= sm);
+  const isDesktop = loaded && (docWidth > sm);
 
   useEffect(() => {
     if (!loaded) {
+      fetchModules();
+
       const searchParams = new URLSearchParams(window.location.search);
       const descriptor = searchParams.get('text');
       const description = searchParams.get('title') || descriptor;

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useAppContext } from "@lib/appContext";
 import ModuleSelector from "@components/ModuleSelector";
 import { makeStyles } from "@mui/styles";
@@ -12,14 +11,8 @@ const useStyles = makeStyles({
 });
 
 const ModuleList = ({ tabId, onChapterSelected }) => {
-  const { store: { loaded, modules }, handlers: { fetchModules } } = useAppContext();
+  const { store: { modules } } = useAppContext();
   const classes = useStyles();
-
-  useEffect(() => {
-    if ( !loaded ) {
-      fetchModules();
-    }
-  });
 
   return <div className={classes.moduleList}>
     {

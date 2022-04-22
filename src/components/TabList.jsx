@@ -52,7 +52,7 @@ const TabList = () => {
     .filter((tab) => (
       tab
       && !tab.hidden
-      && (!['initial', 'collection'].includes(tab.id) || (tab.loaded && tab.verses.length > 0)))
+      && (!['initial', 'collection'].includes(tab.id) || (!!tab.descriptor)))
     )
     .sort((a,b) => (a.locked ? a : b));
 

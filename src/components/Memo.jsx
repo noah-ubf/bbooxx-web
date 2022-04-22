@@ -59,7 +59,7 @@ const Memo = ({value, onChange}) => {
 
   const createState = (html='', editorState=null) => {
     const selectionState = editorState && editorState.getSelection();
-    console.log({selectionState});
+    // console.log({selectionState});
     const contentBlock = htmlToDraft(html);
     const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
     const newState = EditorState.createWithContent(contentState);

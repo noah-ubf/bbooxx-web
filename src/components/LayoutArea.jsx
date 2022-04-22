@@ -71,8 +71,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+// const isInitial = (tab) => ['initial'].includes(tab.id);
 const isBasic = (tab) => ['initial', 'collection'].includes(tab.id);
-const hasVerses = (tab) => (tab.loaded && tab.verses.length > 0)
+const hasVerses = (tab) => (!!tab.descriptor)
 
 const LayoutArea = ({ area }) => {
   const { t } = useTranslation();

@@ -10,7 +10,7 @@ import nearChapterDescriptorsMem from './nearChapterDescriptorsMem';
 import moveTabMem from './moveTabMem';
 import toggleTabMem from './toggleTabMem';
 import { defaultTabs, defaultAreas } from './defaults';
-import { getDescriptorFromList } from "@lib/descriptor";
+import { loadTabContent } from './helpers';
 
 const AppContext = createContext({});
 
@@ -78,8 +78,6 @@ export const AppContextProvider = ({ children }) => {
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  // console.log({areas, tabs, mobileActiveTab});
-
   const context = useMemo(() => {
     const allData = {loaded, modules, tabs, areas, mobileActiveTab, lastActiveDataTab};
     const allSetters = {setLoaded, setModules, setTabs, setAreas, setMobileActiveTab, setActiveTab};
@@ -108,43 +106,8 @@ export const AppContextProvider = ({ children }) => {
         showReferences: showReferencesMem(allData, allSetters),
         moveTab: moveTabMem(allData, allSetters),
         loadTabContent: async (tabId) => {
-          if (tabs[tabId].loaded === false) {
-            const {source, descriptor} = tabs[tabId];
-            switch(source && source.type) {
-              case 'search': {
-                const data = await fetchURI(`modules/${source.module}/search/${encodeURIComponent(source.text)}`);
-                const tab = {
-                  ...tabs[tabId],
-                  loaded: true,
-                  descriptor: getDescriptorFromList(data),
-                  verses: data
-                };
-                setTabs({...tabs, [tabId]: tab});
-                break;
-              }
-              case 'refs': {
-                const data = await fetchURI(`text/${encodeURIComponent(source.descriptor)}`);
-                const tab = {
-                  ...tabs[tabId],
-                  loaded: true,
-                  descriptor: getDescriptorFromList(data),
-                  verses: data
-                }
-                          break;
-              }
-              default: {
-                const data = await fetchURI(`text/${encodeURIComponent(descriptor)}`);
-                const tab = {
-                  ...tabs[tabId],
-                  loaded: true,
-                  descriptor: getDescriptorFromList(data),
-                  verses: data
-                };
-                setTabs({...tabs, [tabId]: tab});
-                break;
-              }
-            }
-          }
+          const newTab = await loadTabContent(tabs[tabId]);
+          setTabs({...tabs, [tabId]: newTab});
         },
 
         fetchModules: async () => {
@@ -189,14 +152,15 @@ export const AppContextProvider = ({ children }) => {
           }
         },
 
-        copyToCollection: (verse, tabId='collection') => {
+        copyToCollection: async (verse, tabId='collection') => {
           const descr = tabs[tabId].descriptor;
           setTabs({
             ...tabs,
             [tabId]: {
               ...tabs[tabId],
               descriptor: descr ? [descr, verse.descriptor].join(';') : verse.descriptor,
-              verses: [...tabs[tabId].verses, verse],
+              loaded: false,
+              // verses: [...tabs[tabId].verses, verse],
             }
           });
         },
@@ -215,30 +179,42 @@ export const AppContextProvider = ({ children }) => {
         },
 
         moveVerse: (tabIdFrom, pos, tabIdTo, posTo=-1) => {
+          console.log('moveVerse: ', {tabIdFrom, pos, tabIdTo, posTo})
           const verse = tabs[tabIdFrom].verses[pos];
           if (!verse) return;
           const newVersesFrom = tabs[tabIdFrom].verses.filter((v, i) => (i !== pos));
-          const newVersesTo = posTo === -1
-            ? [...tabs[tabIdTo].verses, verse]
-            : [...tabs[tabIdTo].verses.slice(0, posTo), verse, ...tabs[tabIdTo].verses.slice(posTo)];
+          let versesTo = tabs[tabIdTo].verses;
+          if (tabIdFrom === tabIdTo) {
+            if (posTo >= pos) posTo--;
+            versesTo = newVersesFrom;
+          }
 
-          setTabs({
+          const newVersesTo = posTo === -1
+            ? [...versesTo, verse]
+            : [...versesTo.slice(0, posTo), verse, ...versesTo.slice(posTo)];
+
+          const newTabs = {
             ...tabs,
-            [tabIdFrom]: {
-              ...tabs[tabIdFrom],
-              descriptor: newVersesFrom.map(({descriptor}) => descriptor).join(';'),
-              verses: newVersesFrom,
-            },
             [tabIdTo]: {
               ...tabs[tabIdTo],
               descriptor: newVersesTo.map(({descriptor}) => descriptor).join(';'),
               verses: newVersesTo,
+            },
+          }
+
+          if (tabIdFrom !== tabIdTo) {
+            newTabs[tabIdFrom] = {
+              ...tabs[tabIdFrom],
+              descriptor: newVersesFrom.map(({descriptor}) => descriptor).join(';'),
+              verses: newVersesFrom,
             }
-          });
+          }
+          console.log({tabs, newVersesFrom, newVersesTo, newTabs})
+
+          setTabs(newTabs);
         },
 
         addToMemo: (verse) => {
-          console.log({verse, memo: tabs.memo.content});
           setTabs({
             ...tabs,
             memo: {

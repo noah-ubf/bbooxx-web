@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 100,
   },
   bottomSpace: {
-    // background: '#ddddff',
+    background: 'linear-gradient(to bottom, #ddddff, #ffffff)',
     height: '10vh',
     paddingTop: '10vh',
 
@@ -75,22 +75,21 @@ const VerseList = ({tab, onRemove}) => {
   const classes = useStyles();
   let descriptor = null;
   const ref = useRef();
-  const {verses=[]} = tab;
-
-  if (!tab.loaded) {
-    setTimeout(() => loadTabContent(tab.id), 0)
-  }
+  const { verses=[] } = tab;
 
   useEffect(() => {
+    if (!tab.loaded) {
+      setTimeout(() => loadTabContent(tab.id), 0)
+    }
     window.scrollTo(0, 0);
     if (ref.current) ref.current.scrollTop = 0;
-  }, [verses])
+  }, [verses, tab, loadTabContent])
 
   const drop = (e) => {
     e.preventDefault();
     const [srcType, ord, tabId] = e.dataTransfer.getData("text").split('__');
     if (srcType === 'verse') {
-      moveVerse(tabId, ord, tab.id);
+      moveVerse(tabId, parseInt(ord), tab.id);
       console.log(`Move verse ${ord} from ${tabId} to ${tab.id} at -1`)
     }
   }
