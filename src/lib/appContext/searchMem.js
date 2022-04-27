@@ -9,9 +9,9 @@ const mem = (
     const newTabId = getId();
     const newTab = {
       id: newTabId,
-      source: {type: 'search', module: module.BibleShortName, text},
+      source: {type: 'search', module: module.shortName, text},
       loaded: false,
-      description: {i18n: 'searchResults', params: {module: module.BibleShortName, text}},
+      description: {i18n: 'searchResults', params: {module: module.shortName, text}},
     };
     setTabs({...tabs, [newTabId]: newTab});
     setAreas(areas.map((area) => (

@@ -157,7 +157,7 @@ const MenuWrapper = ({children}) => {
     return [parts[1], parts[2], parts[3]];
   }
   const [currentModuleName, currentBook, currentChapter] = getCurrentScripture();
-  const currentModule = modules.find(m => m.BibleShortName === currentModuleName);
+  const currentModule = modules.find(m => m.shortName === currentModuleName);
 
   const nearest = getNearChapterDescriptors(descriptor);
 

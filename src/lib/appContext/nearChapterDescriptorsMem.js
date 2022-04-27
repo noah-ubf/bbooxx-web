@@ -7,19 +7,19 @@ const mem = (
     const parsed = parseDescriptor(descriptor);
     if (parsed.length !== 1) return null;
     const { module, book, chapter, verses } = parsed[0];
-    const currentModule = modules.find(m => m.BibleShortName === module);
+    const currentModule = modules.find(m => m.shortName === module);
     if (!!verses) return null; // only 1 chapter is supported
     if (!currentModule) return null;
-    const bookIndex = currentModule.books.findIndex((b) => b.FullName === book || b.ShortName.indexOf(book) !== -1);
+    const bookIndex = currentModule.books.findIndex((b) => b.name === book || b.shortName.indexOf(book) !== -1);
     if (bookIndex === -1) return null;
 
     const prev = chapter > 1
       ? { bookIndex, chapter: chapter - 1 }
       : bookIndex === 0
         ? null
-        : { bookIndex: bookIndex-1, chapter: currentModule.books[bookIndex-1].ChapterQty };
+        : { bookIndex: bookIndex-1, chapter: currentModule.books[bookIndex-1].chapterQty };
 
-    const next = chapter < currentModule.books[bookIndex].ChapterQty
+    const next = chapter < currentModule.books[bookIndex].chapterQty
       ? { bookIndex, chapter: chapter + 1 }
       : bookIndex === currentModule.books.length - 1
         ? null
@@ -27,14 +27,14 @@ const mem = (
 
     const prevBook = prev && currentModule.books[prev.bookIndex];
     const nextBook = next && currentModule.books[next.bookIndex];
-    const prevDescriptor = prev && `(${module})${prevBook.FullName}.${prev.chapter}`;
-    const nextDescriptor = next && `(${module})${nextBook.FullName}.${next.chapter}`;
-    const chapterCount = currentModule.books[bookIndex].ChapterQty;
+    const prevDescriptor = prev && `(${module})${prevBook.name}.${prev.chapter}`;
+    const nextDescriptor = next && `(${module})${nextBook.name}.${next.chapter}`;
+    const chapterCount = currentModule.books[bookIndex].chapterQty;
 
     return {
-      prev: prev && {module, book: prevBook.FullName, chapter: prev.chapter, descriptor: prevDescriptor},
+      prev: prev && {module, book: prevBook.name, chapter: prev.chapter, descriptor: prevDescriptor},
       current: {module, book, chapter, descriptor, chapterCount},
-      next: next && {module, book: nextBook.FullName, chapter: next.chapter, descriptor: nextDescriptor},
+      next: next && {module, book: nextBook.name, chapter: next.chapter, descriptor: nextDescriptor},
     };
   }
 }

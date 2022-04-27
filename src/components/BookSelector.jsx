@@ -1,6 +1,7 @@
-import { Container } from "@mui/material";
+import { Container,Input } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { makeStyles } from "@mui/styles";
+import { useTranslation } from "react-i18next";
 
 import {useAppContext} from "@lib/appContext";
 import classNames from "classnames";
@@ -64,18 +65,29 @@ const useStyles = makeStyles((theme) => ({
   },
   selectedChapter: {
     background: '#ddddff',
-  }
+  },
+  wideChapter: {
+    width: '3rem',
+    fontSize: '.75rem',
+  },
 }));
 
 const BookSelector = ({module, book, openChapter=null, tabId, isOpen, onChapterSelected}) => {
   const [open, setOpen] = useState(isOpen);
+  const [searchString, setSearchString] = useState('');
+  const { t } = useTranslation();
   const classes = useStyles();
   const ref = useRef();
   const { handlers: { startLoading, finishLoading } } = useViewContext();
 
   const { handlers: { loadChapter } } = useAppContext();
 
-  const chapterRange = [...Array(parseInt(book.ChapterQty, 10))].keys();
+  const chapterQty = parseInt(book.chapterQty, 10);
+  const chapterRange = [...Array(chapterQty+1).keys()]
+    .filter((i) => book.chapterZero ? true : (i>0))
+    .filter((i) => (!searchString || `${i}`.indexOf(searchString) !== -1))
+    .filter((i, j) => (j < 200));
+
 
   useEffect(() => {
     if (isOpen) {
@@ -85,22 +97,38 @@ const BookSelector = ({module, book, openChapter=null, tabId, isOpen, onChapterS
 
   return (
     <div className={classes.bookSelector} ref={ref}>
-      <Container className={classes.book} onClick={() => setOpen(!open)}>{ book.FullName }</Container>
+      <Container className={classes.book} onClick={() => setOpen(!open)}>{ book.name }</Container>
+      {
+        chapterQty > 200 && open &&
+        <div className={classes.searchWrapper}>
+          <Input 
+            className={classes.searchInput}
+            onChange={(e) => setSearchString(e.target.value)}
+            placeholder={t('search')}
+          />
+        </div>
+      }
       { open &&
         <div className={classes.content}>
         {
-          [...chapterRange].map((_, i) => (
+          [...chapterRange].map((i) => (
             <div key={i}
-              className={classNames(classes.chapter, {[classes.selectedChapter]: (+openChapter === i+1)})}
+              className={classNames(
+                classes.chapter,
+                {
+                  [classes.selectedChapter]: (+openChapter === i),
+                  [classes.wideChapter]: chapterQty > 999,
+                }
+              )}
               onClick={async (e) => {
                 e.stopPropagation();
                 startLoading();
-                await loadChapter(module, book, i+1, tabId);
+                await loadChapter(module, book, i, tabId);
                 finishLoading();
-                if (onChapterSelected) onChapterSelected(module, book, i+1);
+                if (onChapterSelected) onChapterSelected(module, book, i);
               }}
             >
-              { (i+1) }
+              { i }
             </div>
           ))
         }

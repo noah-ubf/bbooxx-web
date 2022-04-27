@@ -1,7 +1,7 @@
 import { makeStyles } from "@mui/styles";
 
 import Verse from "@components/Verse";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "@lib/appContext";
 import { CircularProgress } from "@mui/material";
 
@@ -55,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   bottomSpace: {
     background: 'linear-gradient(to bottom, #ddddff, #ffffff)',
     height: '10vh',
-    paddingTop: '10vh',
+    paddingBottom: '10vh',
 
     [theme.breakpoints.down('sm')]: {
       height: '80vh',
@@ -64,7 +64,11 @@ const useStyles = makeStyles((theme) => ({
   progress: {
     textAlign: 'center',
     marginTop: '5vh',
-  }
+  },
+  dropArea: {
+    height: 10,
+    background: '#99d5cc',
+  },
 }));
 
 const PAGE_SIZE = 300;
@@ -75,7 +79,8 @@ const VerseList = ({tab, onRemove}) => {
   const classes = useStyles();
   let descriptor = null;
   const ref = useRef();
-  const { verses=[] } = tab;
+  const { verses=[], custom } = tab;
+  const [dragOver, setDragOver] = useState(false);
 
   useEffect(() => {
     if (!tab.loaded) {
@@ -85,49 +90,91 @@ const VerseList = ({tab, onRemove}) => {
     if (ref.current) ref.current.scrollTop = 0;
   }, [verses, tab, loadTabContent])
 
-  const drop = (e) => {
+  const handleDrop = (e) => {
     e.preventDefault();
     const [srcType, ord, tabId] = e.dataTransfer.getData("text").split('__');
     if (srcType === 'verse') {
-      moveVerse(tabId, parseInt(ord), tab.id);
-      console.log(`Move verse ${ord} from ${tabId} to ${tab.id} at -1`)
+      moveVerse(tabId, parseInt(ord), tab.id, dragOver);
+      console.log(`Move verse ${ord} from ${tabId} to ${tab.id} at ${dragOver}`)
     }
+    setDragOver(false);
   }
+
+  const handleDragEnter = (i) => ((e) => {
+    console.log(`Enter ${i}`, e.target)
+    if (custom && isVerse(e)) setDragOver(i);
+  });
+
+  const handleDragLeave = (i) =>((e) => {
+    console.log(`Leave ${i}`, e.target)
+    if (dragOver === i) setDragOver(false);
+  })
+
+  const preventDragLeave = (e) => e.stopPropagation();
 
   const getCurrentPage = () => {
     return verses.filter((v,i) => (i<PAGE_SIZE));
   }
 
-  return <div className={classes.verseList}>
-    {/* <div>
-      <Input onKeyDown={keyDown}/>
-      <IconButton type="submit" className={classes.iconButton} aria-label="search">
-        <SearchIcon />
-      </IconButton>
-    </div> */}
+  const isVerse = (e) => {
+    const [srcType, ord, tabId] = e.dataTransfer.getData("text").split('__');
+    console.log('TEXT:', e.dataTransfer.getData("text"));
+    return (srcType === 'verse');
+  }
 
-    <div className={classes.content} ref={ref}>
-    {
-      tab.loaded
-      ? getCurrentPage().map((verse, i) => {
-        const descr = descriptor;
-        descriptor = `(${verse.module})${verse.book}.${verse.chapter}`;
+  return (
+    <div className={classes.verseList}>
+      {/* <div>
+        <Input onKeyDown={keyDown}/>
+        <IconButton type="submit" className={classes.iconButton} aria-label="search">
+          <SearchIcon />
+        </IconButton>
+      </div> */}
 
-        return [
-          (
-            descr === descriptor ? null
-            : <div key={descriptor} className={classes.descriptor}><span className={classes.descriptorContent}>{descriptor}</span></div>
-          ),
-          (<Verse key={verse.descriptor} tab={tab} vOrder={i} verse={verse} onRemove={onRemove && (() => onRemove(i))}/>),
-        ];
-      })
-      : <div className={classes.progress}><CircularProgress /></div>
-    }
-    <div className={classes.bottomSpace} onDrop={drop}>
-      {(tab.loaded && verses.length > PAGE_SIZE) ? `(${PAGE_SIZE} of ${verses.length} shown)` : ''}
+      <div className={classes.content} ref={ref}>
+        {
+          tab.loaded
+          ? getCurrentPage().map((verse, i) => {
+            const descr = descriptor;
+            descriptor = `(${verse.module})${verse.book}.${verse.chapter}`;
+
+            return (
+              <div
+                key={i}
+                onDrop={handleDrop}
+                onDragEnter={handleDragEnter(i)}
+                onDragLeave={handleDragLeave(i)}
+              >
+                {dragOver===i && <div className={classes.dropArea} onDragLeave={preventDragLeave}></div>}
+                { descr !== descriptor &&
+                  <div className={classes.descriptor} onDragLeave={preventDragLeave}>
+                    <span className={classes.descriptorContent}>{descriptor}</span>
+                  </div>
+                }
+                <div onDragLeave={preventDragLeave}>
+                  <Verse
+                    tab={tab}
+                    vOrder={i}
+                    verse={verse}
+                    onRemove={onRemove && (() => onRemove(i))}
+                  />
+                </div>
+              </div>
+          )})
+          : <div className={classes.progress}><CircularProgress /></div>
+        }
+        <div
+          className={classes.bottomSpace}
+          onDrop={handleDrop}
+          onDragEnter={handleDragEnter(-1)}
+          onDragLeave={handleDragLeave(-1)}
+        >
+          { dragOver===-1 && <div className={classes.dropArea}></div> }
+          {(tab.loaded && verses.length > PAGE_SIZE) ? `(${PAGE_SIZE} of ${verses.length} shown)` : ''}
+        </div>
+      </div>
     </div>
-    </div>
-  </div>
+  );
 }
 
 export default VerseList;

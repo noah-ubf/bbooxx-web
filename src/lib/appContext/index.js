@@ -119,7 +119,7 @@ export const AppContextProvider = ({ children }) => {
         },
 
         loadChapter: async (module, book, chapter, tabId='initial') => {
-          const descriptor = `(${module.BibleShortName})${book.FullName}.${chapter}`;
+          const descriptor = `(${module.shortName})${book.name}.${chapter}`;
           return loadText(descriptor, descriptor, tabId);
         },
 
@@ -180,9 +180,12 @@ export const AppContextProvider = ({ children }) => {
 
         moveVerse: (tabIdFrom, pos, tabIdTo, posTo=-1) => {
           console.log('moveVerse: ', {tabIdFrom, pos, tabIdTo, posTo})
+          if (!tabs[tabIdTo].custom) return;
           const verse = tabs[tabIdFrom].verses[pos];
           if (!verse) return;
-          const newVersesFrom = tabs[tabIdFrom].verses.filter((v, i) => (i !== pos));
+          const newVersesFrom = tabs[tabIdFrom].custom
+            ? tabs[tabIdFrom].verses.filter((v, i) => (i !== pos))
+            : tabs[tabIdFrom].verses;
           let versesTo = tabs[tabIdTo].verses;
           if (tabIdFrom === tabIdTo) {
             if (posTo >= pos) posTo--;

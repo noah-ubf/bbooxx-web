@@ -39,6 +39,7 @@ const useStyles = makeStyles({
     padding: '0 .2rem 0 0',
     textAlign: 'right',
     width: '30px !important',
+    touchAction: 'none',
 
     '&:hover': {
       background: '#ccccee',
@@ -49,15 +50,16 @@ const useStyles = makeStyles({
     flexGrow: 100,
     flexShrink: 100,
     padding: '.5rem .5rem .5rem .2rem',
-  }
+  },
 });
 
 const Verse = ({tab, vOrder, verse, onRemove}) => {
   const { t } = useTranslation();
-  const { handlers: { showReferences, copyToCollection, addToMemo, moveVerse } } = useAppContext();
+  const { handlers: { showReferences, copyToCollection, addToMemo } } = useAppContext();
   const { store: { showStrongs } } = useViewContext();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [draggable, setDraggable] = useState(false);
   const [vid] = useState(getVID());
 
   const handleClick = (event) => {
@@ -83,48 +85,50 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
     setAnchorEl(null);
   }
 
-  const drag = (e) => e.dataTransfer.setData("text", e.target.id);
-  const drop = (e) => {
-    e.preventDefault();
-    const [srcType, ord, tabId] = e.dataTransfer.getData("text").split('__');
-    if (srcType === 'verse') {
-      moveVerse(tabId, parseInt(ord), tab.id, vOrder);
-    }
+  const handleRemove = (e) => {
+    onRemove();
+    setAnchorEl(null);
   }
+
+  const drag = (e) => e.dataTransfer.setData("text", e.target.id);
 
   const open = Boolean(anchorEl);
 
   return (
-    <div key={verse.descriptor} className={classes.verse} onDrop={drop}>
+    <div
+      key={verse.descriptor}
+      className={classes.verse}
+      draggable={draggable}
+      onDragStart={drag}
+      id={ ['verse', vOrder, tab.id].join('__') }
+    >
       <span
         aria-describedby={vid}
         className={classes.verseMenuToggler}
         onClick={handleClick}
-        draggable={!!tab.custom}
-        onDragStart={drag}
-        id={ ['verse', vOrder, tab.id].join('__') }
+        onMouseEnter={() => setDraggable(true)}
+        onMouseLeave={() => setDraggable(false)}
       >
         {verse.num}
       </span>
       <span className={classes.verseContent}>
         <LexemList lexems={verse.lexems} displayStrong={showStrongs}/>
       </span>
-
       <Menu
-        id={vid}
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-       <MenuItem onClick={handleShowReferences}>
-          <ListItemIcon>
-            <LinkIcon/>
-          </ListItemIcon>
-          <ListItemText>{t('crossrefs')}</ListItemText>
+          id={vid}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleClose}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+        <MenuItem onClick={handleShowReferences}>
+            <ListItemIcon>
+              <LinkIcon/>
+            </ListItemIcon>
+            <ListItemText>{t('crossrefs')}</ListItemText>
         </MenuItem>
         { tab.id !== 'collection' && <MenuItem onClick={handleCopyToCollection}>
             <ListItemIcon>
@@ -140,7 +144,7 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
           <ListItemText>{t('addToMemo')}</ListItemText>
         </MenuItem>
         { onRemove &&
-          <MenuItem onClick={onRemove}>
+          <MenuItem onClick={handleRemove}>
             <ListItemIcon>
               <PlaylistRemoveIcon color={'warning'}/>
             </ListItemIcon>

@@ -17,7 +17,7 @@ const ModuleList = ({ tabId, onChapterSelected }) => {
   return <div className={classes.moduleList}>
     {
       modules.map((module) => (
-        <div key={module.BibleShortName}>
+        <div key={module.shortName}>
           <ModuleSelector module={module} tabId={tabId} onChapterSelected={onChapterSelected} />
         </div>
       ))

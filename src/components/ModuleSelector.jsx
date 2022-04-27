@@ -78,7 +78,7 @@ const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, openChapter
 
   return (
     <div className={classes.moduleSelector}>
-      <div className={classes.module} onClick={() => setOpen(!open)}>{ module.BibleName }</div>
+      <div className={classes.module} onClick={() => setOpen(!open)}>{ module.name }</div>
       { open &&
         <div className={classes.content}>
           <div className={classes.searchWrapper}>
@@ -101,10 +101,10 @@ const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, openChapter
               <BookSelector key={i}
                 module={module}
                 book={book}
-                isOpen={book.FullName === openBook || book.ShortName.indexOf(openBook) !== -1}
+                isOpen={book.name === openBook || book.shortName.indexOf(openBook) !== -1}
                 tabId={tabId}
                 onChapterSelected={onChapterSelected}
-                openChapter={(book.FullName === openBook || book.ShortName.indexOf(openBook) !== -1) ? openChapter : null}
+                openChapter={(book.name === openBook || book.shortName.indexOf(openBook) !== -1) ? openChapter : null}
               />
             ))
           }
