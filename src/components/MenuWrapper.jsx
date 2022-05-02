@@ -1,6 +1,6 @@
 import { makeStyles } from "@mui/styles";
 import classNames from "classnames";
-// import NumbersIcon from '@mui/icons-material/Numbers';
+import NumbersIcon from '@mui/icons-material/Numbers';
 // import { IconButton } from "@mui/material";
 // import MenuBookIcon from '@mui/icons-material/MenuBook';
 import StorageIcon from '@mui/icons-material/Storage';
@@ -15,7 +15,7 @@ import Popover from '@mui/material/Popover';
 import { useSprings, animated } from '@react-spring/web'
 import { useDrag } from '@use-gesture/react'
 
-// import { useViewContext } from "@lib/viewContext";
+import { useViewContext } from "@lib/viewContext";
 import { useAppContext } from "@lib/appContext";
 import { IconButton } from "@mui/material";
 import US from "@ressources/US.png";
@@ -110,7 +110,7 @@ const MenuWrapper = ({children}) => {
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
   const classes = useStyles();
   const ref = useRef();
-  // const { store: { showStrongs }, handlers: { toggleStrongs } } = useViewContext();
+  const { store: { showStrongs }, handlers: { toggleStrongs } } = useViewContext();
   const {
     store: { modules, mobileActiveTab, tabs },
     getters: { getNearChapterDescriptors },
@@ -231,9 +231,6 @@ const MenuWrapper = ({children}) => {
 
   return (
     <div ref={ref} className={classes.menuWrapper}>
-      {/* <IconButton onClick={toggleStrongs} >
-        <NumbersIcon color={showStrongs ? 'secondary' : 'action'} />
-      </IconButton> */}
       {/* <span
         className={classNames(classes.menuButton, classes.mobile)}
         onClick={() => setAppView(mobileAppView === 'menu' ? 'content' : 'menu')}
@@ -277,6 +274,10 @@ const MenuWrapper = ({children}) => {
         </div>
       }
 
+      <IconButton onClick={toggleStrongs} >
+        <NumbersIcon color={showStrongs ? 'secondary' : 'action'} />
+      </IconButton>
+
       <div className={classes.childrenWrapper}>
         {children}
       </div>
@@ -311,7 +312,7 @@ const MenuWrapper = ({children}) => {
       </IconButton>
 
       {
-        percentage && <div className={classes.progressWrapper}>
+        !!percentage && <div className={classes.progressWrapper}>
           <div className={classes.progress} style={{width: `${percentage}%`}}></div>
         </div>
       }

@@ -55,7 +55,7 @@ const useStyles = makeStyles({
 
 const Verse = ({tab, vOrder, verse, onRemove}) => {
   const { t } = useTranslation();
-  const { handlers: { showReferences, copyToCollection, addToMemo } } = useAppContext();
+  const { handlers: { showReferences, copyToCollection, addToMemo, loadStrongs } } = useAppContext();
   const { store: { showStrongs } } = useViewContext();
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -90,7 +90,15 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
     setAnchorEl(null);
   }
 
-  const drag = (e) => e.dataTransfer.setData("text", e.target.id);
+  const handleDisplayStrongs = (strongsNum) => {
+    console.log('STRONGS:', strongsNum)
+    loadStrongs(strongsNum);
+  }
+
+  const drag = (e) => {
+    console.log(e, e.target.innerText);
+    e.dataTransfer.setData("verseId", e.target.id);
+  }
 
   const open = Boolean(anchorEl);
 
@@ -100,7 +108,7 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
       className={classes.verse}
       draggable={draggable}
       onDragStart={drag}
-      id={ ['verse', vOrder, tab.id].join('__') }
+      id={ [vOrder, tab.id].join(':') }
     >
       <span
         aria-describedby={vid}
@@ -112,7 +120,7 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
         {verse.num}
       </span>
       <span className={classes.verseContent}>
-        <LexemList lexems={verse.lexems} displayStrong={showStrongs}/>
+        <LexemList lexems={verse.lexems} displayStrong={showStrongs ? handleDisplayStrongs : null}/>
       </span>
       <Menu
           id={vid}

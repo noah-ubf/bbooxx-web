@@ -1,10 +1,7 @@
-const mem = (
-  {areas, tabs, mobileActiveTab},
-  {setAreas, setActiveTab, setTabs}
-) => {
+const mem = ( allData, setAllData ) => {
   return (tabId) => {
     let newActiveTab;
-    setAreas(areas.map((area) => {
+    const newAreas = allData.areas.map((area) => {
       if (area.tabIds.indexOf(tabId) !== -1) {
         const newTabs = area.tabIds.filter((t) => (t !== tabId));
         if (area.activeTab !== tabId) {
@@ -14,13 +11,21 @@ const mem = (
         return { ...area, tabIds: newTabs, activeTab: newActiveTab }
       }
       return area;
-    }));
-    const newTabs = {};
-    Object.keys(tabs).forEach((key) => {
-      if (key !== tabId) newTabs[key] = tabs[key];
     });
-    if (mobileActiveTab !== 'tabs') setActiveTab(newActiveTab);
-    setTabs(newTabs);
+    const newTabs = {};
+    Object.keys(allData.tabs).forEach((key) => {
+      if (key !== tabId) newTabs[key] = allData.tabs[key];
+    });
+
+    setAllData({
+      ...allData,
+      tabs: newTabs,
+      areas: newAreas,
+      mobileActiveTab: newActiveTab,
+      lastActiveDataTab: (allData.mobileActiveTab !== 'tabs') ? newActiveTab.id: allData.lastActiveDataTab,
+    });
+    window.location.hash = `#${tabId}`;
+
   }
 }
 

@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
 
 const TabContent = ({tabId}) => {
   const classes = useStyles();
-  const { store: { tabs }, handlers: { updateMemo, toggleTab, removeVerse } } = useAppContext();
+  const { store: { tabs, mobileActiveTab }, handlers: { updateMemo, toggleTab, removeVerse } } = useAppContext();
   const ref = useRef();
   const xxx = tabs[tabId] ? tabs[tabId].verses : tabId;
 
@@ -51,7 +51,7 @@ const TabContent = ({tabId}) => {
   );
 
   const handleFocus = () => {
-    toggleTab(tabId);
+    if (tabId !== mobileActiveTab) toggleTab(tabId);
   }
 
   switch(tabs[tabId].type) {

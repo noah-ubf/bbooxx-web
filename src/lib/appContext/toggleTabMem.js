@@ -1,12 +1,14 @@
-const mem = (
-  {areas},
-  {setAreas, setActiveTab}
-) => {
+const mem = ( allData, setAllData ) => {
   return (tabId) => {
-    setAreas(areas.map((area) => (
-      area.tabIds.includes(tabId) ? { ...area, activeTab: tabId } : area
-    )));
-    setActiveTab(tabId);
+    setAllData({
+      ...allData,
+      areas: allData.areas.map((area) => (
+        area.tabIds.includes(tabId) ? { ...area, activeTab: tabId } : area
+      )),
+      mobileActiveTab: tabId,
+      lastActiveDataTab: (allData.mobileActiveTab !== 'tabs') ? tabId: allData.lastActiveDataTab,
+    });
+    window.location.hash = `#${tabId}`;
   }
 }
 

@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '.2rem',
     marginRight: '.5rem',
   },
-  initial: {
+  locked: {
     fontWeight: 'bold',
     fontSize: 'larger',
   },
@@ -90,19 +90,19 @@ const LayoutArea = ({ area }) => {
   const [[tabId, dialogText, isRename], setDialogProps] = useState([]);
 
   const allowDrop = (e) => e.preventDefault();
-  const drag = (e) => e.dataTransfer.setData("text", e.target.id);
+  const drag = (e) => e.dataTransfer.setData("tabId", e.target.id);
   const drop1 = (e) => {
     e.preventDefault();
-    const [srcType, __, tabId] = e.dataTransfer.getData("text").split('__');
-    if (srcType === 'ntab') {
+    const tabId = e.dataTransfer.getData("tabId");
+    if (tabId) {
       moveTab(tabId, area.id);
     }
   }
   const drop2 = (e) => {
     e.preventDefault();
-    const [srcType, __, tabId] = e.dataTransfer.getData("text").split('__');
-    if (srcType === 'ntab') {
-      const [tgtType, areaId, receiveId] = e.target.closest('[draggable]').id.split('__');
+    const tabId = e.dataTransfer.getData("tabId");
+    if (tabId) {
+      const [areaId, receiveId] = e.target.closest('[draggable]').id;
       moveTab(tabId, areaId, receiveId);
     }
   }
@@ -145,12 +145,12 @@ const LayoutArea = ({ area }) => {
           tabIds.map((tabId, i) => (
           !!tabs[tabId] && (!isBasic(tabs[tabId]) || hasVerses(tabs[tabId])) &&
             <NiftyTab key={i}
-              id={ ['ntab', area.id, tabId].join('__') }
+              id={ tabId }
               wrapped
               value={tabId}
               label={
                 <div className={classes.tabContent}>
-                  <span className={tabId === 'initial' ? classes.initial : null}>
+                  <span className={tabs[tabId].locked ? classes.locked : null}>
                     { tr(tabs[tabId].description) }
                   </span>
 

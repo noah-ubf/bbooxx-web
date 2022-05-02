@@ -62,8 +62,9 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   progress: {
+    background: '#ddddff',
     textAlign: 'center',
-    marginTop: '5vh',
+    paddingTop: '5vh',
   },
   dropArea: {
     height: 10,
@@ -92,21 +93,18 @@ const VerseList = ({tab, onRemove}) => {
 
   const handleDrop = (e) => {
     e.preventDefault();
-    const [srcType, ord, tabId] = e.dataTransfer.getData("text").split('__');
-    if (srcType === 'verse') {
+    const [ord, tabId] = e.dataTransfer.getData("verseId").split(':');
+    if (tabId) {
       moveVerse(tabId, parseInt(ord), tab.id, dragOver);
-      console.log(`Move verse ${ord} from ${tabId} to ${tab.id} at ${dragOver}`)
     }
     setDragOver(false);
   }
 
   const handleDragEnter = (i) => ((e) => {
-    console.log(`Enter ${i}`, e.target)
     if (custom && isVerse(e)) setDragOver(i);
   });
 
   const handleDragLeave = (i) =>((e) => {
-    console.log(`Leave ${i}`, e.target)
     if (dragOver === i) setDragOver(false);
   })
 
@@ -117,9 +115,9 @@ const VerseList = ({tab, onRemove}) => {
   }
 
   const isVerse = (e) => {
-    const [srcType, ord, tabId] = e.dataTransfer.getData("text").split('__');
-    console.log('TEXT:', e.dataTransfer.getData("text"));
-    return (srcType === 'verse');
+    const data = e.dataTransfer.getData("verseId");
+    console.log(`isVerse ${data}`, !!data)
+    return !!data;
   }
 
   return (

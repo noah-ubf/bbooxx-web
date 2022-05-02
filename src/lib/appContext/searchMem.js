@@ -1,9 +1,6 @@
 import getId from './getId';
 
-const mem = (
-  {areas, tabs},
-  {setAreas, setActiveTab, setTabs}
-) => {
+const mem = ( allData, setAllData ) => {
   return (module, text) => {
     if (!text || text === '') return;
     const newTabId = getId();
@@ -13,11 +10,17 @@ const mem = (
       loaded: false,
       description: {i18n: 'searchResults', params: {module: module.shortName, text}},
     };
-    setTabs({...tabs, [newTabId]: newTab});
-    setAreas(areas.map((area) => (
-      area.id === 'centerCol' ? { ...area, tabIds: [...area.tabIds, newTabId], activeTab: newTabId } : area
-    )));
-    setActiveTab(newTabId);
+
+    setAllData({
+      ...allData,
+      tabs: {...allData.tabs, [newTabId]: newTab},
+      areas: allData.areas.map((area) => (
+        area.id === 'centerCol' ? { ...area, tabIds: [...area.tabIds, newTabId], activeTab: newTabId } : area
+      )),
+      mobileActiveTab: newTabId,
+      lastActiveDataTab: (allData.mobileActiveTab !== 'tabs') ? newTabId: allData.lastActiveDataTab,
+    });
+    window.location.hash = `#${newTabId}`;
   }
 }
 

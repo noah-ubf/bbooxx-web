@@ -18,5 +18,6 @@ export const TRANSLATIONS_UA = {
   searchResults: '({{module}}): Пошук "{{text}}"',
   setTabName: 'Задати імʼя списку',
   settings: 'Налаштування',
+  strongs: 'Номер Стронга',
   tablist: 'Всі вкладки',
 };

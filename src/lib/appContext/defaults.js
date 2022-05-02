@@ -38,6 +38,14 @@ export const defaultTabs = {
     locked: true,
     hidden: true,
   },
+  strongs: {
+    id: 'strongs',
+    type: 'strongs',
+    description: {i18n: 'strongs'},
+    locked: true,
+    hidden: true,
+    verses: [],
+  },
 };
 
 export const defaultAreas = [
@@ -59,6 +67,6 @@ export const defaultAreas = [
   {
     id: 'bottomCol',
     activeTab: null,
-    tabIds: [],
+    tabIds: ['strongs'],
   },
 ]
