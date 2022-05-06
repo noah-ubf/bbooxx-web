@@ -4,6 +4,8 @@ import Verse from "@components/Verse";
 import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "@lib/appContext";
 import { CircularProgress } from "@mui/material";
+import classNames from "classnames";
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 const useStyles = makeStyles((theme) => ({
   verseList: {
@@ -32,6 +34,16 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '.7em',
     padding: '.25em 1em .20em .75em',
     marginLeft: '.5em',
+  },
+  descriptorContentLink: {
+    cursor: 'pointer',
+    textDecoration: 'underline',
+    '& svg': {
+      height: '.5em',
+      width: '.5em',
+      marginLeft: '.3em',
+      verticalAlign: 'bottom',
+    }
   },
   verse: {
     background: '#ddddff',
@@ -76,12 +88,17 @@ const PAGE_SIZE = 300;
 
 const VerseList = ({tab, onRemove}) => {
   // const { store: { verses: storedVerses } } = useAppContext();
-  const { handlers: { moveVerse, loadTabContent } } = useAppContext();
+  const {
+    getters: { getNearChapterDescriptors },
+    handlers: { loadText, moveVerse, loadTabContent }
+  } = useAppContext();
   const classes = useStyles();
   let descriptor = null;
   const ref = useRef();
   const { verses=[], custom } = tab;
   const [dragOver, setDragOver] = useState(false);
+
+  const nearest = getNearChapterDescriptors(tab.descriptor);
 
   useEffect(() => {
     if (!tab.loaded) {
@@ -120,6 +137,10 @@ const VerseList = ({tab, onRemove}) => {
     return !!data;
   }
 
+  const handleChapterClick = (descriptor) => (
+    nearest ? () => {} : () => loadText(descriptor, descriptor)
+  );
+
   return (
     <div className={classes.verseList}>
       {/* <div>
@@ -145,8 +166,17 @@ const VerseList = ({tab, onRemove}) => {
               >
                 {dragOver===i && <div className={classes.dropArea} onDragLeave={preventDragLeave}></div>}
                 { descr !== descriptor &&
-                  <div className={classes.descriptor} onDragLeave={preventDragLeave}>
-                    <span className={classes.descriptorContent}>{descriptor}</span>
+                  <div
+                    className={classes.descriptor}
+                    onDragLeave={preventDragLeave}
+                    onClick={handleChapterClick(descriptor)}
+                  >
+                    <span
+                      className={classNames(classes.descriptorContent, {[classes.descriptorContentLink]: !nearest})}
+                    >
+                      {descriptor}
+                      {!nearest && <OpenInNewIcon/>}
+                    </span>
                   </div>
                 }
                 <div onDragLeave={preventDragLeave}>

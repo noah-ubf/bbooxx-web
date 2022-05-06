@@ -120,7 +120,7 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
         {verse.num}
       </span>
       <span className={classes.verseContent}>
-        <LexemList lexems={verse.lexems} displayStrong={showStrongs ? handleDisplayStrongs : null}/>
+        <LexemList lexems={verse.lexems} displayStrong={(showStrongs || verse.module==='Strongs') ? handleDisplayStrongs : null}/>
       </span>
       <Menu
           id={vid}
@@ -132,12 +132,15 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
             horizontal: 'right',
           }}
         >
-        <MenuItem onClick={handleShowReferences}>
-            <ListItemIcon>
-              <LinkIcon/>
-            </ListItemIcon>
-            <ListItemText>{t('crossrefs')}</ListItemText>
-        </MenuItem>
+        {
+          module.type === 'bible' &&
+          <MenuItem onClick={handleShowReferences}>
+              <ListItemIcon>
+                <LinkIcon/>
+              </ListItemIcon>
+              <ListItemText>{t('crossrefs')}</ListItemText>
+          </MenuItem>
+        }
         { tab.id !== 'collection' && <MenuItem onClick={handleCopyToCollection}>
             <ListItemIcon>
               <PlaylistAddIcon/>

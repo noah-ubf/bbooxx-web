@@ -182,7 +182,6 @@ export const AppContextProvider = ({ children }) => {
 
         copyToCollection: async (verse, tabId='collection') => {
           if (!verse || ! verse.descriptor) return;
-          console.log('V: ', {verse});
           const tab = allData.tabs[tabId];
           const descr = tab.descriptor;
           setAllData({
@@ -193,7 +192,6 @@ export const AppContextProvider = ({ children }) => {
                 ...tab,
                 descriptor: descr ? [descr, verse.descriptor].join(';') : verse.descriptor,
                 loaded: false,
-                // verses: [...tabs[tabId].verses, verse],
               }
             }
           });

@@ -1,6 +1,7 @@
 import { fetchURI } from '@lib/requests';
 import { getDescriptorFromList } from "@lib/descriptor";
 import getId from './getId';
+import { isArray } from 'lodash';
 
 export const loadTabContent = async (tab) => {
   if (tab.loaded === false) {
@@ -13,7 +14,7 @@ export const loadTabContent = async (tab) => {
         return {
           ...tabTemplate,
           descriptor: getDescriptorFromList(data),
-          verses: data,
+          verses: isArray(data) ? data : [],
         };
       }
       case 'refs': {
@@ -22,7 +23,7 @@ export const loadTabContent = async (tab) => {
         return {
           ...tabTemplate,
           descriptor: source.descriptor,
-          verses: data,
+          verses: isArray(data) ? data : [],
         }
       }
       default: {
@@ -31,7 +32,7 @@ export const loadTabContent = async (tab) => {
         return {
           ...tabTemplate,
           descriptor,
-          verses: data,
+          verses: isArray(data) ? data : [],
         };
       }
     }
