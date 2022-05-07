@@ -10,9 +10,6 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import { useTranslation } from "react-i18next";
 import i18n from "i18next";
 import "@translations/i18n";
-import Popover from '@mui/material/Popover';
-import { useSprings, animated } from '@react-spring/web'
-import { useDrag } from '@use-gesture/react'
 
 import { useAppContext } from "@lib/appContext";
 import { IconButton } from "@mui/material";
@@ -23,6 +20,7 @@ import Settings from "./Settings";
 import ViewOptions from "./ViewOptions";
 import ModuleSelector from "./ModuleSelector";
 import ModuleList from "./ModuleList";
+import usePopup from "../lib/usePopup";
 
 const useStyles = makeStyles((theme) => ({
   menuWrapper: {
@@ -99,8 +97,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const isBasic = (tab) => ['initial', 'collection'].includes(tab.id);
-const hasVerses = (tab) => (tab.loaded && tab.verses.length > 0)
+// const isBasic = (tab) => ['initial', 'collection'].includes(tab.id);
+// const hasVerses = (tab) => (tab.loaded && tab.verses.length > 0)
 
 const MenuWrapper = ({children}) => {
   const { t } = useTranslation();
@@ -115,45 +113,24 @@ const MenuWrapper = ({children}) => {
   const activeTabTitle = tabs[mobileActiveTab] ? tr(tabs[mobileActiveTab].description) : '';
   const [touched, setTouched] = useState(false);
 
-  const [textSelectorAnchorEl, setTextSelectorAnchorEl] = useState(null);
+  const textSelector = usePopup('textSelectorPopup');
   const handleShowTextSelector = (e) => {
     e.stopPropagation();
     if (!tabs[mobileActiveTab] || !tabs[mobileActiveTab].verses) return;
-    const hash = window.location.hash.split('/')[0];
-    window.location.hash = `${hash}/textSelector`;
-    setTextSelectorAnchorEl(e.currentTarget);
+    textSelector.show(e);
   }
-  function handleHideTextSelector() {
-    // window.history.back();
-    setTextSelectorAnchorEl(null);
-  }
-  const textSelectorOpen = Boolean(textSelectorAnchorEl);
+  const TextSelectorPopup = textSelector.Popup;
 
-  const [viewOptionsAnchorEl, setViewOptionsAnchorEl] = useState(null);
+  const viewOptions = usePopup('viewOptionsPopup');
   const handleShowViewOptions = (e) => {
     e.stopPropagation();
     if (!tabs[mobileActiveTab] || !tabs[mobileActiveTab].verses) return;
-    setViewOptionsAnchorEl(e.currentTarget);
+    viewOptions.show(e);
   }
-  function handleHideViewOptions() {
-    // window.history.back();
-    setViewOptionsAnchorEl(null);
-  }
-  const viewOptionsOpen = Boolean(viewOptionsAnchorEl);
+  const ViewOptionsPopup = viewOptions.Popup;
 
-  
-
-  const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
-  const handleShowSettings = (e) => {
-    const hash = window.location.hash.split('/')[0];
-    window.location.hash = `${hash}/settings`;
-    setSettingsAnchorEl(e.currentTarget);
-  }
-  const handleCloseSettings = () => {
-    setSettingsAnchorEl(null);
-    window.history.back();
-  }
-  const settingsOpen = Boolean(settingsAnchorEl);
+  const settings = usePopup('settingsPopup');
+  const SettingsPopup = settings.Popup;
 
   const tab = tabs[mobileActiveTab];
   const descriptor = tab && tab.descriptor;
@@ -166,24 +143,6 @@ const MenuWrapper = ({children}) => {
   const percentage = nearest && nearest.current
     ? (nearest.current.chapter / nearest.current.chapterCount) * 100
     : false;
-
-  useEffect(() => {
-    const onHashChange = () => {
-      const hashParts = window.location.hash.split('/');
-
-      setTimeout(() => {
-        if (hashParts[1] === "textSelector") setTextSelectorAnchorEl(ref.current);
-        if (hashParts[1] === "settings") setSettingsAnchorEl(ref.current);
-      }, 0);
-    }
-
-    window.addEventListener("load", onHashChange);
-    window.addEventListener("hashchange", onHashChange);
-    return () => {
-      window.removeEventListener("load", onHashChange);
-      window.removeEventListener("hashchange", onHashChange);
-    }
-  }, [settingsAnchorEl, textSelectorAnchorEl]);
 
   const handlePrev = () => {
     if (!nearest || !nearest.prev) return;
@@ -284,7 +243,7 @@ const MenuWrapper = ({children}) => {
 
       <IconButton
         className={classNames(classes.iconButton, classes.desktop)}
-        onClick={handleShowSettings}
+        onClick={settings.show}
       >
         <SettingsIcon />
       </IconButton>
@@ -295,65 +254,32 @@ const MenuWrapper = ({children}) => {
         </div>
       }
 
-      {textSelectorOpen &&
-        <Popover
-          id={'textSelectorPopover'}
-          open={textSelectorOpen}
-          anchorEl={textSelectorAnchorEl}
-          onClose={handleHideTextSelector}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-          <div className={classes.sizeLimiter}>
-            { currentModule
-              ? (
-                <ModuleSelector
-                  module={currentModule}
-                  isOpen={true}
-                  openBook={currentBook}
-                  openChapter={currentChapter}
-                  tabId={mobileActiveTab}
-                  onChapterSelected={handleHideTextSelector} 
-                />
-              )
-              : <ModuleList tabId={mobileActiveTab} onChapterSelected={handleHideTextSelector} />
-            }
-          </div>
-        </Popover>
-      }
+      <TextSelectorPopup>
+        <div className={classes.sizeLimiter}>
+          { currentModule
+            ? (
+              <ModuleSelector
+                module={currentModule}
+                isOpen={true}
+                openBook={currentBook}
+                openChapter={currentChapter}
+                tabId={mobileActiveTab}
+                onChapterSelected={textSelector.hide} 
+              />
+            )
+            : <ModuleList tabId={mobileActiveTab} onChapterSelected={textSelector.hide} />
+          }
+        </div>
+      </TextSelectorPopup>
 
-      {viewOptionsOpen &&
-        <Popover
-          id={'viewOptionsPopover'}
-          open={viewOptionsOpen}
-          anchorEl={viewOptionsAnchorEl}
-          onClose={handleHideViewOptions}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-          <ViewOptions/>
-        </Popover>
-      }
+      <ViewOptionsPopup>
+        <ViewOptions/>
+      </ViewOptionsPopup>
 
-      {settingsOpen &&
-        <Popover
-          id={'settingsPopover'}
-          open={settingsOpen}
-          anchorEl={settingsAnchorEl}
-          onClose={handleCloseSettings}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-          <ViewOptions/>
-          <Settings/>
-        </Popover>
-      }
+      <SettingsPopup>
+        <ViewOptions/>
+        <Settings/>
+      </SettingsPopup>
     </div>
   );
 }
