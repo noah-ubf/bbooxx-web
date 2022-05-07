@@ -1,6 +1,5 @@
 import { makeStyles } from "@mui/styles";
 import classNames from "classnames";
-import NumbersIcon from '@mui/icons-material/Numbers';
 // import { IconButton } from "@mui/material";
 // import MenuBookIcon from '@mui/icons-material/MenuBook';
 import StorageIcon from '@mui/icons-material/Storage';
@@ -15,13 +14,13 @@ import Popover from '@mui/material/Popover';
 import { useSprings, animated } from '@react-spring/web'
 import { useDrag } from '@use-gesture/react'
 
-import { useViewContext } from "@lib/viewContext";
 import { useAppContext } from "@lib/appContext";
 import { IconButton } from "@mui/material";
 import US from "@ressources/US.png";
 import UA from "@ressources/UA.png";
 import { useEffect, useRef, useState } from "react";
 import Settings from "./Settings";
+import ViewOptions from "./ViewOptions";
 import ModuleSelector from "./ModuleSelector";
 import ModuleList from "./ModuleList";
 
@@ -84,11 +83,6 @@ const useStyles = makeStyles((theme) => ({
       transform: 'scale(140%)',
     },
   },
-  mobileHidden: {
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-  },
   progressWrapper: {
     position: 'absolute',
     left: 0,
@@ -100,6 +94,9 @@ const useStyles = makeStyles((theme) => ({
     height: '100%',
     background: '#339999',
   },
+  sizeLimiter: {
+    maxWidth: '75vw',
+  },
 }));
 
 const isBasic = (tab) => ['initial', 'collection'].includes(tab.id);
@@ -110,7 +107,6 @@ const MenuWrapper = ({children}) => {
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
   const classes = useStyles();
   const ref = useRef();
-  const { store: { showStrongs }, handlers: { toggleStrongs } } = useViewContext();
   const {
     store: { modules, mobileActiveTab, tabs },
     getters: { getNearChapterDescriptors },
@@ -133,6 +129,20 @@ const MenuWrapper = ({children}) => {
   }
   const textSelectorOpen = Boolean(textSelectorAnchorEl);
 
+  const [viewOptionsAnchorEl, setViewOptionsAnchorEl] = useState(null);
+  const handleShowViewOptions = (e) => {
+    e.stopPropagation();
+    if (!tabs[mobileActiveTab] || !tabs[mobileActiveTab].verses) return;
+    setViewOptionsAnchorEl(e.currentTarget);
+  }
+  function handleHideViewOptions() {
+    // window.history.back();
+    setViewOptionsAnchorEl(null);
+  }
+  const viewOptionsOpen = Boolean(viewOptionsAnchorEl);
+
+  
+
   const [settingsAnchorEl, setSettingsAnchorEl] = useState(null);
   const handleShowSettings = (e) => {
     const hash = window.location.hash.split('/')[0];
@@ -148,18 +158,10 @@ const MenuWrapper = ({children}) => {
   const tab = tabs[mobileActiveTab];
   const descriptor = tab && tab.descriptor;
 
-  const getCurrentScripture = () => {
-    if (!tab || !tab.verses) return [];
-    const descriptorItems = tab.descriptor ? tab.descriptor.split(';') : null;
-    const isMulty = descriptorItems && descriptorItems.length > 1;
-    if (!descriptorItems || isMulty) return [0, 0];
-    const parts = /^\(([^)]+)\)([^.]+)\.(\d+)/.exec(descriptorItems[0]);
-    return [parts[1], parts[2], parts[3]];
-  }
-  const [currentModuleName, currentBook, currentChapter] = getCurrentScripture();
-  const currentModule = modules.find(m => m.shortName === currentModuleName);
-
   const nearest = getNearChapterDescriptors(descriptor);
+  const currentModule = modules.find(m => m.shortName === nearest?.current?.module);
+  const currentBook = nearest?.current?.book;
+  const currentChapter = nearest?.current?.chapter;
 
   const percentage = nearest && nearest.current
     ? (nearest.current.chapter / nearest.current.chapterCount) * 100
@@ -182,16 +184,6 @@ const MenuWrapper = ({children}) => {
       window.removeEventListener("hashchange", onHashChange);
     }
   }, [settingsAnchorEl, textSelectorAnchorEl]);
-
-
-  const bind = useDrag(async ({ active, movement: [mx], direction: [xDir], cancel }) => {
-    if (active && Math.abs(mx) > window.innerWidth / 4) {
-      xDir > 0 ? handlePrev() : handleNext();
-      cancel();
-    }
-  }, {
-    axis: 'x',
-  });
 
   const handlePrev = () => {
     if (!nearest || !nearest.prev) return;
@@ -231,15 +223,6 @@ const MenuWrapper = ({children}) => {
 
   return (
     <div ref={ref} className={classes.menuWrapper}>
-      {/* <span
-        className={classNames(classes.menuButton, classes.mobile)}
-        onClick={() => setAppView(mobileAppView === 'menu' ? 'content' : 'menu')}
-      >
-        <MenuBookIcon />
-      </span> */}
-
-      {/* <Typography component="h2">BBOOXX</Typography> */}
-
       <span
         className={classNames(classes.menuButton, classes.mobile)}
         onClick={() => toggleTab('tabs')}
@@ -248,7 +231,7 @@ const MenuWrapper = ({children}) => {
       </span>
 
       {tab.verses &&
-        <div className={classNames(classes.floatMenu, {[classes.mobileHidden]: !touched})}>
+        <div className={classNames(classes.floatMenu, {[classes.desktop]: !touched})}>
           <IconButton
             className={classNames(classes.iconButton)}
             onClick={handlePrev}
@@ -274,18 +257,13 @@ const MenuWrapper = ({children}) => {
         </div>
       }
 
-      <IconButton onClick={toggleStrongs} >
-        <NumbersIcon color={showStrongs ? 'secondary' : 'action'} />
-      </IconButton>
-
       <div className={classes.childrenWrapper}>
         {children}
       </div>
 
       <div
         className={classNames(classes.tabName, classes.mobile)}
-        onClick={handleShowTextSelector}
-        {...bind()}
+        onClick={handleShowViewOptions}
       >
         {activeTabTitle}
       </div>
@@ -328,19 +306,36 @@ const MenuWrapper = ({children}) => {
             horizontal: 'right',
           }}
         >
-          { currentModule
-            ? (
-              <ModuleSelector
-                module={currentModule}
-                isOpen={true}
-                openBook={currentBook}
-                openChapter={currentChapter}
-                tabId={mobileActiveTab}
-                onChapterSelected={handleHideTextSelector} 
-              />
-            )
-            : <ModuleList tabId={mobileActiveTab} onChapterSelected={handleHideTextSelector} />
-          }
+          <div className={classes.sizeLimiter}>
+            { currentModule
+              ? (
+                <ModuleSelector
+                  module={currentModule}
+                  isOpen={true}
+                  openBook={currentBook}
+                  openChapter={currentChapter}
+                  tabId={mobileActiveTab}
+                  onChapterSelected={handleHideTextSelector} 
+                />
+              )
+              : <ModuleList tabId={mobileActiveTab} onChapterSelected={handleHideTextSelector} />
+            }
+          </div>
+        </Popover>
+      }
+
+      {viewOptionsOpen &&
+        <Popover
+          id={'viewOptionsPopover'}
+          open={viewOptionsOpen}
+          anchorEl={viewOptionsAnchorEl}
+          onClose={handleHideViewOptions}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <ViewOptions/>
         </Popover>
       }
 
@@ -355,6 +350,7 @@ const MenuWrapper = ({children}) => {
             horizontal: 'right',
           }}
         >
+          <ViewOptions/>
           <Settings/>
         </Popover>
       }

@@ -18,6 +18,7 @@ export const TRANSLATIONS_EN = {
   searchResults: '({{module}}): Search for "{{text}}"',
   setTabName: 'Set tab name',
   settings: 'Settings',
+  showStrongs: 'Strong\'s Numbers',
   strongs: 'Strong Number',
   tablist: 'Tab list',
  };
