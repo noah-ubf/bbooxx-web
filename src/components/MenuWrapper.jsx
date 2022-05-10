@@ -156,6 +156,8 @@ const MenuWrapper = ({children}) => {
     viewOptions.show(viewOptionsOrigin);
   }
   const ViewOptionsPopup = viewOptions.Popup;
+  const viewOptionsRef = useRef();
+  viewOptionsRef.current = viewOptions;
 
   const settings = usePopup('settingsPopup');
   const SettingsPopup = settings.Popup;
@@ -189,7 +191,10 @@ const MenuWrapper = ({children}) => {
 
       if(interval) clearTimeout(interval);
       interval = setTimeout(() => {
-        if (!textSelectorRef.current.open) {
+        if (
+          !textSelectorRef.current?.open
+          && !viewOptionsRef.current?.open
+        ) {
           setTouched(false);
           interval = null;
         } else {
