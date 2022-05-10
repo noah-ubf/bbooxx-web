@@ -53,7 +53,7 @@ const useStyles = makeStyles({
   },
 });
 
-const Verse = ({tab, vOrder, verse, onRemove}) => {
+const Verse = ({tab, vOrder, verse, onRemove, highlightedWords}) => {
   const { t } = useTranslation();
   const { handlers: { showReferences, copyToCollection, addToMemo, loadStrongs } } = useAppContext();
   const { store: { showStrongs } } = useViewContext();
@@ -120,27 +120,29 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
         {verse.num}
       </span>
       <span className={classes.verseContent}>
-        <LexemList lexems={verse.lexems} displayStrong={(showStrongs || verse.module==='Strongs') ? handleDisplayStrongs : null}/>
+        <LexemList
+          lexems={verse.lexems}
+          displayStrong={(showStrongs || verse.module==='Strongs') ? handleDisplayStrongs : null}
+          highlightedWords={highlightedWords}
+        />
       </span>
       <Menu
-          id={vid}
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleClose}
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-        >
-        {
-          module.type === 'bible' &&
-          <MenuItem onClick={handleShowReferences}>
-              <ListItemIcon>
-                <LinkIcon/>
-              </ListItemIcon>
-              <ListItemText>{t('crossrefs')}</ListItemText>
-          </MenuItem>
-        }
+        id={vid}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuItem onClick={handleShowReferences}>
+          <ListItemIcon>
+            <LinkIcon/>
+          </ListItemIcon>
+          <ListItemText>{t('crossrefs')}</ListItemText>
+        </MenuItem>
+
         { tab.id !== 'collection' && <MenuItem onClick={handleCopyToCollection}>
             <ListItemIcon>
               <PlaylistAddIcon/>
@@ -148,6 +150,7 @@ const Verse = ({tab, vOrder, verse, onRemove}) => {
             <ListItemText>{t('copyToCollection')}</ListItemText>
           </MenuItem>
         }
+
         <MenuItem onClick={handleAddToMemo}>
           <ListItemIcon>
             <NoteAddIcon/>

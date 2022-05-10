@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     textOverflow: 'ellipsis',
     userSelect: 'none',
 
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       minHeight: '2rem',
       lineHeight: '2rem',
       fontSize: '1.5rem',
@@ -53,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
       background: 'silver',
     },
 
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       fontSize: '1.3rem',
       width: '2rem',
       height: '2rem',

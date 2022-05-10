@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
     border: 'solid 4px #dddddd',
     borderRadius: '4px',
     boxSizing: 'border-box',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'none',
     },
   },

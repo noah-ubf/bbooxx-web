@@ -47,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
     width: 'calc(100% - 10px)',
     height: '100%',
     overflow: 'hidden',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       width: '100%',
     },
   },

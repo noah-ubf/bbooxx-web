@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '.2rem',
   },
   tab: {
-    // [theme.breakpoints.down('sm')]: {
+    // [theme.breakpoints.down('md')]: {
     //   display: 'none',
     // },
   },

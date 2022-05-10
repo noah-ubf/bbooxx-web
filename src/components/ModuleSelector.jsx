@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 150,
     padding: 0,
 
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       margin: '.2rem',
     },
   },
@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
       background: 'silver',
     },
 
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       minHeight: '2rem',
       lineHeight: '2rem',
       fontSize: '1.2rem',

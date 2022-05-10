@@ -17,13 +17,13 @@ const useStyles = makeStyles((theme) => ({
     width: '100vw',
     height: '100vh',
     overflow: 'hidden',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       height: 'auto',
       minHeight: '90vh',
     },
   },
   menuWrapper: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       position: 'fixed',
       top: 0,
       left: 0,
@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'stretch',
     justifyContent: 'stretch',
     overflow: 'hidden',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       // display: 'block',
       marginTop: '56px',
       flexDirection: 'column',
@@ -82,15 +82,15 @@ const Layout = () => {
   const docSize = useWindowSize();
   const docWidth = docSize.width;
   const theme = useTheme();
-  const sm = +theme.breakpoints.values.sm;
+  const md = +theme.breakpoints.values.md;
   const classes = useStyles();
   const { store: { loaded, areas }, handlers: { loadText, fetchModules } } = useAppContext();
   const leftColArea = areas.find((a) => a.id === 'leftCol');
   const centerColArea = areas.find((a) => a.id === 'centerCol');
   const rightColArea = areas.find((a) => a.id === 'rightCol');
   const bottomColArea = areas.find((a) => a.id === 'bottomCol');
-  const isMobile = loaded && (docWidth <= sm);
-  const isDesktop = loaded && (docWidth > sm);
+  const isMobile = loaded && (docWidth <= md);
+  const isDesktop = loaded && (docWidth > md);
 
   useEffect(() => {
     if (!loaded) {

@@ -15,7 +15,7 @@ const NiftyTabs = styled((props) => <Tabs {...props} />)(({ theme }) => ({
 const NiftyTab = styled((props) => <Tab disableRipple {...props} />)(({ theme }) => ({
   textTransform: 'none',
   minWidth: 20,
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down('md')]: {
     minWidth: 20,
   },
   background: '#',

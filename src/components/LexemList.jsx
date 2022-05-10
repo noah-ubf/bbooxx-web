@@ -43,7 +43,12 @@ const useStyles = makeStyles({
   },
   
   highlighttedWord: {
-    backgroundColor: 'yellow',
+    backgroundColor: 'rgba(255,255,0,.15)',
+    // color: '#005500',
+    padding: '4px',
+    margin: '-4px',
+    display: 'inline-block',
+    borderRadius: '4px',
   },
 
   vNum: {
@@ -69,7 +74,7 @@ const useStyles = makeStyles({
   },
 
   face__Heb: {
-    fontSize: '150%',
+    fontSize: '140%',
   },
 
   face__Grk: {
@@ -124,7 +129,7 @@ const lexemListToTree = (list) => {
   return convert();
 }
 
-const LexemList = ({displayStrong, fireLink, lexems, highlightedWord}) => {
+const LexemList = ({displayStrong, fireLink, lexems, highlightedWords}) => {
   const classes = useStyles();
 
   const groupped = lexemListToTree(lexems.map((l) => {
@@ -141,6 +146,15 @@ const LexemList = ({displayStrong, fireLink, lexems, highlightedWord}) => {
         )
       )
       : [];
+  }
+
+  const isHighlighted = (data) => {
+    return highlightedWords
+      ? highlightedWords.some((w) => 
+          data.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .indexOf(w.normalize("NFD").replace(/[\u0300-\u036f]/g, "")) !== -1
+        )
+      : false;
   }
 
   const renderLexem = ({type, data}, i) => {
@@ -179,6 +193,7 @@ const LexemList = ({displayStrong, fireLink, lexems, highlightedWord}) => {
       case LEXEM_TYPE.vNum:
         return <span key={i} className={classes.vNum}>{ data }</span>
       case LEXEM_TYPE.word:
+        return <span key={i} className={classNames({[classes.highlighttedWord]: isHighlighted(data)})}>{ data }</span>
       case LEXEM_TYPE.punctuation:
         return <span key={i}>{ data }</span>
       case LEXEM_TYPE.int:

@@ -69,7 +69,7 @@ const useStyles = makeStyles((theme) => ({
     height: '10vh',
     paddingBottom: '10vh',
 
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       height: '80vh',
     },
   },
@@ -99,14 +99,18 @@ const VerseList = ({tab, onRemove}) => {
   const [dragOver, setDragOver] = useState(false);
 
   const nearest = getNearChapterDescriptors(tab.descriptor);
+  const highlightedWords = tab.source?.type === 'search' ? tab.source.text.split(/\s+/) : undefined;
 
   useEffect(() => {
     if (!tab.loaded) {
       setTimeout(() => loadTabContent(tab.id), 0)
     }
+  }, [verses, tab, loadTabContent])
+
+  useEffect(() => {
     window.scrollTo(0, 0);
     if (ref.current) ref.current.scrollTop = 0;
-  }, [verses, tab, loadTabContent])
+  }, [tab])
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -165,7 +169,7 @@ const VerseList = ({tab, onRemove}) => {
                 onDragLeave={handleDragLeave(i)}
               >
                 {dragOver===i && <div className={classes.dropArea} onDragLeave={preventDragLeave}></div>}
-                { descr !== descriptor &&
+                { descr !== descriptor && !nearest &&
                   <div
                     className={classes.descriptor}
                     onDragLeave={preventDragLeave}
@@ -185,6 +189,7 @@ const VerseList = ({tab, onRemove}) => {
                     vOrder={i}
                     verse={verse}
                     onRemove={onRemove && (() => onRemove(i))}
+                    highlightedWords={highlightedWords}
                   />
                 </div>
               </div>

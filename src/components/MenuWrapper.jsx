@@ -7,6 +7,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import Divider from '@mui/material/Divider';
 import { useTranslation } from "react-i18next";
 import i18n from "i18next";
 import "@translations/i18n";
@@ -46,6 +47,14 @@ const useStyles = makeStyles((theme) => ({
     color: '#339999',
     fontWeight: 'bold',
   },
+  popupTitle: {
+    margin: theme.spacing(1),
+    lineHeight: 1.2,
+    color: '#339999',
+    fontWeight: 'bold',
+    paddingBottom: '1em',
+    borderBottom: 'solid #cccccc 1px',
+  },
   menuButton: {
     color: '#339999',
     display: 'inline-block',
@@ -54,12 +63,12 @@ const useStyles = makeStyles((theme) => ({
   },
   mobile: {
     display: 'none',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'inline-block',
     }
   },
   desktop: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       display: 'none !important',
     }
   },
@@ -70,15 +79,26 @@ const useStyles = makeStyles((theme) => ({
     // padding: '0 !important',
   },
   floatMenu: {
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       position: 'fixed',
-      bottom: '2rem',
+      bottom: '-3rem',
       left: '50vw',
-      width: '120px',
+      width: '132px',
       marginLeft: '-60px',
       borderRadius: '40px',
       background: '#99ffff',
-      transform: 'scale(140%)',
+      // transform: 'scale(140%)',
+      transition: 'bottom .4s ease-out',
+      '& svg': {
+        height: 28,
+        width: 28,
+      }
+    },
+  },
+  floatMenuVisible: {
+    [theme.breakpoints.down('md')]: {
+      bottom: '2rem',
+      transition: 'bottom .4s ease-in',
     },
   },
   progressWrapper: {
@@ -95,6 +115,9 @@ const useStyles = makeStyles((theme) => ({
   sizeLimiter: {
     maxWidth: '75vw',
   },
+  divider: {
+    marginTop: 40,
+  },
 }));
 
 // const isBasic = (tab) => ['initial', 'collection'].includes(tab.id);
@@ -105,6 +128,9 @@ const MenuWrapper = ({children}) => {
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
   const classes = useStyles();
   const ref = useRef();
+  const textSelectorOrigin = useRef();
+  const viewOptionsOrigin = useRef();
+  const settingsMenuOrigin = useRef();
   const {
     store: { modules, mobileActiveTab, tabs },
     getters: { getNearChapterDescriptors },
@@ -117,15 +143,17 @@ const MenuWrapper = ({children}) => {
   const handleShowTextSelector = (e) => {
     e.stopPropagation();
     if (!tabs[mobileActiveTab] || !tabs[mobileActiveTab].verses) return;
-    textSelector.show(e);
+    textSelector.show(textSelectorOrigin);
   }
   const TextSelectorPopup = textSelector.Popup;
+  const textSelectorRef = useRef();
+  textSelectorRef.current = textSelector;
 
   const viewOptions = usePopup('viewOptionsPopup');
   const handleShowViewOptions = (e) => {
     e.stopPropagation();
     if (!tabs[mobileActiveTab] || !tabs[mobileActiveTab].verses) return;
-    viewOptions.show(e);
+    viewOptions.show(viewOptionsOrigin);
   }
   const ViewOptionsPopup = viewOptions.Popup;
 
@@ -161,8 +189,12 @@ const MenuWrapper = ({children}) => {
 
       if(interval) clearTimeout(interval);
       interval = setTimeout(() => {
-        setTouched(false);
-        interval = null;
+        if (!textSelectorRef.current.open) {
+          setTouched(false);
+          interval = null;
+        } else {
+          handleInteraction();
+        }
       }, 3000);
     }
 
@@ -190,7 +222,7 @@ const MenuWrapper = ({children}) => {
       </span>
 
       {tab.verses &&
-        <div className={classNames(classes.floatMenu, {[classes.desktop]: !touched})}>
+        <div className={classNames(classes.floatMenu, {[classes.floatMenuVisible]: touched})}>
           <IconButton
             className={classNames(classes.iconButton)}
             onClick={handlePrev}
@@ -200,6 +232,7 @@ const MenuWrapper = ({children}) => {
           </IconButton>
 
           <IconButton
+            ref={textSelectorOrigin}
             className={classNames(classes.iconButton, classes.mobile)}
             onClick={handleShowTextSelector}
           >
@@ -221,6 +254,7 @@ const MenuWrapper = ({children}) => {
       </div>
 
       <div
+        ref={viewOptionsOrigin}
         className={classNames(classes.tabName, classes.mobile)}
         onClick={handleShowViewOptions}
       >
@@ -242,8 +276,9 @@ const MenuWrapper = ({children}) => {
       </IconButton>
 
       <IconButton
+        ref={settingsMenuOrigin}
         className={classNames(classes.iconButton, classes.desktop)}
-        onClick={settings.show}
+        onClick={() => settings.show(settingsMenuOrigin)}
       >
         <SettingsIcon />
       </IconButton>
@@ -273,11 +308,18 @@ const MenuWrapper = ({children}) => {
       </TextSelectorPopup>
 
       <ViewOptionsPopup>
-        <ViewOptions/>
+        <div className={classes.sizeLimiter}>
+          <div className={classes.popupTitle}>
+            {activeTabTitle}
+          </div>
+          <ViewOptions/>
+        </div>
       </ViewOptionsPopup>
 
       <SettingsPopup>
         <ViewOptions/>
+        <br/>
+        <Divider className={classes.divider} />
         <Settings/>
       </SettingsPopup>
     </div>

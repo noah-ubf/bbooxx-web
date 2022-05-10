@@ -6,7 +6,7 @@ const mem = ( allData, setAllData ) => {
     if (!tab) return;
     const newTabId = getId();
     // const newTab = { ...tab, id: newTabId, locked: true };
-    const newTab = { ...tab, id: newTabId, locked: false, description: renameTo || newTab.description };
+    const newTab = { ...tab, id: newTabId, locked: false, description: renameTo || tab.description };
     const description = tabId === 'initial' ? '*' : newTab.description;
     const newTabs = {
       ...allData.tabs,

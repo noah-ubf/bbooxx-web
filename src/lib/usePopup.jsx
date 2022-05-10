@@ -3,8 +3,8 @@ import Popover from '@mui/material/Popover';
 
 const usePopup = (id) => {
   const [el, setEl] = useState(null);
-  const show = (e) => {
-    setEl(e.currentTarget);
+  const show = (ref) => {
+    setEl(ref.current);
   }
   const hide = () => {
     setEl(null);

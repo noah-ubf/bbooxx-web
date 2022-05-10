@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
     border: 'solid 2px #ddddff',
     padding: '.2rem',
     marginRight: '.5rem',
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       marginRight: 0,
     },
   },
