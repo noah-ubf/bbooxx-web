@@ -187,7 +187,7 @@ const MenuWrapper = ({children}) => {
   useEffect(() => {
     let interval = null;
     const handleInteraction = () => {
-      setTouched(true);
+      if (!touched) setTouched(true);
 
       if(interval) clearTimeout(interval);
       interval = setTimeout(() => {
