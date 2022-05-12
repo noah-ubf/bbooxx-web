@@ -80,25 +80,27 @@ const useStyles = makeStyles((theme) => ({
   },
   floatMenu: {
     [theme.breakpoints.down('md')]: {
-      position: 'fixed',
-      bottom: '-3rem',
+      position: 'absolute',
+      top: '100vh',
       left: '50vw',
-      width: '132px',
-      marginLeft: '-60px',
-      borderRadius: '40px',
+      width: '50vw',
+      marginLeft: '-25vw',
+      borderRadius: '7vw',
       background: '#99ffff',
-      // transform: 'scale(140%)',
-      transition: 'bottom .4s ease-out',
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      transition: 'top .4s ease-out',
       '& svg': {
-        height: 28,
-        width: 28,
+        height: '10vw',
+        width: '10vw',
       }
     },
   },
   floatMenuVisible: {
     [theme.breakpoints.down('md')]: {
-      bottom: '2rem',
-      transition: 'bottom .4s ease-in',
+      top: '80vh',
+      transition: 'top .4s ease-in',
     },
   },
   progressWrapper: {
