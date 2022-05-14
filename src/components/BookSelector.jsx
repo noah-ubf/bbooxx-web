@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
     },
 
     '&:hover': {
-      background: 'silver',
+      background: theme.palette.background.hover,
     }
   },
   content: {
@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     userSelect: 'none',
 
     '&:hover': {
-      background: 'silver',
+      background: theme.palette.background.hover,
     },
 
     [theme.breakpoints.down('md')]: {
@@ -64,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   selectedChapter: {
-    background: '#ddddff',
+    background: theme.palette.background.selected,
   },
   wideChapter: {
     width: '3rem',

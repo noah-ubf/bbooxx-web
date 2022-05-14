@@ -11,7 +11,7 @@ import { useViewContext } from '@lib/viewContext';
 
 const useStyles = makeStyles((theme) => ({
   moduleSelector: {
-    border: 'solid #99d5cc 2px',
+    border: theme.palette.border.highlighted,
     margin: '.1rem .3rem .8rem .1rem',
     minWidth: 150,
     padding: 0,

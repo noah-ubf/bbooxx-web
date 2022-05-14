@@ -2,84 +2,85 @@ import classNames from 'classnames';
 import * as _ from 'lodash';
 import { makeStyles } from "@mui/styles";
   
-const useStyles = makeStyles({
-  'size--3': { fontSize: '70%', },
-  'size--2': { fontSize: '80%', },
-  'size--1': { fontSize: '90%', },
-  'size-2': { fontSize: '110%', },
-  'size-3': { fontSize: '120%', },
-  'size-4': { fontSize: '130%', },
-  'size-5': { fontSize: '140%', },
-  'size-6': { fontSize: '150%', },
-  'size-7': { fontSize: '160%', },
-  
-  link: {
-    cursor: 'pointer',
-    color: '#6666ff',
-    textDecoration: 'none',
-    '&:hover': {
-      color: '#0000dd',
-      textShadow: '1 1 1 #3333ff',
-    }
-  },
-  
-  strong: {
-    marginLeft: '0.25em',
-    cursor: 'pointer',
-    fontSize: '75%',
-    color: '#7f7fff',
-    '&:hover': {
-      color: '#00007f',
-      textShadow: '1 1 1 #3333ff',
-    }
-  },
-  
-  bold: { fontWeight: 'bold' },
-  italic: { fontStyle: 'italic' },
-  
-  verseNum: {
-    fontWeight: 'bold',
-    marginRight: '0.5em',
-  },
-  
-  highlighttedWord: {
-    backgroundColor: 'rgba(255,255,0,.15)',
-    // color: '#005500',
-    padding: '4px',
-    margin: '-4px',
-    display: 'inline-block',
-    borderRadius: '4px',
-  },
+const useStyles = makeStyles((theme) => {
+  return {
+    'size--3': { fontSize: '70%', },
+    'size--2': { fontSize: '80%', },
+    'size--1': { fontSize: '90%', },
+    'size-2': { fontSize: '110%', },
+    'size-3': { fontSize: '120%', },
+    'size-4': { fontSize: '130%', },
+    'size-5': { fontSize: '140%', },
+    'size-6': { fontSize: '150%', },
+    'size-7': { fontSize: '160%', },
+    
+    link: {
+      cursor: 'pointer',
+      color: theme.palette.text.link.main,
+      textDecoration: 'none',
+      '&:hover': {
+        color: theme.palette.text.link.hover,
+        textShadow: theme.palette.shadow.text,
+      }
+    },
+    
+    strong: {
+      marginLeft: '0.25em',
+      cursor: 'pointer',
+      fontSize: '75%',
+      color: theme.palette.text.strongs.main,
+      '&:hover': {
+        color: theme.palette.text.strongs.hover,
+        textShadow: theme.palette.shadow.text,
+      }
+    },
+    
+    bold: { fontWeight: 'bold' },
+    italic: { fontStyle: 'italic' },
+    
+    verseNum: {
+      fontWeight: 'bold',
+      marginRight: '0.5em',
+    },
+    
+    highlighttedWord: {
+      backgroundColor: 'rgba(255,255,0,.15)',
+      padding: '4px',
+      margin: '-4px',
+      display: 'inline-block',
+      borderRadius: '4px',
+    },
 
-  vNum: {
-    display: 'block',
-    fontSize: '200%',
-    color: '#006633',
-    lineHeight: 1.8,
-  },
+    vNum: {
+      display: 'block',
+      fontSize: '200%',
+      color: theme.palette.text.tag,
+      lineHeight: 1.8,
+    },
 
-  tag__h4: {
-    fontSize: '250%',
-  },
+    tag__h4: {
+      fontSize: '250%',
+    },
 
-  class__Index: {
-    display: 'block',
-    fontSize: '110%',
-    color: '#003311',
-    lineHeight: 1.5,
-  },
+    class__Index: {
+      display: 'block',
+      fontSize: '110%',
+      color: theme.palette.text.header,
+      lineHeight: 1.5,
+    },
 
-  class__transcription: {
-    color: '#ff6666',
-  },
+    class__transcription: {
+      color: theme.palette.text.transcription,
+    },
 
-  face__Heb: {
-    fontSize: '140%',
-  },
+    face__Heb: {
+      fontSize: '140%',
+    },
 
-  face__Grk: {
-    fontSize: '120%',
-  },
+    face__Grk: {
+      fontSize: '120%',
+    },
+  }
 });
 
 const LEXEM_TYPE = {

@@ -13,10 +13,10 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
   },
   handle: {
-    background: '#6699ee',
+    background: theme.palette.background.active,
     position: 'absolute',
     zIndex: 10,
-    border: 'solid 4px #dddddd',
+    border: theme.palette.border.sizer,
     borderRadius: '4px',
     boxSizing: 'border-box',
     [theme.breakpoints.down('md')]: {

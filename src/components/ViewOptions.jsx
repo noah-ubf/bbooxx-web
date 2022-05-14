@@ -2,6 +2,8 @@ import { makeStyles } from "@mui/styles";
 import { useTranslation } from "react-i18next";
 // import { Divider } from "@mui/material";
 import NumbersIcon from '@mui/icons-material/Numbers';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -26,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
 const ViewOptions = () => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const { store: { showStrongs }, handlers: { toggleStrongs } } = useViewContext();
+  const { store: { mode, showStrongs }, handlers: { toggleMode, toggleStrongs } } = useViewContext();
 
 return (
     <div className={classes.settings} >
@@ -39,6 +41,19 @@ return (
             <ListItemText
               primary={t('showStrongs')}
               onClick={toggleStrongs}
+            />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding className={classes.desktop}>
+          <ListItemButton>
+            <ListItemIcon>
+              {
+                mode === 'light' ? <LightModeIcon /> : <DarkModeIcon/>
+              }
+            </ListItemIcon>
+            <ListItemText
+              primary={mode === 'light' ? t('themeDark') : t('themeLight')}
+              onClick={toggleMode}
             />
           </ListItemButton>
         </ListItem>

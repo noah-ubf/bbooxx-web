@@ -23,13 +23,13 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'auto',
   },
   descriptor: {
-    borderBottom: 'solid 0.25em #99d5cc',
+    borderBottom: 'solid 0.25em ' + theme.palette.background.active,
   },
   descriptorContent: {
     display: 'inline-block',
     borderTopLeftRadius: '.5em',
     borderTopRightRadius: '.5em',
-    background: '#99d5cc',
+    background: theme.palette.background.active,
     fontWeight: 'bold',
     fontSize: '.7em',
     padding: '.25em 1em .20em .75em',
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   verse: {
-    background: '#ddddff',
+    background: theme.palette.background.verse,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'stretch',
@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 100,
   },
   bottomSpace: {
-    background: 'linear-gradient(to bottom, #ddddff, #ffffff)',
+    background: `linear-gradient(to bottom, ${theme.palette.background.verse}, ${theme.palette.background.main})`,
     height: '10vh',
     paddingBottom: '10vh',
 
@@ -74,13 +74,13 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   progress: {
-    background: '#ddddff',
+    background: theme.palette.background.verse,
     textAlign: 'center',
     paddingTop: '5vh',
   },
   dropArea: {
     height: 10,
-    background: '#99d5cc',
+    background: theme.palette.background.active,
   },
 }));
 

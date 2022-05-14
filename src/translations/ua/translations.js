@@ -21,4 +21,6 @@ export const TRANSLATIONS_UA = {
   showStrongs: 'Номери Стронга',
   strongs: 'Номер Стронга',
   tablist: 'Всі вкладки',
+  themeDark: 'Темна тема',
+  themeLight: 'Світла тема',
 };

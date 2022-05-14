@@ -17,40 +17,43 @@ import { useViewContext } from "@lib/viewContext";
 let vID = 1;
 const getVID = () => vID++;
 
-const useStyles = makeStyles({
-  verse: {
-    alignItems: 'stretch',
-    background: '#ddddff',
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'stretch',
-    position: 'relative',
-  },
-  verseMenuToggler: {
-    cursor: 'pointer',
-    display: 'inline-block',
-    flexGrow: 0,
-    flexShrink: 0,
-    fontSize: '.8rem',
-    fontWeight: 'bold',
-    lineHeight: '2rem',
-    minHeight: '100% !important',
-    minWidth: '30px !important',
-    padding: '0 .2rem 0 0',
-    textAlign: 'right',
-    width: '30px !important',
-    touchAction: 'none',
-
-    '&:hover': {
-      background: '#ccccee',
+const useStyles = makeStyles((theme) => {
+  return {
+    verse: {
+      alignItems: 'stretch',
+      color: theme.palette.text.main,
+      background: theme.palette.background.verse,
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'stretch',
+      position: 'relative',
     },
-  },
-  verseContent: {
-    display: 'inline-block',
-    flexGrow: 100,
-    flexShrink: 100,
-    padding: '.5rem .5rem .5rem .2rem',
-  },
+    verseMenuToggler: {
+      cursor: 'pointer',
+      display: 'inline-block',
+      flexGrow: 0,
+      flexShrink: 0,
+      fontSize: '.8rem',
+      fontWeight: 'bold',
+      lineHeight: '2rem',
+      minHeight: '100% !important',
+      minWidth: '30px !important',
+      padding: '0 .2rem 0 0',
+      textAlign: 'right',
+      width: '30px !important',
+      touchAction: 'none',
+
+      '&:hover': {
+        background: theme.palette.background.light,
+      },
+    },
+    verseContent: {
+      display: 'inline-block',
+      flexGrow: 100,
+      flexShrink: 100,
+      padding: '.5rem .5rem .5rem .2rem',
+    },
+  }
 });
 
 const Verse = ({tab, vOrder, verse, onRemove, highlightedWords}) => {

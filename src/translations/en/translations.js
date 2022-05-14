@@ -21,4 +21,6 @@ export const TRANSLATIONS_EN = {
   showStrongs: 'Strong\'s Numbers',
   strongs: 'Strong Number',
   tablist: 'Tab list',
+  themeDark: 'Dark Theme',
+  themeLight: 'Light Theme',
  };

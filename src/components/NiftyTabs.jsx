@@ -19,9 +19,9 @@ const NiftyTab = styled((props) => <Tab disableRipple {...props} />)(({ theme })
     minWidth: 20,
   },
   background: '#',
-  borderTop: 'solid 1px #7f7f7f',
-  borderLeft: 'solid 1px #7f7f7f',
-  borderRight: 'solid 1px #7f7f7f',
+  borderTop: theme.palette.border.tab,
+  borderLeft: theme.palette.border.tab,
+  borderRight: theme.palette.border.tab,
   borderTopLeftRadius: theme.spacing(1),
   borderTopRightRadius: theme.spacing(1),
   fontWeight: theme.typography.fontWeightRegular,
@@ -31,16 +31,16 @@ const NiftyTab = styled((props) => <Tab disableRipple {...props} />)(({ theme })
   minHeight: TAB_HEIGHT,
   lineHeight: TAB_HEIGHT,
   '&:hover': {
-    color: '#40a9ff',
+    color: theme.palette.text.active,
     opacity: 1,
   },
   '&.Mui-selected': {
-    background: '#ccccee',
-    color: '#1890ff',
+    background: theme.palette.background.light,
+    color: theme.palette.text.active,
     fontWeight: theme.typography.fontWeightMedium,
   },
   '&.Mui-focusVisible': {
-    backgroundColor: '#d1eaff',
+    backgroundColor: theme.palette.background.active,
   },
 }));
 

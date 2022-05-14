@@ -17,18 +17,12 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'stretch',
     justifyContent: 'stretch',
     overflow: 'hidden',
-    border: 'solid 2px #ddddff',
+    border: theme.palette.border.light,
     padding: '.2rem',
     marginRight: '.5rem',
     [theme.breakpoints.down('md')]: {
       marginRight: 0,
     },
-  },
-  status: {
-    fontSize: '.6rem',
-    padding: '.1rem',
-    background: '#eeeeee',
-    textAlign: 'right',
   },
 }));
 
@@ -60,18 +54,14 @@ const TabContent = ({tabId}) => {
     case 'settings': return <Settings/>;
     case 'tabs': return <TabList />;
     default:
-      const count = tabs[tabId].verses && tabs[tabId].verses.length;
-    return (
-      <>
+      return (
         <div className={classes.content} tabIndex={1} ref={ref} onFocus={handleFocus}>
           <VerseList
             tab={ tabs[tabId] }
             onRemove={tabs[tabId].custom ? (i) => removeVerse(i, tabId) : null}
           />
         </div>
-        <div className={classes.status}>{`${count} verses`}</div>
-      </>
-    );
+      );
   }
 }
 

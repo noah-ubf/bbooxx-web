@@ -26,7 +26,7 @@ import usePopup from "../lib/usePopup";
 const useStyles = makeStyles((theme) => ({
   menuWrapper: {
     height: 40,
-    background: '#ddddff',
+    background: theme.palette.background.verse,
     flexShrink: 0,
     display: 'flex',
     justifyContent: 'stretch',
@@ -44,19 +44,19 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: 'nowrap',
     margin: theme.spacing(1),
     lineHeight: '38px',
-    color: '#339999',
+    color: theme.palette.text.active,
     fontWeight: 'bold',
   },
   popupTitle: {
     margin: theme.spacing(1),
     lineHeight: 1.2,
-    color: '#339999',
+    color: theme.palette.text.active,
     fontWeight: 'bold',
     paddingBottom: '1em',
-    borderBottom: 'solid #cccccc 1px',
+    borderBottom: theme.palette.border.tab,
   },
   menuButton: {
-    color: '#339999',
+    color: theme.palette.text.active,
     display: 'inline-block',
     verticalAlign: 'middle',
     marginLeft: theme.spacing(1),
@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme) => ({
   },
   iconButton: {
     '&:not([disabled]) svg': {
-      color: '#339999',
+      color: theme.palette.text.active,
     },
     // padding: '0 !important',
   },
@@ -86,7 +86,7 @@ const useStyles = makeStyles((theme) => ({
       width: '50vw',
       marginLeft: '-25vw',
       borderRadius: '7vw',
-      background: '#99ffff',
+      background: theme.palette.background.highlighted,
       display: 'flex',
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -112,7 +112,7 @@ const useStyles = makeStyles((theme) => ({
   },
   progress: {
     height: '100%',
-    background: '#339999',
+    background: theme.palette.text.active,
   },
   sizeLimiter: {
     maxWidth: '75vw',

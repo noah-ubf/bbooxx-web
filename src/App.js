@@ -1,16 +1,11 @@
 import { useLayoutEffect } from 'react';
-import { createTheme, ThemeProvider } from '@mui/material/styles'
 
+import AppContent from './AppContent';
 import { AppContextProvider } from '@lib/appContext';
 import { ViewContextProvider } from '@lib/viewContext';
-import Layout from '@components/Layout';
 import { fetchURI } from '@lib/requests';
 
-const myTheme = createTheme({
-});
-
 function App() {
-
   useLayoutEffect(() => {
     window.addEventListener("beforeunload", function (e) {
       fetchURI('exit');
@@ -20,9 +15,7 @@ function App() {
   return (
     <AppContextProvider>
       <ViewContextProvider>
-        <ThemeProvider theme={myTheme}>
-          <Layout/>
-        </ThemeProvider>
+        <AppContent/>
       </ViewContextProvider>
     </AppContextProvider>
   );

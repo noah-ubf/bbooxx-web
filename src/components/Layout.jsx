@@ -10,6 +10,8 @@ import useWindowSize from "@lib/useWindowSize";
 
 const useStyles = makeStyles((theme) => ({
   layoutRoot: {
+    background: theme.palette.background.main,
+    color: theme.palette.text.main,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'stretch',
