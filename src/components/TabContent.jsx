@@ -26,11 +26,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const TabContent = ({tabId}) => {
+const TabContent = ({tab}) => {
   const classes = useStyles();
-  const { store: { tabs, mobileActiveTab }, handlers: { updateMemo, toggleTab, removeVerse } } = useAppContext();
+  const { handlers: { updateMemo, toggleTab, removeVerse } } = useAppContext();
   const ref = useRef();
-  const xxx = tabs[tabId] ? tabs[tabId].verses : tabId;
+  const xxx = tab?.verses || tab?.id;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -38,27 +38,27 @@ const TabContent = ({tabId}) => {
   }, [xxx])
 
 
-  if (!tabs[tabId]) return (
+  if (!tab) return (
     <div className={classes.content}>
       &nbsp;
     </div>
   );
 
   const handleFocus = () => {
-    if (tabId !== mobileActiveTab) toggleTab(tabId);
+    if (!tab.active) toggleTab(tab.id);
   }
 
-  switch(tabs[tabId].type) {
-    case 'memo': return <Memo value={tabs[tabId].content || ''} onChange={(e) => updateMemo(tabId, e)}/>;
+  switch(tab.type) {
+    case 'memo': return <Memo value={tab.content || ''} onChange={(e) => updateMemo(tab.id, e)} onFocus={handleFocus}/>;
     case 'modules': return <ModuleList/>;
     case 'settings': return <Settings/>;
     case 'tabs': return <TabList />;
     default:
-      return (
+      return !!tab && (
         <div className={classes.content} tabIndex={1} ref={ref} onFocus={handleFocus}>
           <VerseList
-            tab={ tabs[tabId] }
-            onRemove={tabs[tabId].custom ? (i) => removeVerse(i, tabId) : null}
+            tab={ tab }
+            onRemove={tab.custom ? (i) => removeVerse(i, tab.id) : null}
           />
         </div>
       );

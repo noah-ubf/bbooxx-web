@@ -25,16 +25,26 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'auto',
   },
   editorToolbar: {
+    color: theme.palette.text.main,
+    background: theme.palette.background.main,
+    borderColor: theme.palette.text.active,
     '& .rdw-option-wrapper': {
+      background: theme.palette.background.light,
+      borderColor: theme.palette.text.active,
+      color: theme.palette.text.main,
       padding: 0,
       minHeight: 20,
       minWidth: 20,
       margin: '0 2px',
       '& img': {
         height: '12px',
+        ...theme.palette.inversion,
       }
     },
     '& .rdw-dropdown-wrapper': {
+      background: theme.palette.background.light,
+      borderColor: theme.palette.text.active,
+      color: theme.palette.text.main,
       height: 20,
       fontSize: '12px',
     },
@@ -53,23 +63,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Memo = ({value, onChange}) => {
+const Memo = ({value, onChange, onFocus}) => {
   const classes = useStyles();
   const [extValue, setExtValue] = useState(value);
 
   const createState = (html='', editorState=null) => {
-    const selectionState = editorState && editorState.getSelection();
-    // console.log({selectionState});
     const contentBlock = htmlToDraft(html);
     const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
     const newState = EditorState.createWithContent(contentState);
 
     return editorState ? EditorState.moveFocusToEnd(newState) : newState;
-    // return editorState ? EditorState.create({
-    //   currentContent: contentState,
-    //   selection: selectionState,  // make sure the new editor has the old editor's selection state
-    //   decorator: decorator
-    // }) : EditorState.moveFocusToEnd(newState);
   };
 
   const [editorState, setEditorState] = useState(createState(value));  
@@ -95,6 +98,7 @@ const Memo = ({value, onChange}) => {
       wrapperClassName={classes.editorWrapper}
       editorClassName={classes.editor}
       onEditorStateChange={handleChange}
+      onFocus={(e) => onFocus && onFocus(e)}
     />
   </div>
 }

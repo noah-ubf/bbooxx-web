@@ -1,72 +1,81 @@
-export const defaultTabs = {
-  tabs: {
+export const AREA_IDS = {
+  left: '@left',
+  center: '@center',
+  right: '@right',
+  bottom: '@bottom',
+}
+
+export const defaultTabs = [
+  {
     id: 'tabs',
     type: 'tabs',
     description: {i18n: 'tablist'},
     locked: true,
     hidden: true,
   },
-  modules: {
+  {
     id: 'modules',
     type: 'modules',
     description: {i18n: 'library'},
     locked: true,
+    areaId: AREA_IDS.left,
+    active: true,
+    activeInArea: true,
   },
-  initial: {
+  {
     id: 'initial',
     locked: true,
     description: '*',
     verses: [],
+    areaId: AREA_IDS.center,
+    active: false,
+    activeInArea: true,
   },
-  collection: {
+  {
     id: 'collection',
     locked: true,
     description: {i18n: 'collection'},
     verses: [],
     custom: true,
+    areaId: AREA_IDS.right,
+    active: false,
+    activeInArea: false,
   },
-  memo: {
+  {
     id: 'memo',
     type: 'memo',
     description: {i18n: 'notes'},
     locked: true,
+    areaId: AREA_IDS.right,
+    active: false,
+    activeInArea: true,
   },
-  settings: {
+  {
     id: 'settings',
     type: 'settings',
     description: {i18n: 'settings'},
     locked: true,
     hidden: true,
   },
-  strongs: {
+  {
     id: 'strongs',
     type: 'strongs',
     description: {i18n: 'strongs'},
     locked: true,
     hidden: true,
     verses: [],
+    areaId: AREA_IDS.bottom,
+    active: false,
+    activeInArea: true,
   },
-};
+];
 
-export const defaultAreas = [
-  {
-    id: 'leftCol',
-    activeTab: 'modules',
-    tabIds: ['modules'],
-  },
-  {
-    id: 'centerCol',
-    activeTab: 'initial',
-    tabIds: ['initial'],
-  },
-  {
-    id: 'rightCol',
-    activeTab: 'memo',
-    tabIds: ['collection', 'memo'],
-  },
-  {
-    id: 'bottomCol',
-    activeTab: null,
-    tabIds: ['strongs'],
-  },
-]
+export const getAreas = (tabs) => {
+  const areas = {};
+  Object.values(AREA_IDS).forEach((id) => areas[id] = ({id, tabs: []}))
+  tabs.forEach((tab) => {
+    if (!tab.areaId || !areas[tab.areaId]) return;
+    areas[tab.areaId] = {...areas[tab.areaId], tabs: [...areas[tab.areaId].tabs, tab]};
+  });
+  return areas;
+};

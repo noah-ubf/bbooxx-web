@@ -1,129 +1,247 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { isArray } from 'lodash';
 
 import { fetchURI } from '@lib/requests';
 
-import closeTabMem from './closeTabMem';
-import showReferencesMem from './showReferencesMem';
-import cloneTabMem from './cloneTabMem';
-import searchMem from './searchMem';
-import nearChapterDescriptorsMem from './nearChapterDescriptorsMem';
-import toggleTabMem from './toggleTabMem';
-import { defaultTabs, defaultAreas } from './defaults';
-import { loadTabContent, AppState } from './helpers';
+import { AREA_IDS, defaultTabs, getAreas } from './defaults';
+import { loadTabContent, nearChapterDescriptorsGetter } from './helpers';
+import getId from './getId';
+import { t } from "i18next";
+
+const insert = (arr, index, newItems) => [
+  ...arr.slice(0, index),
+  ...newItems,
+  ...arr.slice(index)
+]
+
+const remove = (arr, index) => [
+  ...arr.slice(0, index),
+  ...arr.slice(index+1)
+]
 
 const AppContext = createContext({});
 
-const getInitialTabs = () => {
+const getStorageJSON = (key) => {
   try {
-    return window.localStorage.getItem('tabs')
-    ? JSON.parse(window.localStorage.getItem('tabs'))
-    : defaultTabs;
+    return window.localStorage.getItem(key)
+    ? JSON.parse(window.localStorage.getItem(key))
+    : false;
   } catch (e) {
-    return defaultTabs;
+    return false;
   }
 }
 
-const initialTabs = getInitialTabs();
-
-
-const initialAreas = window.localStorage.getItem('areas')
-? JSON.parse(window.localStorage.getItem('areas'))
-: defaultAreas;
-
-// When a developer adds new tab to default:
-Object.keys(defaultTabs).forEach((tabId) => {
-  if (!initialTabs[tabId]) {
-    initialTabs[tabId] = defaultTabs[tabId];
-    if (initialAreas.every((area) => !area.tabIds.includes(tabId))) {
-      const defaultAreaId = defaultAreas.find((a) => a.tabIds.includes(tabId));
-      const area = defaultAreaId && initialAreas.find((a) => a.id === defaultAreaId);
-      if (defaultAreaId && area) {
-        area.tabIds.push(defaultAreaId)
-      } else {
-        initialAreas[initialAreas.length - 1].tabIds.push(tabId);
-      }
-    }
+const getLegacyTabs = () => {
+  const AREA_MAP = {
+    leftCol: '@left',
+    centerCol: '@center',
+    rightCol: '@right',
+    bottomCol: '@bottom',
   }
-});
+  const tabs = getStorageJSON('tabs');
+  const areas = getStorageJSON('areas');
+  const initialMobileActiveTab = window.localStorage.getItem('mobileActiveTab');
+  const newTabs = [];
+  Object.keys(tabs).forEach((t) => {
+    const area = areas.find((a) => a.tabIds.includes(t));
+    const order = area ? area.tabIds.findIndex((id) => id === t) : -1;
+    const newTab = {
+      ...tabs[t],
+      areaId: area ? AREA_MAP[area.id] : undefined,
+      active: t === initialMobileActiveTab,
+      activeInArea: area && area.activeTab === t,
+    };
+    newTabs.push({newTab, order});
+  });
+  newTabs.sort((a,b) => (a.order - b.order));
+  return newTabs.map(({newTab}) => newTab);
+}
 
-const initialMobileActiveTab = window.localStorage.getItem('mobileActiveTab');
+const getStoredTabs = () => {
+  const storedTabs = getStorageJSON('tabs');
+  const isLegacy = !isArray(storedTabs);
+  const tabs = isLegacy ? getLegacyTabs() : storedTabs;
+  defaultTabs.forEach((t) => {
+    if (!tabs.find((tt) => tt.id === t.id)) {
+      tabs.push(t);
+    }
+  });
+  if (isLegacy) {
+    window.localStorage.removeItem('areas');
+    window.localStorage.removeItem('mobileActiveTab');
+  }
+  return tabs;
+}
+
+const storedTabs = getStoredTabs();
 
 const cleanTabs = (tabs) => {
-  const newTabs = {};
-  Object.keys(tabs).forEach((key) => {
-    newTabs[key] = tabs[key].verses ? {...tabs[key], verses: undefined, loaded: false} : tabs[key];
-  });
-  return newTabs;
+  return tabs.map((tab) => tab.verses ? {...tab, verses: undefined, loaded: false} : {...tab, loaded: false});
 }
 
 export const AppContextProvider = ({ children }) => {
   const [allData, setAllData] = useState({
     loaded: false,
     modules: [],
-    tabs: initialTabs,
-    areas: initialAreas,
-    mobileActiveTab: initialMobileActiveTab || 'modules',
-    lastActiveDataTab: 'modules',
+    tabs: storedTabs,
   });
   const allDataRef = useRef();
   allDataRef.current = allData;
 
-  window.localStorage.setItem('mobileActiveTab', allData.mobileActiveTab);
-  window.localStorage.setItem('tabs', JSON.stringify(cleanTabs(allData.tabs)));
-  window.localStorage.setItem('areas', JSON.stringify(allData.areas));
-
-  useEffect(() => {
-    const onHashChange = () => {
-      const hash = window.location.hash.split('/')[0];
-      setAllData({
-        ...allDataRef.current,
-        mobileActiveTab: hash.substring(1),
-      });
-    }
-    window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
-  }, []);
+  // console.log({allData})
 
   const context = useMemo(() => {
-    const stateProcessor = new AppState(allData);
+    window.localStorage.setItem('tabs', JSON.stringify(cleanTabs(allData.tabs)));
+
+    const setTabs = (tabs) => {
+      const activeBefore = allData.tabs.find((t) => t.active);
+      const activeAfter = tabs.find((t) => t.active);
+      if (activeBefore?.id !== activeAfter?.id) {
+        window.location.hash = `#${activeAfter?.id}`;
+      }
+
+      setAllData({ ...allData, tabs });
+    }
+
+    const getTab = (id, tabs = allData.tabs) => tabs.find((t) => t.id === id);
+
+    const getTabIndex = (id, tabs = allData.tabs) => tabs.findIndex((t) => t.id === id);
+
+    const focusTab = (tabId, tabs = allData.tabs) => {
+      // console.log('[focusTab:]', tabId, tabs);
+      const tab = getTab(tabId, tabs);
+      return tabs.map((t) => {
+        if (t.id === tabId) return { ...t, active: true, activeInArea: true };
+        if (t.areaId === tab.areaId) return { ...t, active: false, activeInArea: false };
+        return { ...t, active: false };
+      })
+    }
+
+    const fixActiveInArea = (areaId, tabs = allData.tabs) => {
+      const activeInArea = tabs.find((t) => t.areaId === areaId && t.activeInArea)
+      return activeInArea ? tabs : tabs.map((t,i) => i>0 ? t : { ...t, activeInArea: true } );
+    }
 
     const loadText = (descriptor, description, tabId='initial') => {
-      setAllData({
-        ...allData,
-        tabs: { ...allData.tabs, [tabId]: { ...allData.tabs[tabId], loaded: false, descriptor, description } },
-        areas: allData.areas.map((area) => (
-          area.tabIds.indexOf(tabId) !== -1 ? { ...area, activeTab: tabId } : area
-        )),
-        mobileActiveTab: tabId,
-        lastActiveDataTab: (tabId !== 'tabs') ? tabId: allData.lastActiveDataTab,
+      const tab = getTab(tabId);
+      if (!tab) return;
+      const tabs = allData.tabs.map((t) => {
+        if (t.id === tabId) {
+          return {...t, loaded: false, descriptor, description, active: true, activeInArea: true };
+        } else if (t.areaId === tab.areaId) {
+          return {...t, active: false, activeInArea: false };
+        }
+        return t;
       });
+      setTabs(tabs);
       window.location.hash = `#${tabId}`;
     };
 
     return ({
-      store: allData,
+      store: {
+        ...allData,     
+        areas: getAreas(allData.tabs),
+      },
 
       getters: {
-        getNearChapterDescriptors: nearChapterDescriptorsMem(allData),
+        getNearChapterDescriptors: nearChapterDescriptorsGetter(allData),
       },
 
       handlers: {
+        getActiveTab: () => allData.tabs.find((t) => t.active),
+
+        getAreaActiveTab: (areaId) => allData.tabs.find((t) => t.areaId === areaId && t.activeInArea),
+
         loadText,
-        cloneTab: cloneTabMem(allData, setAllData),
-        search: searchMem(allData, setAllData),
-        toggleTab: toggleTabMem(allData, setAllData),
-        closeTab: closeTabMem(allData, setAllData),
-        showReferences: showReferencesMem(allData, setAllData),
-        moveTab: (tab, tgtAreaId, receiveId) => {
-          setAllData(stateProcessor.moveTab(tab, tgtAreaId, receiveId).getData());
+
+        cloneTab: (tabId, clean, renameTo=false) => {
+          const tab = getTab(tabId);
+          if (!tab) return;
+          const newTabId = getId();
+          const newTab = { ...tab, id: newTabId, locked: true, description: renameTo || tab.description };
+          const description = tabId === 'initial' ? '*' : tab.description;
+          const tabs2 = allData.tabs.map((t) => (t.id === tabId && clean) ? {...t, descriptor: '', description, verses: []} : t)
+          // window.location.hash = `#${tabId}`;
+          setTabs(focusTab(newTabId, [...tabs2, newTab]));
+      
+          setTimeout(() => {
+            const newTabs = allDataRef.current.tabs.map((t) => t.id === newTabId ? {...t, locked: false} : t);
+            setTabs(newTabs);
+          }, 2000);
         },
+
+        search: (module, text) => {
+          if (!text || text === '') return;
+          const tabId = getId();
+          const newTab = {
+            id: tabId,
+            source: {type: 'search', module: module.shortName, text},
+            loaded: false,
+            description: {i18n: 'searchResults', params: {module: module.shortName, text}},
+            areaId: AREA_IDS.center
+          };
+          const tabs3 = focusTab(tabId, [ ...allData.tabs, newTab ]);
+          const tabs4 = fixActiveInArea(AREA_IDS.center, tabs3);
+          // window.location.hash = `#${tabId}`;
+          setTabs(tabs4);
+        },
+
+        toggleTab: (tabId) => {
+          setTabs(focusTab(tabId));
+        },
+
+        closeTab: (tabId) => {
+          const tab = getTab(tabId);
+          if (!tab) return;
+          const areaId = tab.areaId;
+          const tabs2 = remove(allData.tabs, getTabIndex(tabId))
+          const tabs4 = fixActiveInArea(areaId, tabs2);
+          setTabs(tabs4);
+        },
+
+        showReferences: (verse) => {
+          const descriptor = `(${verse.module})`
+            + verse.xrefs.map((x) => (x[2] === x[5] ? `${x[0]}.${x[1]}:${x[2]}` : `${x[0]}.${x[1]}:${x[2]}-${x[5]}`)).join(';');
+          const newTabId = getId();
+      
+          const newTab = {
+            id: newTabId,
+            source: {type: 'refs', descriptor},
+            loaded: false,
+            description: {i18n: 'refs', params: {descriptor: verse.descriptor}},
+            areaId: AREA_IDS.right,
+          };
+      
+          const tabs3 = focusTab(newTabId, [ ...allData.tabs, newTab ]);
+          const tabs4 = fixActiveInArea(AREA_IDS.center, tabs3);
+          setTabs(tabs4);
+        },
+
+        moveTab: (tabId, tgtAreaId, receiveId=null) => {
+          const tab = getTab(tabId);
+          const srcAreaId = tab.areaId;
+          const tabs1 = allData.tabs.filter((t) => t.id !== tabId);
+          const newTab = {...tab, areaId: tgtAreaId, active: true, activeInArea: true, };
+          const tabs2 = receiveId
+            ? insert(tabs1, getTabIndex(receiveId, tabs1), [newTab])
+            : [...tabs1, newTab]
+          const tabs3 = focusTab(tabId, tabs2);
+          const tabs4 = fixActiveInArea(srcAreaId, tabs3);
+          // window.location.hash = `#${tabId}`;
+          setTabs(tabs4);
+        },
+
         loadTabContent: async (tabId) => {
-          const newTab = await loadTabContent(allData.tabs[tabId]);
+          const tab = getTab(tabId);
+          const newData = await loadTabContent(tab);
           setAllData({
             ...allDataRef.current,
-            tabs: {...allDataRef.current.tabs, [tabId]: newTab}
+            tabs: allDataRef.current.tabs.map((t) => {
+              return (t.id === tabId) ? {...t, ...newData, active: true, activeInArea: true, loaded: true } : t;
+            })
           });
         },
+
         loadStrongs: (strongsNum) => {
           const module = allData.modules.find((m) => m.type === 'strongs')
           if (!module) return;
@@ -146,26 +264,20 @@ export const AppContextProvider = ({ children }) => {
         },
 
         updateMemo: (tabId, content) => {
-          const tab = allData.tabs[tabId];
-          if (!tab || tab.type !== 'memo') return;
-          if (tab.content === content) return;
-          setAllData({
-            ...allData,
-            tabs: {...allData.tabs, [tabId]: {...allData.tabs[tabId], content}}
-          });
+          const tab = getTab(tabId);
+          if (!tab || tab.type !== 'memo' || tab.content === content) return;
+          setTabs(allData.tabs.map((t) => t.id === tabId ? { ...t, content } : t));
         },
 
         resetTabs: () => {
-          window.localStorage.removeItem('mobileActiveTab');
           window.localStorage.removeItem('tabs');
-          window.localStorage.removeItem('areas');
           window.location.reload();
         },
 
         renameTab: (tabId, description) => {
           setAllData({
             ...allData,
-            tabs: {...allData.tabs, [tabId]: {...allData.tabs[tabId], description}},
+            tabs: allData.tabs.map((t) => t.id === tabId ? {...t, description} : t ),
           });
         },
 
@@ -182,93 +294,56 @@ export const AppContextProvider = ({ children }) => {
 
         copyToCollection: async (verse, tabId='collection') => {
           if (!verse || ! verse.descriptor) return;
-          const tab = allData.tabs[tabId];
+          const tab = getTab(tabId);
           const descr = tab.descriptor;
-          setAllData({
-            ...allData,
-            tabs: {
-              ...allData.tabs,
-              [tabId]: {
-                ...tab,
-                descriptor: descr ? [descr, verse.descriptor].join(';') : verse.descriptor,
-                loaded: false,
-              }
-            }
-          });
+          const data = {
+            descriptor: descr ? [descr, verse.descriptor].join(';') : verse.descriptor,
+            loaded: false,
+          };
+          const newTabs = allData.tabs.map((t) => t.id === tabId ? { ...t, ...data } : t);
+          setTabs(newTabs);
         },
 
         removeVerse: (pos, tabId) => {
-          const tab = allData.tabs[tabId];
-          const newVerses = tab.verses.filter((v, i) => (i !== pos));
-
-          setAllData({
-            ...allData,
-            tabs: {
-              ...allData.tabs,
-              [tabId]: {
-                ...tab,
-                descriptor: newVerses.map(({descriptor}) => descriptor).join(';'),
-                verses: newVerses,
-              }
-            }
-          });
+          const tab = getTab(tabId);
+          const verses = remove(tab.verses, pos);
+          const descriptor = verses.map(({descriptor}) => descriptor).join(';');
+          setTabs(allData.tabs.map((t) => t.id === tabId ? { ...tab, descriptor, verses } : t));
         },
 
         moveVerse: (tabIdFrom, pos, tabIdTo, posTo=-1) => {
-          const tabFrom = allData.tabs[tabIdFrom];
-          const tabTo = allData.tabs[tabIdTo];
+          const tabFrom = getTab(tabIdFrom);
+          const tabTo = getTab(tabIdTo);
           if (!tabTo.custom) return;
           const verse = tabFrom.verses[pos];
           if (!verse) return;
-          const newVersesFrom = tabFrom.custom
-            ? tabFrom.verses.filter((v, i) => (i !== pos))
-            : tabFrom.verses;
-          let versesTo = tabTo.verses;
+
           if (tabIdFrom === tabIdTo) {
-            if (posTo >= pos) posTo--;
-            versesTo = newVersesFrom;
+            const verses = posTo >= pos
+              ? remove(insert(tabFrom.verses, posTo, [verse]), pos)
+              : insert(remove(tabFrom.verses, pos), posTo, [verse]);
+            setTabs(allData.tabs.map((t) => t.id === tabIdFrom ? {...t, verses} : t))
+          } else {
+            const versesFrom = remove(tabFrom.verses, pos);
+            const versesTo = insert(tabTo.verses, posTo, [verse]);
+            setTabs(allData.tabs.map((t) => {
+              if (t.id === tabIdFrom) return {...t, verses: versesFrom};
+              if (t.id === tabIdTo) return {...t, verses: versesTo};
+              return t;
+            }))
           }
-
-          const newVersesTo = posTo === -1
-            ? [...versesTo, verse]
-            : [...versesTo.slice(0, posTo), verse, ...versesTo.slice(posTo)];
-
-          const newTabs = {
-            ...allData.tabs,
-            [tabIdTo]: {
-              ...tabTo,
-              descriptor: newVersesTo.map(({descriptor}) => descriptor).join(';'),
-              verses: newVersesTo,
-            },
-          }
-
-          if (tabIdFrom !== tabIdTo) {
-            newTabs[tabIdFrom] = {
-              ...tabFrom,
-              descriptor: newVersesFrom.map(({descriptor}) => descriptor).join(';'),
-              verses: newVersesFrom,
-            }
-          }
-
-          setAllData({ ...allData, tabs: newTabs });
         },
 
         addToMemo: (verse) => {
-          const tab = allData.tabs['memo'];
-          setAllData({
-            ...allData,
-            tabs: {
-              ...allData.tabs,
-              memo: {
-                ...tab,
-                content: [
-                  tab.content,
-                  verse.text,
-                  `<p><strong>${verse.descriptor}</strong></p>`
-                ].join(''),
-              },
-            },
-          });
+          const tab = getTab('memo');
+          const content = [
+            '<div>',
+            tab.content,
+            verse.text,
+            `<p><strong>${verse.descriptor}</strong></p>`,
+            '</div>',
+          ].join('');
+          setTabs(allData.tabs.map((t) => t.id === 'memo' ? {...tab, content} : t));
         }
       },
     })}, [ allData ]

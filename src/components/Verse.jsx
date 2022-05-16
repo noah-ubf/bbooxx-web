@@ -94,12 +94,10 @@ const Verse = ({tab, vOrder, verse, onRemove, highlightedWords}) => {
   }
 
   const handleDisplayStrongs = (strongsNum) => {
-    console.log('STRONGS:', strongsNum)
     loadStrongs(strongsNum);
   }
 
   const drag = (e) => {
-    console.log(e, e.target.innerText);
     e.dataTransfer.setData("verseId", e.target.id);
   }
 

@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 
 const TabList = () => {
   const { t } = useTranslation();
-  const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
+  const tr = (key) => (key?.i18n ? t(key.i18n, key.params) : key);
   const classes = useStyles();
   const {
     store: { tabs, mobileActiveTab, lastActiveDataTab },
@@ -120,19 +120,6 @@ const TabList = () => {
             />
           </ListItemButton>
         </ListItem>
-        { !tabs['settings'] &&
-          <ListItem disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                <SettingsIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={t('reset')}
-                onClick={() => {if (window.confirm(t('resetData'))) resetTabs()}}
-              />
-            </ListItemButton>
-          </ListItem>
-        }
         <ListItem>
           <ListItemButton>
             <ListItemIcon onClick={() => i18n.changeLanguage('ua')}>

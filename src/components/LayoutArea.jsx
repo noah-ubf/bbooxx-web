@@ -80,11 +80,16 @@ const LayoutArea = ({ area }) => {
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
 
   const classes = useStyles();
-  const { activeTab, tabIds } = area;
+  const { tabs } = area;
+  const visibleTabs = tabs.filter((t) => !t.hidden);
   const {
-    store: { tabs },
-    handlers: { toggleTab, closeTab, moveTab, cloneTab, renameTab }
+    handlers: { getActiveTab, toggleTab, closeTab, moveTab, cloneTab, renameTab }
   } = useAppContext();
+  const activeTab = getActiveTab()
+  const activeTabInArea = area.tabs.find((t) => t.activeInArea) || area.tabs[0];
+  const activeTabId = activeTab?.id;
+  // const activeTabInAreaId = activeTabInArea?.id
+  const activeTabValue = visibleTabs.find((t) => t.id === activeTabId) ? activeTabId : false;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [[tabId, dialogText, isRename], setDialogProps] = useState([]);
@@ -93,6 +98,7 @@ const LayoutArea = ({ area }) => {
   const drag = (e) => e.dataTransfer.setData("tabId", e.target.id);
   const drop1 = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     const tabId = e.dataTransfer.getData("tabId");
     if (tabId) {
       moveTab(tabId, area.id);
@@ -100,10 +106,10 @@ const LayoutArea = ({ area }) => {
   }
   const drop2 = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     const tabId = e.dataTransfer.getData("tabId");
     if (tabId) {
-      const [areaId, receiveId] = e.target.closest('[draggable]').id;
-      moveTab(tabId, areaId, receiveId);
+      moveTab(tabId, area.id, e.target.closest('[draggable]').id);
     }
   }
 
@@ -133,52 +139,52 @@ const LayoutArea = ({ area }) => {
       onDrop={drop1}
       onDragOver={allowDrop}
     >
-      { (tabIds.length > 0) &&
+      { (visibleTabs.length > 0) &&
         <NiftyTabs
           className={classes.tab}
-          value={activeTab}
+          value={activeTabValue}
           onChange={(e, newValue) => toggleTab(newValue)}
           variant="scrollable"
           scrollButtons="auto"
         >
         {
-          tabIds.map((tabId, i) => (
-          !!tabs[tabId] && (!isBasic(tabs[tabId]) || hasVerses(tabs[tabId])) &&
+          visibleTabs.map((tab, i) => (
+          (!isBasic(tab) || hasVerses(tab)) &&
             <NiftyTab key={i}
-              id={ tabId }
+              id={ tab.id }
               wrapped
-              value={tabId}
+              value={tab.id}
               label={
                 <div className={classes.tabContent}>
-                  <span className={tabs[tabId].locked ? classes.locked : null}>
-                    { tr(tabs[tabId].description) }
+                  <span className={tab.locked ? classes.locked : null}>
+                    { tr(tab.description) }
                   </span>
 
-                  {(isBasic(tabs[tabId]) && hasVerses(tabs[tabId])) && (
-                    <PushPinOutlinedIcon onClick={() => handlePin(tabs[tabId])} /> 
+                  {(isBasic(tab) && hasVerses(tab)) && (
+                    <PushPinOutlinedIcon onClick={() => handlePin(tab)} /> 
                   )}
 
-                  {/* <ShareIcon onClick={() => shareTab(tabs[tabId])} /> */}
+                  {/* <ShareIcon onClick={() => shareTab(tab)} /> */}
 
-                  {(!isBasic(tabs[tabId]) && tabs[tabId].custom && tabId === activeTab) && (
-                    <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tabs[tabId])}} />
+                  {(!isBasic(tab) && tab.custom && tab.activeInArea) && (
+                    <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tab)}} />
                   )}
 
-                  {(!tabs[tabId].locked && tabId === activeTab) && (
-                    <CloseIcon onClick={(e) => {e.stopPropagation(); closeTab(tabId)}} />
+                  {(!tab.locked && tab.activeInArea) && (
+                    <CloseIcon onClick={(e) => {e.stopPropagation(); closeTab(tab.id)}} />
                   )}
                 </div>
               }
-              onDrop={tabId === 'initial' ? undefined : drop2}
+              onDrop={tab.id === 'initial' ? undefined : drop2}
               onDragOver={allowDrop}
-              draggable={tabId !== 'initial'}
+              draggable={tab.id !== 'initial'}
               onDragStart={drag}
             />
           ))
         }
         </NiftyTabs>
       }
-      <TabContent tabId={activeTab} />
+      <TabContent tab={activeTabInArea} />
 
       {dialogOpen && <TabNameDialog
         open={dialogOpen}

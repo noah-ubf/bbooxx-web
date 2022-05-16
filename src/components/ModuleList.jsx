@@ -14,7 +14,7 @@ const ModuleList = ({ tabId, onChapterSelected }) => {
   const { store: { modules } } = useAppContext();
   const classes = useStyles();
 
-  return <div className={classes.moduleList}>
+  return <div className={classes.moduleList} tabIndex={1}>
     {
       modules.map((module) => (
         <div key={module.shortName}>

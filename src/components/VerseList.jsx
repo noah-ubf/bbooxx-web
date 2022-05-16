@@ -137,7 +137,6 @@ const VerseList = ({tab, onRemove}) => {
 
   const isVerse = (e) => {
     const data = e.dataTransfer.getData("verseId");
-    console.log(`isVerse ${data}`, !!data)
     return !!data;
   }
 
@@ -173,10 +172,10 @@ const VerseList = ({tab, onRemove}) => {
                   <div
                     className={classes.descriptor}
                     onDragLeave={preventDragLeave}
-                    onClick={handleChapterClick(descriptor)}
                   >
                     <span
                       className={classNames(classes.descriptorContent, {[classes.descriptorContentLink]: !nearest})}
+                      onClick={handleChapterClick(descriptor)}
                     >
                       {descriptor}
                       {!nearest && <OpenInNewIcon/>}

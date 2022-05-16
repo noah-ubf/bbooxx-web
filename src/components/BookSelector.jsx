@@ -9,7 +9,7 @@ import { useViewContext } from '@lib/viewContext';
 
 const useStyles = makeStyles((theme) => ({
   bookSelector: {
-    border: 'solid silver 1px',
+    border: theme.palette.border.highlighted,
     marginBottom: '.1rem',
   },
   book: {
@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
     width: '1.5rem',
     height: '1.5rem',
     lineHeight: '1.5rem',
-    border: 'solid silver 1px',
+    border: theme.palette.border.highlighted,
     borderRadius: 2,
     cursor: 'pointer',
     textAlign: 'center',

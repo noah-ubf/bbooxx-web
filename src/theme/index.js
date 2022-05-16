@@ -36,6 +36,8 @@ export const getTheme = (mode) => {
           hover: '#cccccc',
           highlighted: '#99ffff',
         },
+        inversion: {
+        }
       },
     };
   }
@@ -44,38 +46,41 @@ export const getTheme = (mode) => {
     palette: {
       mode,
       text: {
-        main: '#ffffff',
-        active: '#ff9966',
-        tag: '#dd99dd',
-        header: '#ffddee',
+        main: '#c1b09e',
+        active: '#0b5a45',
+        tag: '#9999dd',
+        header: '#337733',
         strongs: {
-          main: '#7f7fff',
+          main: '#7f7fcc',
           hover: '#7fffff',
         },
         link: {
           main: '#6666ff',
           hover: '#ffff33',
         },
-        transcription: '#ff6666',
+        transcription: '#d76666',
       },
       border: {
-        tab: 'solid 1px #7f7f7f',
-        highlighted: 'solid 2px #663b44',
-        light: 'solid 2px #444411',
-        sizer: 'solid 4px #444444',
+        tab: 'solid 1px #333333',
+        highlighted: 'solid 2px #333733',
+        light: 'solid 2px #222211',
+        sizer: 'solid 4px #334433',
       },
       shadow: {
         text: '1 1 1 #3333ff',
       },
       background: {
         main: '#111111',
-        verse: '#221707',
-        light: '#554411',
-        active: '#663b44',
+        verse: '#211e25',
+        light: '#001e1c',
+        active: '#443b44',
         selected: '#665511',
         hover: '#444444',
         highlighted: '#112700',
       },
+      inversion: {
+        filter: 'invert(.9)',
+      }
     },
   };
 }

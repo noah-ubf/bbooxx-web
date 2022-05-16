@@ -7,6 +7,7 @@ import {useAppContext} from "@lib/appContext";
 import Sizer from "@components/Sizer";
 import MobileContent from "@components/MobileContent";
 import useWindowSize from "@lib/useWindowSize";
+import { AREA_IDS } from "@lib/appContext/defaults";
 
 const useStyles = makeStyles((theme) => ({
   layoutRoot: {
@@ -87,17 +88,17 @@ const Layout = () => {
   const md = +theme.breakpoints.values.md;
   const classes = useStyles();
   const { store: { loaded, areas }, handlers: { loadText, fetchModules } } = useAppContext();
-  const leftColArea = areas.find((a) => a.id === 'leftCol');
-  const centerColArea = areas.find((a) => a.id === 'centerCol');
-  const rightColArea = areas.find((a) => a.id === 'rightCol');
-  const bottomColArea = areas.find((a) => a.id === 'bottomCol');
   const isMobile = loaded && (docWidth <= md);
   const isDesktop = loaded && (docWidth > md);
 
   useEffect(() => {
     if (!loaded) {
-      fetchModules();
+      setTimeout(fetchModules, 0);
+    }
+  });
 
+  useEffect(() => {
+    if (loaded) {
       const searchParams = new URLSearchParams(window.location.search);
       const descriptor = searchParams.get('text');
       const description = searchParams.get('title') || descriptor;
@@ -107,6 +108,8 @@ const Layout = () => {
       }
     }
   });
+
+  if (!loaded) return false;
 
   if (isMobile) return (
     <div className={classes.layoutRoot}>
@@ -127,21 +130,21 @@ const Layout = () => {
         </div>
         <div className={classes.content}>
           <Sizer side="right" initialSize={300}>
-            <LayoutArea area={ leftColArea } />
+            <LayoutArea area={ areas[AREA_IDS.left] } />
           </Sizer>
           <div className={classes.centerCol}>
             <div className={classes.centerTop}>
-              <LayoutArea area={ centerColArea } />
+              <LayoutArea area={ areas[AREA_IDS.center] } />
             </div>
             <div className={classes.centerBottom}>
               <Sizer side="top" initialSize={100}>
-                <LayoutArea area={ bottomColArea } />
+                <LayoutArea area={ areas[AREA_IDS.bottom] } />
               </Sizer>
             </div>
           </div>
           <div className={classes.rightCol}>
             <Sizer side="left" initialSize={200}>
-              <LayoutArea area={ rightColArea } />
+              <LayoutArea area={ areas[AREA_IDS.right] } />
             </Sizer>
           </div>
         </div>

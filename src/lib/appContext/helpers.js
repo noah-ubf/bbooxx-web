@@ -1,9 +1,10 @@
 import { fetchURI } from '@lib/requests';
 import { getDescriptorFromList } from "@lib/descriptor";
-import getId from './getId';
 import { isArray } from 'lodash';
+import { parseDescriptor } from "@lib/descriptor";
 
 export const loadTabContent = async (tab) => {
+  if (!tab) return;
   if (tab.loaded === false) {
     const {source={}, descriptor} = tab;
     const tabTemplate = { ...tab, loaded: true, verses: [] };
@@ -39,88 +40,42 @@ export const loadTabContent = async (tab) => {
   }
 }
 
-export class AppState {
-  constructor({loaded, modules, tabs, areas, mobileActiveTab, lastActiveDataTab}) {
-    this.data = {loaded, modules, tabs, areas, mobileActiveTab, lastActiveDataTab};
-  }
 
-  _getTab(tabId) {
-    return this.data.tabs[tabId];
-  }
+export const nearChapterDescriptorsGetter = (
+  {modules}
+) => {
+  return (descriptor) => {
+    const parsed = parseDescriptor(descriptor);
+    if (parsed.length !== 1) return null;
+    const { module, book, chapter, verses } = parsed[0];
+    const currentModule = modules.find(m => m.shortName === module);
+    if (!!verses) return null; // only 1 chapter is supported
+    if (!currentModule) return null;
+    const bookIndex = currentModule.books.findIndex((b) => b.name === book || b.shortName.indexOf(book) !== -1);
+    if (bookIndex === -1) return null;
 
-  _addTabToArea(tabId, areaId, pos=-1) {
-    const areas = this.data.areas.map((area) => {
-      if (area.tabIds.includes(tabId)) {
-        const tabIds = area.tabIds.filter((t) => (t !== tabId));
-        const activeTab = tabIds.includes(area.activeTab)
-          ? area.activeTab
-          : tabIds[Math.max(0, Math.min(area.tabIds.indexOf(tabId), tabIds.length - 1))];
-        return { ...area, tabIds, activeTab }
-      }
-      
-      if (area.id === areaId) {
-        const tabIds = pos === -1
-          ? [...area.tabIds, tabId]
-          : [...area.tabIds.slice(0,pos), tabId, area.tabIds.slice(pos)]
-        return { ...area, tabIds};
-      }
-      return area;
-    });
-    this.data = {...this.data, areas};
-    return this;
-  }
+    const prev = chapter > 1
+      ? { bookIndex, chapter: chapter - 1 }
+      : bookIndex === 0
+        ? null
+        : { bookIndex: bookIndex-1, chapter: currentModule.books[bookIndex-1].chapterQty };
 
-  _addTabToTabs(tab) {
-    this.data = {...this.data, tabs: {...this.data.tabs, [tab.id]: tab}};
-    return this;
-  }
+    const next = chapter < currentModule.books[bookIndex].chapterQty
+      ? { bookIndex, chapter: chapter + 1 }
+      : bookIndex === currentModule.books.length - 1
+        ? null
+        : { bookIndex: bookIndex+1, chapter: 1 };
 
-  _removeTabFromAreas(tabId) {
-    return this._addTabToArea(tabId, false);
-  }
+    const prevBook = prev && currentModule.books[prev.bookIndex];
+    const nextBook = next && currentModule.books[next.bookIndex];
+    const prevDescriptor = prev && `(${module})${prevBook.name}.${prev.chapter}`;
+    const nextDescriptor = next && `(${module})${nextBook.name}.${next.chapter}`;
+    const chapterCount = currentModule.books[bookIndex].chapterQty;
 
-  _removeTabFromTabs(tabId) {
-    const tabs = {};
-    Object.keys(this.data.tabs).forEach((key) => {
-      if (key !== tabId) tabs[key] = this.data.tabs[key];
-    });
-    this.data = {...this.data, tabs};
-    return this;
-  }
-
-  _setMobileActiveTab(tabId) {
-    if (!this.data.tabs[tabId]) return this;
-    return {...this.data, }
-  }
-
-  _cleanLastActiveDataTab() {
-    if (this.data.tabs[this.data.lastActiveDataTab]) return this;
-    return {...this.data, lastActiveDataTab: 'modules'}
-  }
-
-  getData() {
-    return this.data;
-  }
-
-  getTabArea(tabId) {
-    return this.data.areas.find((a) => a.tabIds && a.tabIds.includes(tabId));
-  }
-
-  removeTab(tabId) {
-    const tab = this._getTab(tabId);
-    if (tab.locked) return this;
-    this._removeTabFromAreas(tabId)
-        ._removeTabFromTabs(tabId)
-        ._setMobileActiveTab('tabs')
-        ._cleanLastActiveDataTab();
-  }
-
-  moveTab(tabId, areaId, receiveId=null) {
-    const tab = this._getTab(tabId);
-    if (tab.locked) return this;
-    const area = this.data.areas.find((a) => a.id === areaId);
-    if (!area) return this;
-    const pos = area.tabIds.indexOf(receiveId);
-    return this._addTabToArea(tabId, areaId, pos);
+    return {
+      prev: prev && {module, book: prevBook.name, chapter: prev.chapter, descriptor: prevDescriptor},
+      current: {module, book, chapter, descriptor, chapterCount},
+      next: next && {module, book: nextBook.name, chapter: next.chapter, descriptor: nextDescriptor},
+    };
   }
 }

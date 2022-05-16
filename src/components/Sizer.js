@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -34,53 +34,61 @@ const Sizer = ({children, initialSize, side}) => {
   const [size, setSize] = useState(initialSize);
   const [start, setStart] = useState(0);
   const [size0, setSize0] = useState(0);
+  // const [collapsed, setCollapsed] = useState(false); // TODO
   const maxSize = 700;
   const minSize = 20;
 
-  const getOwnSize = () => {
+  const getOwnSize = useCallback(() => {
     switch (handlerSide) {
       case 'top': case 'bottom': return ref.current.offsetHeight;
       case 'left': case 'right': default: return ref.current.offsetWidth;
     }
-  };
+  }, [handlerSide]);
 
-  const getEventPos = (e) => {
+  const getEventPos = useCallback((e) => {
     switch (handlerSide) {
       case 'top': case 'bottom': return e.touches ? e.touches[0].screenY : e.clientY;
       case 'left': case 'right': default: return e.touches ? e.touches[0].screenX : e.clientX;
     }
-  }
+  }, [handlerSide]);
 
-  const getDelta = (newPos) => {
+  const getDelta = useCallback((newPos) => {
     switch (handlerSide) {
       case 'bottom': case 'right': default: return newPos - start;
       case 'top': case 'left': return start - newPos;
     }
-  }
+  }, [handlerSide, start]);
 
-  const getStyle = () => {
+  const getStyle = useCallback(() => {
     switch (handlerSide) {
       case 'top': return { paddingTop: 10, height: `${size}px` };
       case 'bottom': return { paddingBottom: 10, height: `${size}px` };
       case 'left': return { paddingLeft: 10, width: `${size}px` };
       case 'right': default: return { paddingRight: 10, width: `${size}px` };
     }
-  }
+  }, [handlerSide, size]);
 
-  const getHandleStyle = () => {
+  const getHandleStyle = useCallback(() => {
     const HANDLE_SIZE = 10;
     switch (handlerSide) {
-      case 'top': return { width: '100%', height: HANDLE_SIZE, top: 0, left: 0, right: 0 };
-      case 'bottom': return { width: '100%', height: HANDLE_SIZE, bottom: 0, left: 0, right: 0 };
-      case 'left': return { height: '100%', width: HANDLE_SIZE, top: 0, bottom: 0, left: 0 };
+      case 'top': return { width: '100%', height: HANDLE_SIZE, top: 0, left: 0, right: 0, cursor: 'row-resize' };
+      case 'bottom': return { width: '100%', height: HANDLE_SIZE, bottom: 0, left: 0, right: 0, cursor: 'row-resize' };
+      case 'left': return { height: '100%', width: HANDLE_SIZE, top: 0, bottom: 0, left: 0, cursor: 'col-resize' };
       case 'right':
-      default: return { height: '100%', width: HANDLE_SIZE, top: 0, bottom: 0, right: 0 };
+      default: return { height: '100%', width: HANDLE_SIZE, top: 0, bottom: 0, right: 0, cursor: 'col-resize' };
     }
-  }
+  }, [handlerSide]);
 
-  if (ref.current && !size) {
-    setTimeout(() => setSize(Math.max(Math.min(getOwnSize(), maxSize), minSize)), 0);
-  }
+  // if (ref.current && !size) {
+  //   setTimeout(() => setSize(Math.max(Math.min(getOwnSize(), maxSize), minSize)), 0);
+  // }
+
+  // useLayoutEffect(() => {
+  useEffect(() => {
+      if (ref.current && !size) {
+      setTimeout(() => setSize(Math.max(Math.min(getOwnSize(), maxSize), minSize)), 0);
+    }
+  }, [getOwnSize, size]);
 
   const sizeStart = (e) => {
     e.preventDefault();

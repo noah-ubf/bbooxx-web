@@ -113,7 +113,6 @@ const lexemListToTree = (list) => {
     const ret = [];
     while(pos < list.length && list[pos].type !== LEXEM_TYPE.tagClose) {
       if (list[pos].type === LEXEM_TYPE.tagOpen) {
-        // console.log('[1]', list[pos].data);
         const data = list[pos].data ? JSON.parse(list[pos].data) : undefined;
         pos++;
         ret.push({type: 'block', data: {...data, children: convert()}});

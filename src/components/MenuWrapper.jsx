@@ -94,6 +94,8 @@ const useStyles = makeStyles((theme) => ({
       '& svg': {
         height: '10vw',
         width: '10vw',
+        maxHeight: '8vh',
+        maxWidth: '8vh',
       }
     },
   },
@@ -134,17 +136,18 @@ const MenuWrapper = ({children}) => {
   const viewOptionsOrigin = useRef();
   const settingsMenuOrigin = useRef();
   const {
-    store: { modules, mobileActiveTab, tabs },
+    store: { modules },
     getters: { getNearChapterDescriptors },
-    handlers: { loadText, toggleTab }
+    handlers: { getActiveTab, loadText, toggleTab }
   } = useAppContext();
-  const activeTabTitle = tabs[mobileActiveTab] ? tr(tabs[mobileActiveTab].description) : '';
+  const activeTab = getActiveTab();
+  const activeTabTitle = activeTab ? tr(activeTab.description) : '';
   const [touched, setTouched] = useState(false);
 
   const textSelector = usePopup('textSelectorPopup');
   const handleShowTextSelector = (e) => {
     e.stopPropagation();
-    if (!tabs[mobileActiveTab] || !tabs[mobileActiveTab].verses) return;
+    if (!activeTab || !activeTab.verses) return;
     textSelector.show(textSelectorOrigin);
   }
   const TextSelectorPopup = textSelector.Popup;
@@ -154,7 +157,7 @@ const MenuWrapper = ({children}) => {
   const viewOptions = usePopup('viewOptionsPopup');
   const handleShowViewOptions = (e) => {
     e.stopPropagation();
-    if (!tabs[mobileActiveTab] || !tabs[mobileActiveTab].verses) return;
+    if (!activeTab || !activeTab.verses) return;
     viewOptions.show(viewOptionsOrigin);
   }
   const ViewOptionsPopup = viewOptions.Popup;
@@ -164,8 +167,7 @@ const MenuWrapper = ({children}) => {
   const settings = usePopup('settingsPopup');
   const SettingsPopup = settings.Popup;
 
-  const tab = tabs[mobileActiveTab];
-  const descriptor = tab && tab.descriptor;
+  const descriptor = activeTab && activeTab.descriptor;
 
   const nearest = getNearChapterDescriptors(descriptor);
   const currentModule = modules.find(m => m.shortName === nearest?.current?.module);
@@ -178,12 +180,12 @@ const MenuWrapper = ({children}) => {
 
   const handlePrev = () => {
     if (!nearest || !nearest.prev) return;
-    loadText(nearest.prev.descriptor, nearest.prev.descriptor, mobileActiveTab);
+    loadText(nearest.prev.descriptor, nearest.prev.descriptor, activeTab?.id);
   }
 
   const handleNext = async () => {
     if (!nearest || !nearest.next) return;
-    loadText(nearest.next.descriptor, nearest.next.descriptor, mobileActiveTab);
+    loadText(nearest.next.descriptor, nearest.next.descriptor, activeTab?.id);
   }
 
   useEffect(() => {
@@ -214,11 +216,6 @@ const MenuWrapper = ({children}) => {
     }
   });
 
-  if (!tab) {
-    setTimeout(() => toggleTab(Object.keys(tabs)[0]), 0);
-    return null
-  }
-
   return (
     <div ref={ref} className={classes.menuWrapper}>
       <span
@@ -228,7 +225,7 @@ const MenuWrapper = ({children}) => {
         <StorageIcon />
       </span>
 
-      {tab.verses &&
+      {activeTab?.verses &&
         <div className={classNames(classes.floatMenu, {[classes.floatMenuVisible]: touched})}>
           <IconButton
             className={classNames(classes.iconButton)}
@@ -305,11 +302,11 @@ const MenuWrapper = ({children}) => {
                 isOpen={true}
                 openBook={currentBook}
                 openChapter={currentChapter}
-                tabId={mobileActiveTab}
+                tabId={activeTab?.id}
                 onChapterSelected={textSelector.hide} 
               />
             )
-            : <ModuleList tabId={mobileActiveTab} onChapterSelected={textSelector.hide} />
+            : <ModuleList tabId={activeTab?.id} onChapterSelected={textSelector.hide} />
           }
         </div>
       </TextSelectorPopup>
