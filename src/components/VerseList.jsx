@@ -1,6 +1,7 @@
 import { makeStyles } from "@mui/styles";
 
 import Verse from "@components/Verse";
+import HeadingVerse from "@components/HeadingVerse";
 import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "@lib/appContext";
 import { CircularProgress } from "@mui/material";
@@ -144,6 +145,46 @@ const VerseList = ({tab, onRemove}) => {
     nearest ? () => {} : () => loadText(descriptor, descriptor)
   );
 
+  const renderVerse = (verse, descr, descriptor, index) => {
+    if (verse.heading) {
+      return (
+        <HeadingVerse
+          tab={tab}
+          vOrder={index}
+          verse={verse}
+        />
+      );
+    } else {
+      return (
+        <>
+          { descr !== descriptor && !nearest &&
+            <div
+              className={classes.descriptor}
+              onDragLeave={preventDragLeave}
+            >
+              <span
+                className={classNames(classes.descriptorContent, {[classes.descriptorContentLink]: !nearest})}
+                onClick={handleChapterClick(descriptor)}
+              >
+                {descriptor}
+                {!nearest && <OpenInNewIcon/>}
+              </span>
+            </div>
+          }
+          <div onDragLeave={preventDragLeave}>
+            <Verse
+              tab={tab}
+              vOrder={index}
+              verse={verse}
+              onRemove={onRemove && (() => onRemove(index))}
+              highlightedWords={highlightedWords}
+            />
+          </div>
+        </>
+      );
+    }
+  }
+
   return (
     <div className={classes.verseList}>
       {/* <div>
@@ -168,29 +209,7 @@ const VerseList = ({tab, onRemove}) => {
                 onDragLeave={handleDragLeave(i)}
               >
                 {dragOver===i && <div className={classes.dropArea} onDragLeave={preventDragLeave}></div>}
-                { descr !== descriptor && !nearest &&
-                  <div
-                    className={classes.descriptor}
-                    onDragLeave={preventDragLeave}
-                  >
-                    <span
-                      className={classNames(classes.descriptorContent, {[classes.descriptorContentLink]: !nearest})}
-                      onClick={handleChapterClick(descriptor)}
-                    >
-                      {descriptor}
-                      {!nearest && <OpenInNewIcon/>}
-                    </span>
-                  </div>
-                }
-                <div onDragLeave={preventDragLeave}>
-                  <Verse
-                    tab={tab}
-                    vOrder={i}
-                    verse={verse}
-                    onRemove={onRemove && (() => onRemove(i))}
-                    highlightedWords={highlightedWords}
-                  />
-                </div>
+                { renderVerse(verse, descr, descriptor, i) }
               </div>
           )})
           : <div className={classes.progress}><CircularProgress /></div>

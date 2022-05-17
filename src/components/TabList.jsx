@@ -13,7 +13,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import i18n from "i18next";
-import { CircularProgress } from "@mui/material";
 
 import {useAppContext} from "@lib/appContext";
 import TabNameDialog from '@components/TabNameDialog';
@@ -87,11 +86,6 @@ const TabList = () => {
                 {(tab.id !== 'collection' && tab.custom) && (
                   <ListItemIcon>
                     <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tab)}} />
-                  </ListItemIcon>
-                )}
-                {(tab.loaded === false) && (
-                  <ListItemIcon>
-                    <CircularProgress size={20} color={'grey'} />
                   </ListItemIcon>
                 )}
                 <ListItemIcon>

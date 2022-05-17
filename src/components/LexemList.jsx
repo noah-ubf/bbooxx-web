@@ -105,6 +105,13 @@ const BLOCK_LEVEL_ELEMENTS = [
   'NOSCRIPT', 'OL', 'OUTPUT', 'P', 'PRE', 'SECTION', 'TABLE', 'TFOOT', 'UL', 'VIDEO'
 ];
 
+const parseJSON = (str) => {
+  try{
+    return JSON.parse(str) || {};
+  } catch(e) {
+    return {};
+  }
+}
 
 const lexemListToTree = (list) => {
   let pos = 0;
@@ -113,9 +120,17 @@ const lexemListToTree = (list) => {
     const ret = [];
     while(pos < list.length && list[pos].type !== LEXEM_TYPE.tagClose) {
       if (list[pos].type === LEXEM_TYPE.tagOpen) {
-        const data = list[pos].data ? JSON.parse(list[pos].data) : undefined;
-        pos++;
-        ret.push({type: 'block', data: {...data, children: convert()}});
+        if (list[pos].data[0] === '{') { // Old API version
+          const data = parseJSON(list[pos].data);
+          pos++;
+          ret.push({type: 'block', data: {...data, children: convert()}});
+        } else { // New API version
+          const colonPos = list[pos].data.indexOf(':');
+          const tag = list[pos].data.substring(0, colonPos);
+          const props = parseJSON(list[pos].data.substring(colonPos + 1));
+          pos++;
+          ret.push({type: 'block', data: {tag, props, children: convert()}});
+        }
       } else {
         ret.push(list[pos++]);
       }

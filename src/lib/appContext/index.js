@@ -200,13 +200,15 @@ export const AppContextProvider = ({ children }) => {
         },
 
         showReferences: (verse) => {
-          const descriptor = `(${verse.module})`
-            + verse.xrefs.map((x) => (x[2] === x[5] ? `${x[0]}.${x[1]}:${x[2]}` : `${x[0]}.${x[1]}:${x[2]}-${x[5]}`)).join(';');
+          // const descriptor = `(${verse.module})`
+          //   + verse.xrefs.map((x) => (x[2] === x[5] ? `${x[0]}.${x[1]}:${x[2]}` : `${x[0]}.${x[1]}:${x[2]}-${x[5]}`)).join(';');
           const newTabId = getId();
+
+          const descriptor = verse.descriptor;
       
           const newTab = {
             id: newTabId,
-            source: {type: 'refs', descriptor},
+            source: {type: 'xrefs', descriptor},
             loaded: false,
             description: {i18n: 'refs', params: {descriptor: verse.descriptor}},
             areaId: AREA_IDS.right,
