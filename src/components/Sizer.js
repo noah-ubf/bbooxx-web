@@ -30,13 +30,17 @@ const Sizer = ({children, initialSize, side}) => {
   const classes = useStyles();
   const ref = useRef();
   const refHandle = useRef();
+  const startRef = useRef();
+  const size0Ref = useRef();
   const [handlerSide] = useState(side);
   const [size, setSize] = useState(initialSize);
   const [start, setStart] = useState(0);
   const [size0, setSize0] = useState(0);
-  // const [collapsed, setCollapsed] = useState(false); // TODO
+  // const [collapsed, setCollapsed] = useState(false);
   const maxSize = 700;
   const minSize = 20;
+  startRef.current = start;
+  size0Ref.current = size0;
 
   const getOwnSize = useCallback(() => {
     switch (handlerSide) {
@@ -54,21 +58,21 @@ const Sizer = ({children, initialSize, side}) => {
 
   const getDelta = useCallback((newPos) => {
     switch (handlerSide) {
-      case 'bottom': case 'right': default: return newPos - start;
-      case 'top': case 'left': return start - newPos;
+      case 'bottom': case 'right': default: return newPos - startRef.current;
+      case 'top': case 'left': return startRef.current - newPos;
     }
-  }, [handlerSide, start]);
+  }, [handlerSide, startRef]);
 
-  const getStyle = useCallback(() => {
+  const getStyle = () => {
     switch (handlerSide) {
       case 'top': return { paddingTop: 10, height: `${size}px` };
       case 'bottom': return { paddingBottom: 10, height: `${size}px` };
       case 'left': return { paddingLeft: 10, width: `${size}px` };
       case 'right': default: return { paddingRight: 10, width: `${size}px` };
     }
-  }, [handlerSide, size]);
+  }
 
-  const getHandleStyle = useCallback(() => {
+  const getHandleStyle = () => {
     const HANDLE_SIZE = 10;
     switch (handlerSide) {
       case 'top': return { width: '100%', height: HANDLE_SIZE, top: 0, left: 0, right: 0, cursor: 'row-resize' };
@@ -77,15 +81,10 @@ const Sizer = ({children, initialSize, side}) => {
       case 'right':
       default: return { height: '100%', width: HANDLE_SIZE, top: 0, bottom: 0, right: 0, cursor: 'col-resize' };
     }
-  }, [handlerSide]);
+  }
 
-  // if (ref.current && !size) {
-  //   setTimeout(() => setSize(Math.max(Math.min(getOwnSize(), maxSize), minSize)), 0);
-  // }
-
-  // useLayoutEffect(() => {
-  useEffect(() => {
-      if (ref.current && !size) {
+  useLayoutEffect(() => {
+    if (ref.current && !size) {
       setTimeout(() => setSize(Math.max(Math.min(getOwnSize(), maxSize), minSize)), 0);
     }
   }, [getOwnSize, size]);
@@ -103,20 +102,19 @@ const Sizer = ({children, initialSize, side}) => {
     setSize0(currSize);
   }
 
-  const sizeMove = (e) => {
+  const sizeMove = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     const delta = getDelta(getEventPos(e));
-    const newSize = Math.max(Math.min(size0 + delta, maxSize), minSize);
+    const newSize = Math.max(Math.min(size0Ref.current + delta, maxSize), minSize);
     setSize(newSize);
-  }
+  }, [getDelta, getEventPos, size0Ref]);
 
   function sizeEnd(e) {
     document.removeEventListener('touchmove', sizeMove, {passive: false});
     document.removeEventListener('touchend', sizeEnd);
     document.removeEventListener('mousemove', sizeMove, {passive: false});
     document.removeEventListener('mouseup', sizeEnd);
-    // setTimeout(() => setSize(getOwnSize()), 0);
   }
 
   useEffect(

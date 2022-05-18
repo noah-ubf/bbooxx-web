@@ -70,7 +70,7 @@ const getStoredTabs = () => {
     window.localStorage.removeItem('areas');
     window.localStorage.removeItem('mobileActiveTab');
   }
-  return tabs;
+  return tabs.map((t) => t.id === 'strongs' ? {...t, hidden: false} : t);
 }
 
 const storedTabs = getStoredTabs();

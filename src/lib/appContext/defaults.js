@@ -62,7 +62,6 @@ export const defaultTabs = [
     type: 'strongs',
     description: {i18n: 'strongs'},
     locked: true,
-    hidden: true,
     verses: [],
     areaId: AREA_IDS.bottom,
     active: false,
