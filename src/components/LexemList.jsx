@@ -144,10 +144,11 @@ const lexemListToTree = (list) => {
   return convert();
 }
 
-const LexemList = ({displayStrong, fireLink, lexems, highlightedWords}) => {
+const LexemList = ({displayStrong, fireLink, lexems=[], highlightedWords}) => {
   const classes = useStyles();
 
   const groupped = lexemListToTree(lexems.map((l) => {
+    if (!l[0]) return {type:'', data:''}
     const type = l[0];
     const data = l.substring(1);
     return {type, data};
