@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { isArray } from 'lodash';
 
 import { fetchURI } from '@lib/requests';
@@ -90,25 +90,24 @@ export const AppContextProvider = ({ children }) => {
 
   // console.log({allData})
 
+  const setTabs = useCallback((tabs) => {
+    const activeBefore = allData.tabs.find((t) => t.active);
+    const activeAfter = tabs.find((t) => t.active);
+    if (activeBefore?.id !== activeAfter?.id) {
+      window.location.hash = `#${activeAfter?.id}`;
+    }
+
+    setAllData({ ...allData, tabs });
+  }, [allData]);
+
   const context = useMemo(() => {
     window.localStorage.setItem('tabs', JSON.stringify(cleanTabs(allData.tabs)));
-
-    const setTabs = (tabs) => {
-      const activeBefore = allData.tabs.find((t) => t.active);
-      const activeAfter = tabs.find((t) => t.active);
-      if (activeBefore?.id !== activeAfter?.id) {
-        window.location.hash = `#${activeAfter?.id}`;
-      }
-
-      setAllData({ ...allData, tabs });
-    }
 
     const getTab = (id, tabs = allData.tabs) => tabs.find((t) => t.id === id);
 
     const getTabIndex = (id, tabs = allData.tabs) => tabs.findIndex((t) => t.id === id);
 
     const focusTab = (tabId, tabs = allData.tabs) => {
-      // console.log('[focusTab:]', tabId, tabs);
       const tab = getTab(tabId, tabs);
       return tabs.map((t) => {
         if (t.id === tabId) return { ...t, active: true, activeInArea: true };
@@ -148,6 +147,8 @@ export const AppContextProvider = ({ children }) => {
       },
 
       handlers: {
+        getTab,
+
         getActiveTab: () => allData.tabs.find((t) => t.active),
 
         getAreaActiveTab: (areaId) => allData.tabs.find((t) => t.areaId === areaId && t.activeInArea),
@@ -348,7 +349,7 @@ export const AppContextProvider = ({ children }) => {
           setTabs(allData.tabs.map((t) => t.id === 'memo' ? {...tab, content} : t));
         }
       },
-    })}, [ allData ]
+    })}, [allData, setTabs]
   );
 
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>

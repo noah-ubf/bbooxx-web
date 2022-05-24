@@ -1,5 +1,5 @@
 import { makeStyles, useTheme } from "@mui/styles";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import MenuWrapper from "@components/MenuWrapper";
 import LayoutArea from "@components/LayoutArea";
@@ -90,24 +90,22 @@ const Layout = () => {
   const { store: { loaded, areas }, handlers: { loadText, fetchModules } } = useAppContext();
   const isMobile = loaded && (docWidth <= md);
   const isDesktop = loaded && (docWidth > md);
+  const [loadedFromParams, setLoadedFromParams] = useState(false);
 
   useEffect(() => {
     if (!loaded) {
       setTimeout(fetchModules, 0);
-    }
-  });
-
-  useEffect(() => {
-    if (loaded) {
+    } else {
       const searchParams = new URLSearchParams(window.location.search);
       const descriptor = searchParams.get('text');
       const description = searchParams.get('title') || descriptor;
 
-      if (descriptor) {
+      if (!loadedFromParams && descriptor) {
         loadText(descriptor, description);
+        setLoadedFromParams(true);
       }
     }
-  });
+  }, [fetchModules, loadText, loaded, loadedFromParams]);
 
   if (!loaded) return false;
 
