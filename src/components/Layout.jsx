@@ -98,10 +98,9 @@ const Layout = () => {
     } else {
       const searchParams = new URLSearchParams(window.location.search);
       const descriptor = searchParams.get('text');
-      const description = searchParams.get('title') || descriptor;
 
       if (!loadedFromParams && descriptor) {
-        loadText(descriptor, description);
+        loadText(descriptor, descriptor);
         setLoadedFromParams(true);
       }
     }

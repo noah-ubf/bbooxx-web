@@ -18,15 +18,6 @@ export const loadTabContent = async (tab) => {
           verses: isArray(data) ? data : [],
         };
       }
-      case 'refs': {
-        if (!source.descriptor) return {...tabTemplate, descriptor: ''};
-        const data = await fetchURI(`text/${encodeURIComponent(source.descriptor)}`);
-        return {
-          ...tabTemplate,
-          descriptor: source.descriptor,
-          verses: isArray(data) ? data : [],
-        }
-      }
       case 'xrefs': {
         if (!source.descriptor) return {...tabTemplate, descriptor: ''};
         const data = await fetchURI(`refs/${encodeURIComponent(source.descriptor)}`);

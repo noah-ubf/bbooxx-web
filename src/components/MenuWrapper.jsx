@@ -7,6 +7,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import ShareIcon from '@mui/icons-material/Share';
 import Divider from '@mui/material/Divider';
 import { useTranslation } from "react-i18next";
 import i18n from "i18next";
@@ -138,7 +139,7 @@ const MenuWrapper = ({children}) => {
   const {
     store: { modules },
     getters: { getNearChapterDescriptors },
-    handlers: { getActiveTab, loadText, toggleTab }
+    handlers: { getActiveTab, loadText, toggleTab, shareTab }
   } = useAppContext();
   const activeTab = getActiveTab();
   const activeTabTitle = activeTab ? tr(activeTab.description) : '';
@@ -216,6 +217,10 @@ const MenuWrapper = ({children}) => {
     }
   });
 
+  const handleShareActiveTab = () => {
+    shareTab(activeTab);
+  }
+
   return (
     <div ref={ref} className={classes.menuWrapper}>
       <span
@@ -250,8 +255,16 @@ const MenuWrapper = ({children}) => {
           >
             <ArrowForwardIosIcon />
           </IconButton>
+
         </div>
       }
+
+      <IconButton
+        className={classNames(classes.iconButton, classes.mobile)}
+        onClick={handleShareActiveTab}
+      >
+        <ShareIcon />
+      </IconButton>
 
       <div className={classes.childrenWrapper}>
         {children}

@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { isArray } from 'lodash';
 
 import { fetchURI } from '@lib/requests';
@@ -6,7 +6,7 @@ import { fetchURI } from '@lib/requests';
 import { AREA_IDS, defaultTabs, getAreas } from './defaults';
 import { loadTabContent, nearChapterDescriptorsGetter } from './helpers';
 import getId from './getId';
-import { t } from "i18next";
+// import { t } from "i18next";
 
 const insert = (arr, index, newItems) => [
   ...arr.slice(0, index),
@@ -285,9 +285,12 @@ export const AppContextProvider = ({ children }) => {
         },
 
         shareTab: async (tab) => {
-          // const url = `${window.location.origin}/?text=${encodeURIComponent(tab.descriptor)}&title=${encodeURIComponent(tab.description)}`;
-          const url = `${window.location.origin}/?text=${tab.descriptor}&title=${tab.description}`;
-          // navigator.clipboard.writeText(this.state.textToCopy)}
+          console.log({tab});
+          const text = encodeURIComponent(tab.descriptor);
+          const url = `${window.location.origin}/?text=${text}`;
+
+          if (url.length > 2000) return; // TODO: cannot share
+
           if ('clipboard' in navigator) {
             return await navigator.clipboard.writeText(url);
           } else {

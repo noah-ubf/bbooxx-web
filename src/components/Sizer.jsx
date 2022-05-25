@@ -32,15 +32,18 @@ const Sizer = ({children, initialSize, side}) => {
   const refHandle = useRef();
   const startRef = useRef();
   const size0Ref = useRef();
+  const movedRef = useRef();
+  const collapsedRef = useRef();
   const [handlerSide] = useState(side);
   const [size, setSize] = useState(initialSize);
   const [start, setStart] = useState(0);
   const [size0, setSize0] = useState(0);
-  // const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const maxSize = 700;
   const minSize = 20;
   startRef.current = start;
   size0Ref.current = size0;
+  collapsedRef.current = collapsed;
 
   const getOwnSize = useCallback(() => {
     switch (handlerSide) {
@@ -64,76 +67,103 @@ const Sizer = ({children, initialSize, side}) => {
   }, [handlerSide, startRef]);
 
   const getStyle = () => {
+    const visibleSize = collapsed ? 20 : size;
     switch (handlerSide) {
-      case 'top': return { paddingTop: 10, height: `${size}px` };
-      case 'bottom': return { paddingBottom: 10, height: `${size}px` };
-      case 'left': return { paddingLeft: 10, width: `${size}px` };
-      case 'right': default: return { paddingRight: 10, width: `${size}px` };
+      case 'top': return { paddingTop: 10, height: `${visibleSize}px` };
+      case 'bottom': return { paddingBottom: 10, height: `${visibleSize}px` };
+      case 'left': return { paddingLeft: 10, width: `${visibleSize}px` };
+      case 'right': default: return { paddingRight: 10, width: `${visibleSize}px` };
     }
   }
 
   const getHandleStyle = () => {
-    const HANDLE_SIZE = 10;
+    const HANDLE_SIZE = collapsed ? 20 : 10;
+    const H = { width: '100%', height: HANDLE_SIZE, cursor: collapsed ? 'default' : 'row-resize' };
+    const V = { height: '100%', width: HANDLE_SIZE, cursor: collapsed ? 'default' : 'col-resize' }
     switch (handlerSide) {
-      case 'top': return { width: '100%', height: HANDLE_SIZE, top: 0, left: 0, right: 0, cursor: 'row-resize' };
-      case 'bottom': return { width: '100%', height: HANDLE_SIZE, bottom: 0, left: 0, right: 0, cursor: 'row-resize' };
-      case 'left': return { height: '100%', width: HANDLE_SIZE, top: 0, bottom: 0, left: 0, cursor: 'col-resize' };
+      case 'top': return { ...H, top: 0, left: 0, right: 0 };
+      case 'bottom': return { ...H, bottom: 0, left: 0, right: 0 };
+      case 'left': return { ...V, top: 0, bottom: 0, left: 0 };
       case 'right':
-      default: return { height: '100%', width: HANDLE_SIZE, top: 0, bottom: 0, right: 0, cursor: 'col-resize' };
+      default: return { ...V, top: 0, bottom: 0, right: 0 };
     }
   }
 
   useLayoutEffect(() => {
-    if (ref.current && !size) {
-      setTimeout(() => setSize(Math.max(Math.min(getOwnSize(), maxSize), minSize)), 0);
+    if (ref.current && !size && !collapsed) {
+      setTimeout(() => {
+        if (!collapsed) {
+          setSize(Math.max(Math.min(getOwnSize(), maxSize), minSize));
+        }
+      }, 0);
     }
-  }, [getOwnSize, size]);
-
-  const sizeStart = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    document.addEventListener('touchmove', sizeMove, {passive: false});
-    document.addEventListener('touchend', sizeEnd);
-    document.addEventListener('mousemove', sizeMove, {passive: false});
-    document.addEventListener('mouseup', sizeEnd);
-    setStart(getEventPos(e));
-    const currSize = getOwnSize();
-    setSize(currSize);
-    setSize0(currSize);
-  }
+  }, [collapsed, getOwnSize, size]);
 
   const sizeMove = useCallback((e) => {
+    movedRef.current = true;
     e.preventDefault();
     e.stopPropagation();
-    const delta = getDelta(getEventPos(e));
-    const newSize = Math.max(Math.min(size0Ref.current + delta, maxSize), minSize);
-    setSize(newSize);
-  }, [getDelta, getEventPos, size0Ref]);
+    if (!collapsedRef.current) {
+      const delta = getDelta(getEventPos(e));
+      const newSize = Math.max(Math.min(size0Ref.current + delta, maxSize), minSize);
+      setSize(newSize);
+    }
+  }, [collapsedRef, getDelta, getEventPos]);
 
-  function sizeEnd(e) {
+  const sizeEnd = useCallback((e) => {
     document.removeEventListener('touchmove', sizeMove, {passive: false});
     document.removeEventListener('touchend', sizeEnd);
     document.removeEventListener('mousemove', sizeMove, {passive: false});
     document.removeEventListener('mouseup', sizeEnd);
-  }
+    if (!movedRef.current) {
+      setTimeout(() => {
+        setCollapsed(!collapsedRef.current);
+      }, 20);
+    }
+  }, [collapsedRef, movedRef, sizeMove]);
+
+  const sizeStart = useCallback((e) => {
+    movedRef.current = false;
+    e.preventDefault();
+    e.stopPropagation();
+    if (!collapsedRef.current) {
+      setStart(getEventPos(e));
+      const currSize = getOwnSize();
+      setSize(currSize);
+      setSize0(currSize);
+    }
+    setTimeout(() => {
+      document.addEventListener('touchmove', sizeMove, {passive: false});
+      document.addEventListener('touchend', sizeEnd);
+      document.addEventListener('mousemove', sizeMove, {passive: false});
+      document.addEventListener('mouseup', sizeEnd);
+    }, 0);
+  }, [collapsedRef, getEventPos, getOwnSize, sizeEnd, sizeMove]);
 
   useEffect(
     () => {
       const el = refHandle.current;
-      el.addEventListener('touchstart', sizeStart);
+      if (!collapsedRef.current) {
+        el.addEventListener('mousedown', sizeStart);
+        el.addEventListener('touchstart', sizeStart);
+      }
 
       return () => {
+        el.addEventListener('mousedown', sizeStart);
         el.removeEventListener('touchstart', sizeStart);
       };
-    }
-  );
+    }, [collapsedRef, sizeStart]);
 
   return (
     <div className={classes.sizer} ref={ref} style={getStyle()}>
       <div className={classes.content}>
         {children}
       </div>
-      <div className={classes.handle} style={getHandleStyle()} ref={refHandle} onMouseDown={sizeStart}></div>
+      <div
+        ref={refHandle}
+        className={classes.handle}
+        style={getHandleStyle()}
+      ></div>
     </div>
   );
 }
