@@ -77,7 +77,7 @@ const VerseMenuContent = ({tab, vOrder, verse, onRemove, onClose}) => {
           <ListItemIcon>
             <ChevronLeftIcon/>
           </ListItemIcon>
-          <ListItemText>Back</ListItemText>
+          <ListItemText>{t('back')}</ListItemText>
         </MenuItem>
         {
           collections.map((c) => (

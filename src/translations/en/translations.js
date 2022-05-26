@@ -1,5 +1,6 @@
 export const TRANSLATIONS_EN = {
   addToMemo: 'Add to Notes',
+  back: 'Back',
   cancel: 'Cancel',
   confirm: 'Confirm',
   collection: 'Collection',
