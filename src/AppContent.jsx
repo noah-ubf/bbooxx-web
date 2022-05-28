@@ -14,7 +14,9 @@ function AppContent() {
   const hash = window.location.hash.split('/')[0];
   const id = hash.substring(1);
   const idRef = useRef();
+  const toggleTabRef = useRef();
   idRef.current = id;
+  toggleTabRef.current = toggleTab;
 
   useEffect(() => {
     // console.log('USE_EFFECT', id)
@@ -23,7 +25,7 @@ function AppContent() {
       // console.log('HASH CHANGE:', idRef.current);
       // const activeTab = getActiveTab();
       // if (!activeTab || activeTab.id !== id) {
-        toggleTab(idRef.current);
+        toggleTabRef.current(idRef.current);
       // }
     }
     window.addEventListener("hashchange", onHashChange);

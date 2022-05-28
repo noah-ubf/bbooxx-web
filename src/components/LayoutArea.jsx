@@ -27,10 +27,15 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     padding: '.2rem',
   },
+  activeAreaTabs: {
+    '& .MuiTab-root': {
+      opacity: '1 !important',
+    },
+  },
   tab: {
-    // [theme.breakpoints.down('md')]: {
-    //   display: 'none',
-    // },
+    '& .MuiTab-root': {
+      opacity: .4,
+    },
   },
   tabTitle: {
     maxWidth: '16em !important',
@@ -97,8 +102,9 @@ const LayoutArea = ({ area }) => {
   const activeTab = getActiveTab()
   const activeTabInArea = area.tabs.find((t) => t.activeInArea) || area.tabs[0];
   const activeTabId = activeTab?.id;
-  // const activeTabInAreaId = activeTabInArea?.id
-  const activeTabValue = visibleTabs.find((t) => t.id === activeTabId) ? activeTabId : false;
+  // const activeTabValue = visibleTabs.find((t) => t.id === activeTabId) ? activeTabId : false;
+  const activeTabInAreaValue = visibleTabs.find((t) => t.id === activeTabInArea?.id) ? activeTabInArea.id : false;
+  const isAreaActive = activeTab === activeTabInArea;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [[tabId, dialogText, isRename], setDialogProps] = useState([]);
@@ -147,11 +153,12 @@ const LayoutArea = ({ area }) => {
       className={classes.layoutArea}
       onDrop={drop1}
       onDragOver={allowDrop}
+      onClick={() => toggleTab(activeTabInAreaValue)}
     >
       { (visibleTabs.length > 0) &&
         <NiftyTabs
-          className={classes.tab}
-          value={activeTabValue}
+          className={classNames(classes.tab, {[classes.activeAreaTabs]: isAreaActive})}
+          value={activeTabInAreaValue}
           onChange={(e, newValue) => toggleTab(newValue)}
           variant="scrollable"
           scrollButtons="auto"

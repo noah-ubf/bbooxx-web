@@ -63,7 +63,7 @@ const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, openChapter
   const { t } = useTranslation();
 
   const handleSearch = () => {
-    search(module, searchString);
+    search(module.shortName, searchString);
   }
 
   const keyDown = (e) => {

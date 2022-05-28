@@ -170,7 +170,7 @@ const MenuWrapper = ({children}) => {
 
   const descriptor = activeTab && activeTab.descriptor;
 
-  const nearest = getNearChapterDescriptors(descriptor);
+  const nearest = getNearChapterDescriptors(activeTab);
   const currentModule = modules.find(m => m.shortName === nearest?.current?.module);
   const currentBook = nearest?.current?.book;
   const currentChapter = nearest?.current?.chapter;
@@ -334,10 +334,10 @@ const MenuWrapper = ({children}) => {
       </ViewOptionsPopup>
 
       <SettingsPopup>
-        <ViewOptions/>
+        <ViewOptions onClose={settings.hide}/>
         <br/>
         <Divider className={classes.divider} />
-        <Settings/>
+        <Settings onClose={settings.hide}/>
       </SettingsPopup>
     </div>
   );

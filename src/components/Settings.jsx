@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Settings = () => {
+const Settings = ({ onClose }) => {
   const { t } = useTranslation();
   const classes = useStyles();
   const {
@@ -50,7 +50,7 @@ const Settings = () => {
             </ListItemIcon>
             <ListItemText
               primary={mode === 'light' ? t('themeDark') : t('themeLight')}
-              onClick={toggleMode}
+              onClick={() => {toggleMode(); onClose?.() }}
             />
           </ListItemButton>
         </ListItem>

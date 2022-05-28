@@ -30,6 +30,7 @@ const NiftyTab = styled((props) => <Tab disableRipple {...props} />)(({ theme })
   height: TAB_HEIGHT,
   minHeight: TAB_HEIGHT,
   lineHeight: TAB_HEIGHT,
+  whiteSpace: 'nowrap',
   '&:hover': {
     color: theme.palette.text.active,
     opacity: 1,

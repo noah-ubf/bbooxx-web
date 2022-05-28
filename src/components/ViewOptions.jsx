@@ -25,21 +25,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function toggleFullScreen() {
-  if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-  } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    }
-  }
-}
-
-const ViewOptions = () => {
+const ViewOptions = ({ onClose }) => {
   const { t } = useTranslation();
   const classes = useStyles();
   const { store: { showStrongs }, handlers: { toggleStrongs } } = useViewContext();
 
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+    onClose?.();
+  }
+  
 return (
     <div className={classes.settings} >
       <List>
@@ -50,7 +51,7 @@ return (
             </ListItemIcon>
             <ListItemText
               primary={t('showStrongs')}
-              onClick={toggleStrongs}
+              onClick={() => {toggleStrongs(); onClose?.()}}
             />
           </ListItemButton>
         </ListItem>

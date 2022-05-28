@@ -69,10 +69,10 @@ const Sizer = ({children, initialSize, side}) => {
   const getStyle = () => {
     const visibleSize = collapsed ? 20 : size;
     switch (handlerSide) {
-      case 'top': return { paddingTop: 10, height: `${visibleSize}px` };
-      case 'bottom': return { paddingBottom: 10, height: `${visibleSize}px` };
-      case 'left': return { paddingLeft: 10, width: `${visibleSize}px` };
-      case 'right': default: return { paddingRight: 10, width: `${visibleSize}px` };
+      case 'top': return { paddingTop: 12, height: `${visibleSize}px` };
+      case 'bottom': return { paddingBottom: 12, height: `${visibleSize}px` };
+      case 'left': return { paddingLeft: 12, width: `${visibleSize}px` };
+      case 'right': default: return { paddingRight: 12, width: `${visibleSize}px` };
     }
   }
 

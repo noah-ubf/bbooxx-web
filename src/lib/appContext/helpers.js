@@ -44,8 +44,9 @@ export const loadTabContent = async (tab) => {
 export const nearChapterDescriptorsGetter = (
   {modules}
 ) => {
-  return (descriptor) => {
-    const parsed = parseDescriptor(descriptor);
+  return (tab) => {
+    if (tab.custom || tab.source?.type) return null;
+    const parsed = parseDescriptor(tab.descriptor);
     if (parsed.length !== 1) return null;
     const { module, book, chapter, verses } = parsed[0];
     const currentModule = modules.find(m => m.shortName === module);
@@ -74,7 +75,7 @@ export const nearChapterDescriptorsGetter = (
 
     return {
       prev: prev && {module, book: prevBook.name, chapter: prev.chapter, descriptor: prevDescriptor},
-      current: {module, book, chapter, descriptor, chapterCount},
+      current: {module, book, chapter, descriptor: tab.descriptor, chapterCount},
       next: next && {module, book: nextBook.name, chapter: next.chapter, descriptor: nextDescriptor},
     };
   }

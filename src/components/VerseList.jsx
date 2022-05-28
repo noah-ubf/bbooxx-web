@@ -96,17 +96,19 @@ const VerseList = ({tab, onRemove}) => {
   const classes = useStyles();
   let descriptor = null;
   const ref = useRef();
+  const loadTabContentRef = useRef();
+  loadTabContentRef.current = loadTabContent;
   const { verses=[], custom } = tab;
   const [dragOver, setDragOver] = useState(false);
 
-  const nearest = getNearChapterDescriptors(tab.descriptor);
+  const nearest = getNearChapterDescriptors(tab);
   const highlightedWords = tab.source?.type === 'search' ? tab.source.text.split(/\s+/) : undefined;
 
   useEffect(() => {
     if (!tab.loaded) {
-      setTimeout(() => loadTabContent(tab.id), 0)
+      setTimeout(() => loadTabContentRef.current(tab.id), 0)
     }
-  }, [verses, tab, loadTabContent])
+  }, [verses, tab, loadTabContentRef])
 
   useEffect(() => {
     window.scrollTo(0, 0);

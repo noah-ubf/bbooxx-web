@@ -86,6 +86,7 @@ export const AppContextProvider = ({ children }) => {
     tabs: storedTabs,
   });
   const allDataRef = useRef();
+  const setTabsRef = useRef();
   allDataRef.current = allData;
 
   // console.log({allData})
@@ -100,6 +101,8 @@ export const AppContextProvider = ({ children }) => {
     setAllData({ ...allData, tabs });
   }, [allData]);
 
+  setTabsRef.current = setTabs;
+
   const context = useMemo(() => {
     window.localStorage.setItem('tabs', JSON.stringify(cleanTabs(allData.tabs)));
 
@@ -109,6 +112,7 @@ export const AppContextProvider = ({ children }) => {
 
     const focusTab = (tabId, tabs = allData.tabs) => {
       const tab = getTab(tabId, tabs);
+      if (!tab) return tabs;
       return tabs.map((t) => {
         if (t.id === tabId) return { ...t, active: true, activeInArea: true };
         if (t.areaId === tab.areaId) return { ...t, active: false, activeInArea: false };
@@ -116,9 +120,21 @@ export const AppContextProvider = ({ children }) => {
       })
     }
 
-    const fixActiveInArea = (areaId, tabs = allData.tabs) => {
+    const fixActiveInArea = (areaId, tabs = allData.tabs, prevIndex = null) => {
       const activeInArea = tabs.find((t) => t.areaId === areaId && t.activeInArea)
-      return activeInArea ? tabs : tabs.map((t,i) => i>0 ? t : { ...t, activeInArea: true } );
+      if (activeInArea) return tabs;
+      const tabsInArea = tabs.filter((t) => t.areaId === areaId);
+      const newActiveTab = prevIndex
+        ? tabsInArea[Math.max(0, Math.min(prevIndex - 1, tabsInArea.length - 1))]
+        : tabsInArea[tabsInArea.length - 1];
+
+      return tabs.map(
+        (t) => {
+          if (t.areaId !== areaId) return t;
+          if (newActiveTab.id === t.id) return { ...t, activeInArea: true };
+          return t.activeInArea ? {...t, activeInArea: false} : t;
+        }
+      );
     }
 
     const loadText = (descriptor, description, tabId='initial') => {
@@ -167,26 +183,25 @@ export const AppContextProvider = ({ children }) => {
       
           setTimeout(() => {
             const newTabs = allDataRef.current.tabs.map((t) => t.id === newTabId ? {...t, locked: false} : t);
-            setTabs(newTabs);
+            setTabsRef.current(newTabs);
           }, 2000);
         },
 
-        search: (module, text, tabId=null) => {
+        search: (module, text, tabIdDest=null) => {
           if (!text || text === '') return;
-          if (!getTab(tabId)) {
-            tabId = null;
-          }
-          const newId = getId();
+          const isNewTab = !getTab(tabIdDest);
+          const tabId = isNewTab ? getId() : tabIdDest;
           const newTab = {
-            source: {type: 'search', module: module.shortName || module, text},
+            id: tabId,
+            source: {type: 'search', module, text},
             loaded: false,
-            description: {i18n: 'searchResults', params: {module: module.shortName || module, text}},
+            description: {i18n: 'searchResults', params: {module, text}},
             areaId: AREA_IDS.center
           };
-          const tabs2 = tabId
-            ? allData.tabs.map((t) => t.id === tabId ? {...t, ...newTab} : t)
-            : [ ...allData.tabs, {id: newId, ...newTab} ];
-          const tabs3 = focusTab(tabId || newId, tabs2);
+          const tabs2 = isNewTab
+            ? [ ...allData.tabs, newTab ]
+            : allData.tabs.map((t) => t.id === tabId ? {...t, ...newTab} : t);
+          const tabs3 = focusTab(tabId, tabs2);
           const tabs4 = fixActiveInArea(AREA_IDS.center, tabs3);
           setTabs(tabs4);
         },
@@ -199,16 +214,16 @@ export const AppContextProvider = ({ children }) => {
           const tab = getTab(tabId);
           if (!tab) return;
           const areaId = tab.areaId;
+          const tabsInArea = allData.tabs.filter((t) => t.areaId === areaId);
+          const prevIndex = tabsInArea.findIndex((t) => t.id === tabId);
           const tabs2 = remove(allData.tabs, getTabIndex(tabId))
-          const tabs4 = fixActiveInArea(areaId, tabs2);
+          const tabs4 = fixActiveInArea(areaId, tabs2, prevIndex);
+          console.log({tabId, tabs4});
           setTabs(tabs4);
         },
 
         showReferences: (verse) => {
-          // const descriptor = `(${verse.module})`
-          //   + verse.xrefs.map((x) => (x[2] === x[5] ? `${x[0]}.${x[1]}:${x[2]}` : `${x[0]}.${x[1]}:${x[2]}-${x[5]}`)).join(';');
           const newTabId = getId();
-
           const descriptor = verse.descriptor;
       
           const newTab = {
