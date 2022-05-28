@@ -259,12 +259,12 @@ const MenuWrapper = ({children}) => {
         </div>
       }
 
-      <IconButton
+      {/* <IconButton
         className={classNames(classes.iconButton, classes.mobile)}
         onClick={handleShareActiveTab}
       >
         <ShareIcon />
-      </IconButton>
+      </IconButton> */}
 
       <div className={classes.childrenWrapper}>
         {children}

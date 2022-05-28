@@ -33,14 +33,14 @@ const Sizer = ({children, initialSize, side}) => {
   const startRef = useRef();
   const size0Ref = useRef();
   const movedRef = useRef();
+  const maxSize = useRef();
+  const minSize = useRef();
   const collapsedRef = useRef();
   const [handlerSide] = useState(side);
   const [size, setSize] = useState(initialSize);
   const [start, setStart] = useState(0);
   const [size0, setSize0] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
-  const maxSize = 700;
-  const minSize = 20;
   startRef.current = start;
   size0Ref.current = size0;
   collapsedRef.current = collapsed;
@@ -51,6 +51,17 @@ const Sizer = ({children, initialSize, side}) => {
       case 'left': case 'right': default: return ref.current.offsetWidth;
     }
   }, [handlerSide]);
+
+  const getParentSize = useCallback(() => {
+    if (!ref.current) return 100;
+    switch (handlerSide) {
+      case 'top': case 'bottom': return ref.current.parentNode.offsetHeight;
+      case 'left': case 'right': default: return ref.current.parentNode.offsetWidth;
+    }
+  }, [ref, handlerSide]);
+
+  maxSize.current = 100;//getParentSize();
+  minSize.current = 20;
 
   const getEventPos = useCallback((e) => {
     switch (handlerSide) {
@@ -77,7 +88,7 @@ const Sizer = ({children, initialSize, side}) => {
   }
 
   const getHandleStyle = () => {
-    const HANDLE_SIZE = collapsed ? 20 : 12;
+    const HANDLE_SIZE = collapsed ? 20 : 10;
     const H = { width: '100%', height: HANDLE_SIZE, cursor: collapsed ? 'default' : 'row-resize' };
     const V = { height: '100%', width: HANDLE_SIZE, cursor: collapsed ? 'default' : 'col-resize' }
     switch (handlerSide) {
@@ -93,7 +104,7 @@ const Sizer = ({children, initialSize, side}) => {
     if (ref.current && !size && !collapsed) {
       setTimeout(() => {
         if (!collapsed) {
-          setSize(Math.max(Math.min(getOwnSize(), maxSize), minSize));
+          setSize(Math.max(Math.min(getOwnSize(), maxSize.current), minSize.current));
         }
       }, 0);
     }
@@ -105,7 +116,7 @@ const Sizer = ({children, initialSize, side}) => {
     e.stopPropagation();
     if (!collapsedRef.current) {
       const delta = getDelta(getEventPos(e));
-      const newSize = Math.max(Math.min(size0Ref.current + delta, maxSize), minSize);
+      const newSize = Math.max(Math.min(size0Ref.current + delta, maxSize.current), minSize);
       setSize(newSize);
     }
   }, [collapsedRef, getDelta, getEventPos]);

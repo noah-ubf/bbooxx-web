@@ -168,7 +168,8 @@ const LexemList = ({displayStrong, fireLink, lexems=[], highlightedWords}) => {
     return highlightedWords
       ? highlightedWords.some((w) => 
           data.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-            .indexOf(w.normalize("NFD").replace(/[\u0300-\u036f]/g, "")) !== -1
+            .toLowerCase()
+            .indexOf(w.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()) !== -1
         )
       : false;
   }

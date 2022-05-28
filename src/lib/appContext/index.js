@@ -171,19 +171,23 @@ export const AppContextProvider = ({ children }) => {
           }, 2000);
         },
 
-        search: (module, text) => {
+        search: (module, text, tabId=null) => {
           if (!text || text === '') return;
-          const tabId = getId();
+          if (!getTab(tabId)) {
+            tabId = null;
+          }
+          const newId = getId();
           const newTab = {
-            id: tabId,
-            source: {type: 'search', module: module.shortName, text},
+            source: {type: 'search', module: module.shortName || module, text},
             loaded: false,
-            description: {i18n: 'searchResults', params: {module: module.shortName, text}},
+            description: {i18n: 'searchResults', params: {module: module.shortName || module, text}},
             areaId: AREA_IDS.center
           };
-          const tabs3 = focusTab(tabId, [ ...allData.tabs, newTab ]);
+          const tabs2 = tabId
+            ? allData.tabs.map((t) => t.id === tabId ? {...t, ...newTab} : t)
+            : [ ...allData.tabs, {id: newId, ...newTab} ];
+          const tabs3 = focusTab(tabId || newId, tabs2);
           const tabs4 = fixActiveInArea(AREA_IDS.center, tabs3);
-          // window.location.hash = `#${tabId}`;
           setTabs(tabs4);
         },
 

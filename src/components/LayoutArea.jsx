@@ -14,6 +14,7 @@ import TabContent from "@components/TabContent";
 import TabNameDialog from '@components/TabNameDialog';
 import "@translations/i18n";
 import { useState } from "react";
+import classNames from "classnames";
 
 const useStyles = makeStyles((theme) => ({
   layoutArea: {
@@ -30,6 +31,14 @@ const useStyles = makeStyles((theme) => ({
     // [theme.breakpoints.down('md')]: {
     //   display: 'none',
     // },
+  },
+  tabTitle: {
+    maxWidth: '16em !important',
+    display: 'inline-block',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    verticalAlign: 'middle',
   },
   content: {
     display: 'flex',
@@ -156,7 +165,7 @@ const LayoutArea = ({ area }) => {
               value={tab.id}
               label={
                 <div className={classes.tabContent}>
-                  <span className={tab.locked ? classes.locked : null}>
+                  <span className={classNames(classes.tabTitle, {[classes.locked]: tab.locked})}>
                     { tr(tab.description) }
                   </span>
 

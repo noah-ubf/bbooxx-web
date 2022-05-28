@@ -73,7 +73,7 @@ export const getTheme = (mode) => {
         main: '#111111',
         verse: '#211e25',
         light: '#001e1c',
-        active: '#443b44',
+        active: '#663333',
         selected: '#665511',
         hover: '#444444',
         highlighted: '#112700',

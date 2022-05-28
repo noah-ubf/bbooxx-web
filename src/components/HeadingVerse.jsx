@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => {
       color: theme.palette.text.main,
       background: theme.palette.background.active,
       position: 'relative',
-      padding: theme.spacing(2),
+      padding: theme.spacing(1.2, 1),
       borderRadius: theme.spacing(1),
     },
     verseContent: {

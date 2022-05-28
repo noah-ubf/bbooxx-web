@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 
 import { useAppContext } from "@lib/appContext";
 import BookSelector from "@components/BookSelector";
-import { useViewContext } from '@lib/viewContext';
 
 const useStyles = makeStyles((theme) => ({
   moduleSelector: {
@@ -61,13 +60,10 @@ const ModuleSelector = ({module, tabId, isOpen=false, openBook=null, openChapter
   const [searchString, setSearchString] = useState(false);
   const { handlers: { search } } = useAppContext();
   const classes = useStyles();
-  const { handlers: { startLoading, finishLoading } } = useViewContext();
   const { t } = useTranslation();
 
   const handleSearch = () => {
-    startLoading();
     search(module, searchString);
-    finishLoading();
   }
 
   const keyDown = (e) => {
