@@ -45,7 +45,7 @@ export const nearChapterDescriptorsGetter = (
   {modules}
 ) => {
   return (tab) => {
-    if (tab.custom || tab.source?.type) return null;
+    if (!tab || tab.custom || tab.source?.type) return null;
     const parsed = parseDescriptor(tab.descriptor);
     if (parsed.length !== 1) return null;
     const { module, book, chapter, verses } = parsed[0];

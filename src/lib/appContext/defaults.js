@@ -74,7 +74,7 @@ export const getAreas = (tabs) => {
   Object.values(AREA_IDS).forEach((id) => areas[id] = ({id, tabs: []}))
   tabs.forEach((tab) => {
     if (!tab.areaId || !areas[tab.areaId]) return;
-    areas[tab.areaId] = {...areas[tab.areaId], tabs: [...areas[tab.areaId].tabs, tab]};
+    areas[tab.areaId].tabs.push(tab);
   });
   return areas;
 };

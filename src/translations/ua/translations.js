@@ -1,7 +1,7 @@
 export const TRANSLATIONS_UA = {
   addToMemo: 'Додати в нотатник',
   back: 'Назад',
-  cancel: 'Відмінити',
+  cancel: 'Скасувати',
   confirm: 'Підтвердити',
   collection: 'Колекція',
   copyToCollection: 'Додати до колекції',

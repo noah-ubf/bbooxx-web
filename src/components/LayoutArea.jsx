@@ -101,7 +101,7 @@ const LayoutArea = ({ area }) => {
   } = useAppContext();
   const activeTab = getActiveTab()
   const activeTabInArea = area.tabs.find((t) => t.activeInArea) || area.tabs[0];
-  const activeTabId = activeTab?.id;
+  // const activeTabId = activeTab?.id;
   // const activeTabValue = visibleTabs.find((t) => t.id === activeTabId) ? activeTabId : false;
   const activeTabInAreaValue = visibleTabs.find((t) => t.id === activeTabInArea?.id) ? activeTabInArea.id : false;
   const isAreaActive = activeTab === activeTabInArea;
@@ -153,7 +153,7 @@ const LayoutArea = ({ area }) => {
       className={classes.layoutArea}
       onDrop={drop1}
       onDragOver={allowDrop}
-      onClick={() => toggleTab(activeTabInAreaValue)}
+      onClick={() => isAreaActive || toggleTab(activeTabInAreaValue)}
     >
       { (visibleTabs.length > 0) &&
         <NiftyTabs

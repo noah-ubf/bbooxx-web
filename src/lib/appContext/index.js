@@ -106,13 +106,15 @@ export const AppContextProvider = ({ children }) => {
   const context = useMemo(() => {
     window.localStorage.setItem('tabs', JSON.stringify(cleanTabs(allData.tabs)));
 
-    const getTab = (id, tabs = allData.tabs) => tabs.find((t) => t.id === id);
+    const getTab = (id, tabs = allDataRef.current.tabs) => tabs.find((t) => t.id === id);
 
-    const getTabIndex = (id, tabs = allData.tabs) => tabs.findIndex((t) => t.id === id);
+    const getTabIndex = (id, tabs = allDataRef.current.tabs) => tabs.findIndex((t) => t.id === id);
 
-    const focusTab = (tabId, tabs = allData.tabs) => {
+    const getActiveTab = (tabs = allDataRef.current.tabs) => tabs.find((t) => t.active)
+
+    const focusTab = (tabId, tabs = allDataRef.current.tabs) => {
       const tab = getTab(tabId, tabs);
-      if (!tab) return tabs;
+      if (!tab || tab.id === getActiveTab(tabs)?.id) return tabs;
       return tabs.map((t) => {
         if (t.id === tabId) return { ...t, active: true, activeInArea: true };
         if (t.areaId === tab.areaId) return { ...t, active: false, activeInArea: false };
@@ -165,7 +167,7 @@ export const AppContextProvider = ({ children }) => {
       handlers: {
         getTab,
 
-        getActiveTab: () => allData.tabs.find((t) => t.active),
+        getActiveTab,
 
         getAreaActiveTab: (areaId) => allData.tabs.find((t) => t.areaId === areaId && t.activeInArea),
 
@@ -218,7 +220,6 @@ export const AppContextProvider = ({ children }) => {
           const prevIndex = tabsInArea.findIndex((t) => t.id === tabId);
           const tabs2 = remove(allData.tabs, getTabIndex(tabId))
           const tabs4 = fixActiveInArea(areaId, tabs2, prevIndex);
-          console.log({tabId, tabs4});
           setTabs(tabs4);
         },
 
@@ -233,7 +234,7 @@ export const AppContextProvider = ({ children }) => {
             description: {i18n: 'refs', params: {descriptor: verse.descriptor}},
             areaId: AREA_IDS.right,
           };
-      
+     
           const tabs3 = focusTab(newTabId, [ ...allData.tabs, newTab ]);
           const tabs4 = fixActiveInArea(AREA_IDS.center, tabs3);
           setTabs(tabs4);
@@ -304,7 +305,6 @@ export const AppContextProvider = ({ children }) => {
         },
 
         shareTab: async (tab) => {
-          console.log({tab});
           const text = encodeURIComponent(tab.descriptor);
           const url = `${window.location.origin}/?text=${text}`;
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import LinkIcon from '@mui/icons-material/Link';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import PlaylistRemoveIcon from '@mui/icons-material/PlaylistRemove';
@@ -23,25 +23,25 @@ const VerseMenuContent = ({tab, vOrder, verse, onRemove, onClose}) => {
 
   const collections = tabs.filter((t) => t.custom && t.id !== tab.id);
 
-  const handleShowReferences = () => {
+  const handleShowReferences = useCallback(() => {
     showReferences(verse);
     onClose();
-  }
+  }, [showReferences, onClose, verse])
 
-  const handleCopyToCollection = (collection) => () => {
+  const handleCopyToCollection = useCallback((collection) => () => {
     copyToCollection(verse, collection.id);
     onClose();
-  }
+  }, [verse, copyToCollection, onClose])
 
-  const handleAddToMemo = () => {
+  const handleAddToMemo = useCallback(() => {
     addToMemo(verse);
     onClose();
-  }
+  }, [addToMemo, onClose, verse])
 
-  const handleRemove = (e) => {
+  const handleRemove = useCallback((e) => {
     onRemove();
     onClose();
-  }
+  }, [onRemove, onClose])
 
   const handleToggleCollectionMenu = () => {
     setVariant(variant === 'main' ? 'collections' : 'main');
