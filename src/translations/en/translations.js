@@ -6,6 +6,7 @@ export const TRANSLATIONS_EN = {
   collection: 'Collection',
   copyToCollection: 'Copy to collection',
   crossrefs: 'Cross references',
+  filter: 'Filter',
   fullscreen: 'Toggle Fullscreen',
   language: 'Language',
   library: 'Library',

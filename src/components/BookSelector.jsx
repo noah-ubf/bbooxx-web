@@ -104,7 +104,7 @@ const BookSelector = ({module, book, openChapter=null, tabId, isOpen, onChapterS
           <Input 
             className={classes.searchInput}
             onChange={(e) => setSearchString(e.target.value)}
-            placeholder={t('search')}
+            placeholder={t('filter')}
           />
         </div>
       }

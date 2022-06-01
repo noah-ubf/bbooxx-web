@@ -5,6 +5,10 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import SettingsIcon from '@mui/icons-material/Settings';
+import LinkIcon from '@mui/icons-material/Link';
+import EditIcon from '@mui/icons-material/Edit';
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import TagIcon from '@mui/icons-material/Tag';
 import { useTranslation } from "react-i18next";
 import { Divider } from "@mui/material";
 import List from '@mui/material/List';
@@ -47,11 +51,8 @@ const TabList = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [[tabId, dialogText, isRename], setDialogProps] = useState([]);
 
-  const tabsArray = Object.keys(tabs)
-    .map((key) => ({id: key, ...tabs[key]}))
-    .filter((tab) => (
-      tab
-      && !tab.hidden
+  const tabsArray = tabs.filter((tab) => (
+      !tab.hidden
       && (!['initial', 'collection'].includes(tab.id) || (!!tab.descriptor)))
     )
     .sort((a,b) => (a.locked ? a : b));
@@ -85,13 +86,51 @@ const TabList = () => {
     handleRename(tab);
   }
 
+  const renderTabIcon = (tab) => {
+    if (tab?.source?.type === 'search') return (
+      <ListItemIcon>
+        <SearchIcon/>
+      </ListItemIcon>
+    );
+    if (tab?.source?.type === 'xrefs') return (
+      <ListItemIcon>
+        <LinkIcon/>
+      </ListItemIcon>
+    );
+    if (tab?.type === 'memo') return (
+      <ListItemIcon>
+        <EditIcon/>
+      </ListItemIcon>
+    );
+    if (tab?.custom) return (
+      <ListItemIcon>
+        <FormatListBulletedIcon/>
+      </ListItemIcon>
+    );
+    if (tab?.type === 'strongs') return (
+      <ListItemIcon>
+        <TagIcon/>
+      </ListItemIcon>
+    );
+    if (!tab?.type) return (
+      <ListItemIcon>
+        <TextSnippetIcon/>
+      </ListItemIcon>
+    );
+  }
+
   return (
     <div className={classes.tabList} >
       <List>
         {
           tabsArray.map((tab) => (
-            <ListItem key={tab.id} disablePadding selected={tab.id === lastActiveDataTab}>
+            <ListItem
+              key={tab.id}
+              disablePadding
+              selected={tab.id === lastActiveDataTab}
+            >
               <ListItemButton>
+                { renderTabIcon(tab) }
                 <ListItemText primary={tr(tab.description)} onClick={() => toggleTab(tab.id)}/>
                 {(tab.id !== 'collection' && tab.custom) && (
                   <ListItemIcon>

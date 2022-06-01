@@ -188,7 +188,7 @@ export const AppContextProvider = ({ children }) => {
             newTab.description = {i18n: 'searchResults', params: {module: 'UKR', text: ''}}
           } else if (type === 'custom') {
             newTab.custom = true;
-            newTab.description = '';
+            newTab.description = {i18n: 'newList'};
           } else return;
 
           const tabs = [...allData.tabs, newTab];

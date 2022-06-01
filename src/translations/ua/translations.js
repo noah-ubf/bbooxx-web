@@ -6,6 +6,7 @@ export const TRANSLATIONS_UA = {
   collection: 'Колекція',
   copyToCollection: 'Додати до колекції',
   crossrefs: 'Перехресні посилання',
+  filter: 'Фільтрувати',
   fullscreen: 'На повний екран',
   language: 'Мова',
   library: 'Бібліотека',
