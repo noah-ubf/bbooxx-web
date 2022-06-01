@@ -10,6 +10,7 @@ export const TRANSLATIONS_EN = {
   language: 'Language',
   library: 'Library',
   newList: 'New list',
+  newSearchTab: 'New search',
   notes: 'Notes',
   refs: 'Refs to {{descriptor}}',
   removeFromCollection: 'Remove from list',

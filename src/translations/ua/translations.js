@@ -10,6 +10,7 @@ export const TRANSLATIONS_UA = {
   language: 'Мова',
   library: 'Бібліотека',
   newList: 'Новий список',
+  newSearchTab: 'Новий пошук',
   notes: 'Нотатки',
   refs: 'ПП до {{descriptor}}',
   removeFromCollection: 'Вилучити зі списку',

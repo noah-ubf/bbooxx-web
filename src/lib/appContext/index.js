@@ -6,6 +6,7 @@ import { fetchURI } from '@lib/requests';
 import { AREA_IDS, defaultTabs, getAreas } from './defaults';
 import { loadTabContent, nearChapterDescriptorsGetter } from './helpers';
 import getId from './getId';
+import { tab } from "@testing-library/user-event/dist/tab";
 // import { t } from "i18next";
 
 const insert = (arr, index, newItems) => [
@@ -125,7 +126,7 @@ export const AppContextProvider = ({ children }) => {
     const fixActiveInArea = (areaId, tabs = allData.tabs, prevIndex = null) => {
       const activeInArea = tabs.find((t) => t.areaId === areaId && t.activeInArea)
       if (activeInArea) return tabs;
-      const tabsInArea = tabs.filter((t) => t.areaId === areaId);
+      const tabsInArea = tabs.filter((t) => t.areaId === areaId && !t.hidden);
       const newActiveTab = prevIndex
         ? tabsInArea[Math.max(0, Math.min(prevIndex - 1, tabsInArea.length - 1))]
         : tabsInArea[tabsInArea.length - 1];
@@ -172,6 +173,29 @@ export const AppContextProvider = ({ children }) => {
         getAreaActiveTab: (areaId) => allData.tabs.find((t) => t.areaId === areaId && t.activeInArea),
 
         loadText,
+
+        createEmptyTab: (type, areaId, focus=true) => {
+          const tabId = getId();
+          const newTab = {
+            id: tabId,
+            loaded: true,
+            areaId,
+            descriptor: '',
+            verses: [],
+          };
+          if (type === 'search') {
+            newTab.source = {type: 'search', module: 'UKR', text: ''}
+            newTab.description = {i18n: 'searchResults', params: {module: 'UKR', text: ''}}
+          } else if (type === 'custom') {
+            newTab.custom = true;
+            newTab.description = '';
+          } else return;
+
+          const tabs = [...allData.tabs, newTab];
+
+          setTabs(focus ? focusTab(newTab.id, tabs) : tabs);
+          return newTab;
+        },
 
         cloneTab: (tabId, clean, renameTo=false) => {
           const tab = getTab(tabId);

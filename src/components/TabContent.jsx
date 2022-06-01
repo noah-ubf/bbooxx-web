@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@mui/styles';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { useTranslation } from "react-i18next";
 
 import ModuleList from '@components/ModuleList';
@@ -65,9 +66,10 @@ const TabContent = ({tab}) => {
   const classes = useStyles();
   const {
     store: { modules },
-    handlers: { search, updateMemo, toggleTab, removeVerse },
+    handlers: { loadText, search, updateMemo, toggleTab, removeVerse },
   } = useAppContext();
   const [searchString, setSearchString] = useState('');
+  const [descriptor, setDescriptor] = useState('');
   const [selectedModule, setSelectedModule] = useState('');
   const ref = useRef();
   const { t } = useTranslation();
@@ -81,6 +83,7 @@ const TabContent = ({tab}) => {
   useEffect(() => {
     setSelectedModule(tab?.source?.module);
     setSearchString(tab?.source?.text || '');
+    setDescriptor(tab?.descriptor);
   }, [tab])
 
   if (!tab) return (
@@ -99,9 +102,15 @@ const TabContent = ({tab}) => {
     }
   }
 
-  const keyDown = (e) => {
+  const handleRead = () => {
+    if (descriptor!=='') {
+      loadText(descriptor, descriptor, tab.id);
+    }
+  }
+
+  const keyDown = (callback) => (e) => {
     if (e.key === 'Enter') {
-      handleSearch();
+      callback?.();
     }
   }
 
@@ -130,7 +139,7 @@ const TabContent = ({tab}) => {
             <div className={classes.searchInputWrapper}>
               <Input 
                 className={classes.searchInput}
-                onKeyDown={keyDown}
+                onKeyDown={keyDown(handleSearch)}
                 onChange={(e) => setSearchString(e.target.value)}
                 value={searchString ?? ''}
                 placeholder={t('search')}
@@ -146,6 +155,30 @@ const TabContent = ({tab}) => {
           </div>
         </div>
       );
+    } else if (tab.custom) {
+      return(
+        <div className={classes.tools}>
+          <div className={classes.searchWrapper}>
+            <div className={classes.searchInputWrapper}>
+              <Input 
+                className={classes.searchInput}
+                onKeyDown={keyDown(handleRead)}
+                onChange={(e) => setDescriptor(e.target.value)}
+                value={descriptor ?? ''}
+                placeholder={t('read')}
+              />
+              <IconButton
+                className={classes.iconButton}
+                onClick={handleRead}
+                aria-label="search"
+              >
+                <MenuBookIcon />
+              </IconButton>
+            </div>
+          </div>
+        </div>
+      );
+    } else {
     }
     return false;
   }

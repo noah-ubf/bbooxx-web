@@ -1,12 +1,14 @@
 import { makeStyles } from "@mui/styles";
+import Divider from '@mui/material/Divider';
 
 import Verse from "@components/Verse";
 import HeadingVerse from "@components/HeadingVerse";
 import { useEffect, useRef, useState } from "react";
 import { useAppContext } from "@lib/appContext";
 import { CircularProgress } from "@mui/material";
-import classNames from "classnames";
+import classNames from 'classnames';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import { isString } from 'lodash';
 
 const useStyles = makeStyles((theme) => ({
   verseList: {
@@ -83,6 +85,11 @@ const useStyles = makeStyles((theme) => ({
     height: 10,
     background: theme.palette.background.active,
   },
+  divider: {
+    color: theme.palette.background.main,
+    background: theme.palette.background.main,
+    lineHeight: 3,
+  }
 }));
 
 const PAGE_SIZE = 300;
@@ -148,6 +155,8 @@ const VerseList = ({tab, onRemove}) => {
   );
 
   const renderVerse = (verse, descr, descriptor, index) => {
+    if (verse === '/') return <div className={classes.divider}>---</div>;
+    if (isString(verse)) return verse;
     if (verse.heading) {
       return (
         <HeadingVerse

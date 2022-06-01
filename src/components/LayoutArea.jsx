@@ -1,11 +1,16 @@
+import { useRef, useState } from "react";
+import classNames from "classnames";
 import { makeStyles } from "@mui/styles";
+import { IconButton } from "@mui/material";
+import MenuItem from '@mui/material/MenuItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import CloseIcon from '@mui/icons-material/Close';
-// import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-// import LockIcon from '@mui/icons-material/Lock';
-// import ShareIcon from '@mui/icons-material/Share';
-// import classNames from "classnames";
 import { useTranslation } from "react-i18next";
 
 import {useAppContext} from "@lib/appContext";
@@ -13,8 +18,7 @@ import { NiftyTabs, NiftyTab } from '@components/NiftyTabs';
 import TabContent from "@components/TabContent";
 import TabNameDialog from '@components/TabNameDialog';
 import "@translations/i18n";
-import { useState } from "react";
-import classNames from "classnames";
+import usePopup from "../lib/usePopup";
 
 const useStyles = makeStyles((theme) => ({
   layoutArea: {
@@ -27,15 +31,28 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     padding: '.2rem',
   },
+  tabZone: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
   activeAreaTabs: {
     '& .MuiTab-root': {
       opacity: '1 !important',
     },
   },
   tab: {
+    flexGrow: 1,
     '& .MuiTab-root': {
       opacity: .4,
     },
+  },
+  buttonWrapper: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+  },
+  iconButton: {
+    height: 24,
+    width: 24,
   },
   tabTitle: {
     maxWidth: '16em !important',
@@ -85,7 +102,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// const isInitial = (tab) => ['initial'].includes(tab.id);
 const isBasic = (tab) => ['initial', 'collection'].includes(tab.id);
 const hasVerses = (tab) => (!!tab.descriptor)
 
@@ -97,17 +113,19 @@ const LayoutArea = ({ area }) => {
   const { tabs } = area;
   const visibleTabs = tabs.filter((t) => !t.hidden);
   const {
-    handlers: { getActiveTab, toggleTab, closeTab, moveTab, cloneTab, renameTab }
+    handlers: { createEmptyTab, getActiveTab, toggleTab, closeTab, moveTab, cloneTab, renameTab }
   } = useAppContext();
   const activeTab = getActiveTab()
   const activeTabInArea = area.tabs.find((t) => t.activeInArea) || area.tabs[0];
-  // const activeTabId = activeTab?.id;
-  // const activeTabValue = visibleTabs.find((t) => t.id === activeTabId) ? activeTabId : false;
   const activeTabInAreaValue = visibleTabs.find((t) => t.id === activeTabInArea?.id) ? activeTabInArea.id : false;
   const isAreaActive = activeTab === activeTabInArea;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [[tabId, dialogText, isRename], setDialogProps] = useState([]);
+
+  const addTabRef = useRef();
+  const addTab = usePopup('addTabPopup');
+  const AddTabPopup = addTab.Popup;
 
   const allowDrop = (e) => e.preventDefault();
   const drag = (e) => e.dataTransfer.setData("tabId", e.target.id);
@@ -148,6 +166,17 @@ const LayoutArea = ({ area }) => {
     setDialogOpen(false);
   }
 
+  const handleAddSearchTab = () => {
+    createEmptyTab('search', area.id);
+    addTab.hide();
+  }
+
+  const handleAddCustomTab = () => {
+    const tab = createEmptyTab('custom', area.id);
+    addTab.hide();
+    handleRename(tab);
+  }
+  
   return (
     <div
       className={classes.layoutArea}
@@ -156,6 +185,7 @@ const LayoutArea = ({ area }) => {
       onClick={() => isAreaActive || toggleTab(activeTabInAreaValue)}
     >
       { (visibleTabs.length > 0) &&
+      <div className={classes.tabZone}>
         <NiftyTabs
           className={classNames(classes.tab, {[classes.activeAreaTabs]: isAreaActive})}
           value={activeTabInAreaValue}
@@ -199,6 +229,16 @@ const LayoutArea = ({ area }) => {
           ))
         }
         </NiftyTabs>
+        <div className={classes.buttonWrapper}>
+          <IconButton
+            ref={addTabRef}
+            className={classes.iconButton}
+            onClick={() => addTab.show(addTabRef)}
+          >
+            <AddIcon />
+          </IconButton>
+        </div>
+      </div>
       }
       <TabContent tab={activeTabInArea} />
 
@@ -208,6 +248,21 @@ const LayoutArea = ({ area }) => {
         onCancel={() => setDialogOpen(false)}
         description={dialogText}
       />}
+
+      <AddTabPopup>
+        <MenuItem onClick={handleAddSearchTab}>
+          <ListItemIcon>
+            <SearchIcon/>
+          </ListItemIcon>
+          <ListItemText>{t('newSearchTab')}</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleAddCustomTab}>
+          <ListItemIcon>
+            <FormatListBulletedIcon/>
+          </ListItemIcon>
+          <ListItemText>{t('newList')}</ListItemText>
+        </MenuItem>
+      </AddTabPopup>
     </div>
   );
 }
