@@ -1,10 +1,10 @@
 import * as _ from 'lodash';
 
 export const verseBreak = {
-  module: '//',
+  module: '/',
 
   getDescriptor: function() {
-    return '//';
+    return '/';
   }
 };
 
@@ -15,9 +15,10 @@ export const parseDescriptor = descr => {
   let moduleDescr = '';
   let bookDescr = '';
   let chapterDescr = '';
+
   return _.compact(parts.map(p => {
-    if (p === '//') return {
-      module: '//',
+    if (p === '') return {
+      module: '/',
       book: null,
       chapter: null,
       verses: null,
@@ -74,14 +75,15 @@ export function compactDescriptor(descriptor, ) {
     chapter = o.chapter;
   });
 
-  const ret = res.map(o => {
+  const ret = res.map((o, index) => {
+    if (o.module === '/') return '/';
     let module = o.module ? `(${o.module})` : '';
-    let book = o.book ? `${o.book}` : '';
-    let chapter = o.chapter ? `.${o.chapter}` : '';
-    let verses = (o.verses && o.verses.join('-')) || '';
+    let book = o.book ? `${o.book}.` : '';
+    let chapter = o.chapter ? `${o.chapter}` : '';
+    let verses = (o && o.verses && o.verses.join('-')) || '';
     if (verses) verses = `:${verses}`;
-    return `${module}${book}${chapter}${verses}`;
-  }).join(';').replace(/;:/g, ',');
+    return `${index===0 || res[index-1].module === '/'?'':';'}${module}${book}${chapter}${verses}`;
+  }).join('').replace(/;:/g, ',');
 
   return ret;
 }

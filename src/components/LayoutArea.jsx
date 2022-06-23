@@ -29,7 +29,11 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     height: '100%',
     overflow: 'hidden',
-    padding: '.2rem',
+    padding: '.3rem 0',
+    background: theme.palette.background.veryLight,
+  },
+  active: {
+    background: 'none',
   },
   tabZone: {
     display: 'flex',
@@ -118,7 +122,9 @@ const LayoutArea = ({ area }) => {
   const activeTab = getActiveTab()
   const activeTabInArea = area.tabs.find((t) => t.activeInArea) || area.tabs[0];
   const activeTabInAreaValue = visibleTabs.find((t) => t.id === activeTabInArea?.id) ? activeTabInArea.id : false;
-  const isAreaActive = activeTab === activeTabInArea;
+  const isAreaActive = activeTab?.id === activeTabInArea?.id;
+  const isAreaActiveRef = useRef(isAreaActive);
+  isAreaActiveRef.current = isAreaActive;
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [[tabId, dialogText, isRename], setDialogProps] = useState([]);
@@ -179,10 +185,10 @@ const LayoutArea = ({ area }) => {
   
   return (
     <div
-      className={classes.layoutArea}
+      className={classNames(classes.layoutArea, {[classes.active]: isAreaActive})}
       onDrop={drop1}
       onDragOver={allowDrop}
-      onClick={() => isAreaActive || toggleTab(activeTabInAreaValue)}
+      onClick={() => setTimeout(() => isAreaActiveRef.current || toggleTab(activeTabInAreaValue), 0)}
     >
       { (visibleTabs.length > 0) &&
       <div className={classes.tabZone}>
@@ -240,7 +246,7 @@ const LayoutArea = ({ area }) => {
         </div>
       </div>
       }
-      <TabContent tab={activeTabInArea} />
+      <TabContent tab={activeTabInArea} active={isAreaActive}/>
 
       {dialogOpen && <TabNameDialog
         open={dialogOpen}

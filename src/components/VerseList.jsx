@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme) => ({
     flexShrink: 100,
   },
   bottomSpace: {
-    background: `linear-gradient(to bottom, ${theme.palette.background.verse}, ${theme.palette.background.main})`,
+    background: `linear-gradient(to bottom, ${theme.palette.background.verse}, ${theme.palette.background.transparent})`,
     height: '10vh',
     paddingBottom: '10vh',
 
@@ -86,15 +86,18 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.background.active,
   },
   divider: {
-    color: theme.palette.background.main,
-    background: theme.palette.background.main,
-    lineHeight: 3,
+    color: theme.palette.text.active,
+    // background: theme.palette.background.main,
+    background: `linear-gradient(to bottom, ${theme.palette.background.verse}, ${theme.palette.background.transparent})`,
+    fontSize: '160%',
+    lineHeight: 2,
+    textAlign: 'center',
   }
 }));
 
 const PAGE_SIZE = 300;
 
-const VerseList = ({tab, onRemove}) => {
+const VerseList = ({tab, onRemove, isMobile}) => {
   // const { store: { verses: storedVerses } } = useAppContext();
   const {
     getters: { getNearChapterDescriptors },
@@ -120,7 +123,7 @@ const VerseList = ({tab, onRemove}) => {
   useEffect(() => {
     window.scrollTo(0, 0);
     if (ref.current) ref.current.scrollTop = 0;
-  }, [tab])
+  }, [tab.source])
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -155,7 +158,7 @@ const VerseList = ({tab, onRemove}) => {
   );
 
   const renderVerse = (verse, descr, descriptor, index) => {
-    if (verse === '/') return <div className={classes.divider}>---</div>;
+    if (verse === '/') return <div className={classes.divider}>················•·•·•················</div>;
     if (isString(verse)) return verse;
     if (verse.heading) {
       return (
@@ -189,6 +192,7 @@ const VerseList = ({tab, onRemove}) => {
               verse={verse}
               onRemove={onRemove && (() => onRemove(index))}
               highlightedWords={highlightedWords}
+              isMobile={isMobile}
             />
           </div>
         </>

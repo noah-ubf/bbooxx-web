@@ -5,6 +5,7 @@ import { fetchURI } from '@lib/requests';
 
 import { AREA_IDS, defaultTabs, getAreas } from './defaults';
 import { loadTabContent, nearChapterDescriptorsGetter } from './helpers';
+import { getDescriptorFromList, compactDescriptor } from '../descriptor';
 import getId from './getId';
 import { tab } from "@testing-library/user-event/dist/tab";
 // import { t } from "i18next";
@@ -151,7 +152,7 @@ export const AppContextProvider = ({ children }) => {
         }
         return t;
       });
-      setTabs(tabs);
+      setTabsRef.current(tabs);
       window.location.hash = `#${tabId}`;
     };
 
@@ -193,7 +194,7 @@ export const AppContextProvider = ({ children }) => {
 
           const tabs = [...allData.tabs, newTab];
 
-          setTabs(focus ? focusTab(newTab.id, tabs) : tabs);
+          setTabsRef.current(focus ? focusTab(newTab.id, tabs) : tabs);
           return newTab;
         },
 
@@ -205,7 +206,7 @@ export const AppContextProvider = ({ children }) => {
           const description = tabId === 'initial' ? '*' : tab.description;
           const tabs2 = allData.tabs.map((t) => (t.id === tabId && clean) ? {...t, descriptor: '', description, verses: []} : t)
           // window.location.hash = `#${tabId}`;
-          setTabs(focusTab(newTabId, [...tabs2, newTab]));
+          setTabsRef.current(focusTab(newTabId, [...tabs2, newTab]));
       
           setTimeout(() => {
             const newTabs = allDataRef.current.tabs.map((t) => t.id === newTabId ? {...t, locked: false} : t);
@@ -229,11 +230,11 @@ export const AppContextProvider = ({ children }) => {
             : allData.tabs.map((t) => t.id === tabId ? {...t, ...newTab} : t);
           const tabs3 = focusTab(tabId, tabs2);
           const tabs4 = fixActiveInArea(AREA_IDS.center, tabs3);
-          setTabs(tabs4);
+          setTabsRef.current(tabs4);
         },
 
         toggleTab: (tabId) => {
-          setTabs(focusTab(tabId));
+          setTabsRef.current(focusTab(tabId));
         },
 
         closeTab: (tabId) => {
@@ -244,7 +245,7 @@ export const AppContextProvider = ({ children }) => {
           const prevIndex = tabsInArea.findIndex((t) => t.id === tabId);
           const tabs2 = remove(allData.tabs, getTabIndex(tabId))
           const tabs4 = fixActiveInArea(areaId, tabs2, prevIndex);
-          setTabs(tabs4);
+          setTabsRef.current(tabs4);
         },
 
         showReferences: (verse) => {
@@ -261,7 +262,7 @@ export const AppContextProvider = ({ children }) => {
      
           const tabs3 = focusTab(newTabId, [ ...allData.tabs, newTab ]);
           const tabs4 = fixActiveInArea(AREA_IDS.center, tabs3);
-          setTabs(tabs4);
+          setTabsRef.current(tabs4);
         },
 
         moveTab: (tabId, tgtAreaId, receiveId=null) => {
@@ -275,7 +276,7 @@ export const AppContextProvider = ({ children }) => {
           const tabs3 = focusTab(tabId, tabs2);
           const tabs4 = fixActiveInArea(srcAreaId, tabs3);
           // window.location.hash = `#${tabId}`;
-          setTabs(tabs4);
+          setTabsRef.current(tabs4);
         },
 
         loadTabContent: async (tabId) => {
@@ -290,11 +291,18 @@ export const AppContextProvider = ({ children }) => {
         },
 
         loadStrongs: (strongsNum) => {
-          const module = allData.modules.find((m) => m.type === 'strongs')
-          if (!module) return;
-          const book = strongsNum[0] === 'H' ? 'Heb' : 'Grk';
-          const num = strongsNum.substring(1);
-          const descriptor = `(${module.shortName})${book}.${num}`;
+          const getStrongsDescriptor = (strongsNum) => {
+            const module = allData.modules.find((m) => m.type === 'strongs')
+            if (!module) return;
+            const book = strongsNum[0] === 'H' ? 'Heb' : 'Grk';
+            const num = strongsNum.substring(1);
+            const descriptor = `(${module.shortName})${book}.${num}`;
+            return descriptor;
+          }
+          const descriptor = isArray(strongsNum)
+            ? compactDescriptor(strongsNum.map(getStrongsDescriptor).join(';'))
+            : getStrongsDescriptor(strongsNum);
+
           loadText(descriptor, descriptor, 'strongs');
         },
 
@@ -313,7 +321,7 @@ export const AppContextProvider = ({ children }) => {
         updateMemo: (tabId, content) => {
           const tab = getTab(tabId);
           if (!tab || tab.type !== 'memo' || tab.content === content) return;
-          setTabs(allData.tabs.map((t) => t.id === tabId ? { ...t, content } : t));
+          setTabsRef.current(allData.tabs.map((t) => t.id === tabId ? { ...t, content } : t));
         },
 
         resetTabs: () => {
@@ -346,18 +354,18 @@ export const AppContextProvider = ({ children }) => {
           const tab = getTab(tabId);
           const descr = tab.descriptor;
           const data = {
-            descriptor: descr ? [descr, verse.descriptor].join(';') : verse.descriptor,
+            descriptor: descr ? compactDescriptor([descr, verse.descriptor].join(';')) : verse.descriptor,
             loaded: false,
           };
           const newTabs = allData.tabs.map((t) => t.id === tabId ? { ...t, ...data } : t);
-          setTabs(newTabs);
+          setTabsRef.current(newTabs);
         },
 
         removeVerse: (pos, tabId) => {
           const tab = getTab(tabId);
           const verses = remove(tab.verses, pos);
-          const descriptor = verses.map(({descriptor}) => descriptor).join(';');
-          setTabs(allData.tabs.map((t) => t.id === tabId ? { ...tab, descriptor, verses } : t));
+          const descriptor = compactDescriptor(verses.map(({descriptor}) => descriptor).join(';'));
+          setTabsRef.current(allData.tabs.map((t) => t.id === tabId ? { ...tab, descriptor, verses } : t));
         },
 
         moveVerse: (tabIdFrom, pos, tabIdTo, posTo=-1) => {
@@ -371,13 +379,16 @@ export const AppContextProvider = ({ children }) => {
             const verses = posTo >= pos
               ? remove(insert(tabFrom.verses, posTo, [verse]), pos)
               : insert(remove(tabFrom.verses, pos), posTo, [verse]);
-            setTabs(allData.tabs.map((t) => t.id === tabIdFrom ? {...t, verses} : t))
+              const descriptor = compactDescriptor(verses.map(({descriptor}) => descriptor).join(';'));
+              setTabsRef.current(allData.tabs.map((t) => t.id === tabIdFrom ? {...t, verses, descriptor} : t))
           } else {
             const versesFrom = remove(tabFrom.verses, pos);
             const versesTo = insert(tabTo.verses, posTo, [verse]);
-            setTabs(allData.tabs.map((t) => {
-              if (t.id === tabIdFrom) return {...t, verses: versesFrom};
-              if (t.id === tabIdTo) return {...t, verses: versesTo};
+            const descriptorFrom = compactDescriptor(versesFrom.map(({descriptor}) => descriptor).join(';'));
+            const descriptorTo = compactDescriptor(versesTo.map(({descriptor}) => descriptor).join(';'));
+            setTabsRef.current(allData.tabs.map((t) => {
+              if (t.id === tabIdFrom) return {...t, verses: versesFrom, descriptor: descriptorFrom};
+              if (t.id === tabIdTo) return {...t, verses: versesTo, descriptor: descriptorTo};
               return t;
             }))
           }
@@ -392,7 +403,7 @@ export const AppContextProvider = ({ children }) => {
             `<p><strong>${verse.descriptor}</strong></p>`,
             '</div>',
           ].join('');
-          setTabs(allData.tabs.map((t) => t.id === 'memo' ? {...tab, content} : t));
+          setTabsRef.current(allData.tabs.map((t) => t.id === 'memo' ? {...tab, content} : t));
         }
       },
     })}, [allData, setTabs]

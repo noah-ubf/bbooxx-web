@@ -119,6 +119,11 @@ const TabList = () => {
     );
   }
 
+  const limited = (d) => {
+    const translated = tr(d).replaceAll(';', ';\u200b');
+    if (translated.length > 100) return translated.substring(0,97) + '...';
+    return translated;
+  }
   return (
     <div className={classes.tabList} >
       <List>
@@ -131,7 +136,7 @@ const TabList = () => {
             >
               <ListItemButton>
                 { renderTabIcon(tab) }
-                <ListItemText primary={tr(tab.description)} onClick={() => toggleTab(tab.id)}/>
+                <ListItemText primary={limited(tab.description)} onClick={() => toggleTab(tab.id)}/>
                 {(tab.id !== 'collection' && tab.custom) && (
                   <ListItemIcon>
                     <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tab)}} />

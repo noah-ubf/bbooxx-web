@@ -41,6 +41,9 @@ const useStyles = makeStyles((theme) => {
         background: theme.palette.background.light,
       },
     },
+    verseNumber: {
+      cursor: 'text',
+    },
     verseContent: {
       display: 'inline-block',
       flexGrow: 100,
@@ -50,7 +53,7 @@ const useStyles = makeStyles((theme) => {
   }
 });
 
-const Verse = ({tab, vOrder, verse, onRemove, highlightedWords}) => {
+const Verse = ({tab, vOrder, verse, onRemove, highlightedWords, isMobile}) => {
   const { t } = useTranslation();
   const { handlers: { loadStrongs } } = useAppContext();
   const { store: { showStrongs } } = useViewContext();
@@ -97,7 +100,11 @@ const Verse = ({tab, vOrder, verse, onRemove, highlightedWords}) => {
         onMouseEnter={() => setDraggable(true)}
         onMouseLeave={() => setDraggable(false)}
       >
-        {verse.num}
+        <span
+          className={classes.verseNumber}
+          onMouseEnter={() => setDraggable(false)}
+          onMouseLeave={() => setDraggable(true)}
+        >{verse.num}</span>
       </span>
       <span className={classes.verseContent}>
         <LexemList
@@ -122,6 +129,8 @@ const Verse = ({tab, vOrder, verse, onRemove, highlightedWords}) => {
           verse={verse}
           onRemove={handleRemove}
           onClose={handleClose}
+          onStrongs={handleDisplayStrongs}
+          isMobile={isMobile}
         />
       </Menu>
     </div>

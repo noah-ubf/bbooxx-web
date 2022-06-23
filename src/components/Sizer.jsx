@@ -22,6 +22,9 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('md')]: {
       display: 'none',
     },
+    '&:hover': {
+      background: theme.palette.background.highlighted,
+    }
   },
 
 }));

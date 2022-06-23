@@ -23,6 +23,10 @@ const useStyles = makeStyles((theme) => {
         textShadow: theme.palette.shadow.text,
       }
     },
+
+    hidden: {
+      display: 'none',
+    },
     
     strong: {
       marginLeft: '0.25em',
@@ -53,9 +57,10 @@ const useStyles = makeStyles((theme) => {
 
     vNum: {
       display: 'block',
-      fontSize: '200%',
+      fontSize: '90%',
+      fontWeight: 'bold',
       color: theme.palette.text.tag,
-      lineHeight: 1.8,
+      lineHeight: 1.2,
     },
 
     tag__h4: {
@@ -177,7 +182,11 @@ const LexemList = ({displayStrong, fireLink, lexems=[], highlightedWords}) => {
   const renderLexem = ({type, data}, i) => {
     switch(type) {
       case 'block': {
-        const blockClasses = classNames(`tag__${data.tag}`, ...getClassList(data.props));
+        const blockClasses = classNames(
+          `tag__${data.tag}`,
+          ...getClassList(data.props),
+          {[classes.hidden]: !displayStrong && data.props?.class === 'strongs'},
+        );
         if (data.tag==='P') {
           return (
             <p key={i} className={blockClasses}>

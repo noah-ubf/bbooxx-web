@@ -12,6 +12,7 @@ import Settings from '@components/Settings';
 import {useAppContext} from '@lib/appContext';
 import Memo from '@components/Memo';
 import TabList from '@components/TabList';
+import classNames from 'classnames';
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -24,10 +25,13 @@ const useStyles = makeStyles((theme) => ({
     overflow: 'hidden',
     border: theme.palette.border.light,
     padding: '.2rem',
-    marginRight: '.5rem',
+    // marginRight: '.5rem',
     [theme.breakpoints.down('md')]: {
       marginRight: 0,
     },
+  },
+  active: {
+    border: theme.palette.border.active,
   },
   tools: {
     alignItems: 'stretch',
@@ -62,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const TabContent = ({tab}) => {
+const TabContent = ({tab, active, isMobile}) => {
   const classes = useStyles();
   const {
     store: { modules },
@@ -71,19 +75,20 @@ const TabContent = ({tab}) => {
   const [searchString, setSearchString] = useState('');
   const [descriptor, setDescriptor] = useState('');
   const [selectedModule, setSelectedModule] = useState('');
+  const [inputFocused, setInputFocused] = useState(false);
   const ref = useRef();
   const { t } = useTranslation();
-  const xxx = tab?.verses || tab?.id;
+  // const xxx = tab?.verses || tab?.id;
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (ref.current) ref.current.scrollTop = 0
-  }, [xxx])
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
+  //   if (ref.current) ref.current.scrollTop = 0
+  // }, [tab.descriptor])
 
   useEffect(() => {
     setSelectedModule(tab?.source?.module);
     setSearchString(tab?.source?.text || '');
-    setDescriptor(tab?.descriptor);
+    if (tab?.descriptor !== descriptor) setDescriptor(tab?.descriptor);
   }, [tab])
 
   if (!tab) return (
@@ -166,6 +171,10 @@ const TabContent = ({tab}) => {
                 onChange={(e) => setDescriptor(e.target.value)}
                 value={descriptor ?? ''}
                 placeholder={t('read')}
+                multiline={true}
+                rows={inputFocused ? 4 : 1}
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
               />
               <IconButton
                 className={classes.iconButton}
@@ -190,11 +199,17 @@ const TabContent = ({tab}) => {
     case 'tabs': return <TabList />;
     default:
       return !!tab && (
-        <div className={classes.content} tabIndex={1} ref={ref} onFocus={handleFocus}>
+        <div
+          className={classNames(classes.content, {[classes.active]: active})}
+          tabIndex={1}
+          ref={ref}
+          onFocus={handleFocus}
+        >
           { renderTools() }
           <VerseList
             tab={ tab }
             onRemove={tab.custom ? (i) => removeVerse(i, tab.id) : null}
+            isMobile={isMobile}
           />
         </div>
       );

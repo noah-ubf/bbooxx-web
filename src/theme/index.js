@@ -21,7 +21,8 @@ export const getTheme = (mode) => {
         border: {
           tab: 'solid 1px #7f7f7f',
           highlighted: 'solid 2px #99d5cc',
-          light: 'solid 2px #ddddff',
+          light: 'solid 4px #ddddff',
+          active: 'solid 4px #99d5cc',
           sizer: 'solid 4px #dddddd',
         },
         shadow: {
@@ -30,11 +31,13 @@ export const getTheme = (mode) => {
         background: {
           main: '#eeeeee',
           verse: '#ddddff',
+          veryLight: '#e7e7ff',
           light: '#ccccee',
           active: '#99d5cc',
           selected: '#ddddff',
           hover: '#cccccc',
           highlighted: '#99ffff',
+          transparent: 'rgba(255,255,255,0)',
         },
         inversion: {
         }
@@ -63,7 +66,8 @@ export const getTheme = (mode) => {
       border: {
         tab: 'solid 1px #333333',
         highlighted: 'solid 2px #333733',
-        light: 'solid 2px #222211',
+        light: 'solid 4px #222211',
+        active: 'solid 4px #662a33',
         sizer: 'solid 4px #334433',
       },
       shadow: {
@@ -72,11 +76,13 @@ export const getTheme = (mode) => {
       background: {
         main: '#111111',
         verse: '#211e25',
+        veryLight: '#1c1c1c',
         light: '#001e1c',
         active: '#663333',
         selected: '#665511',
         hover: '#444444',
         highlighted: '#112700',
+        transparent: 'rgba(0,0,0,0)',
       },
       inversion: {
         filter: 'invert(.9)',

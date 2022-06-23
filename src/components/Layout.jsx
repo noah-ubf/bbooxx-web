@@ -78,6 +78,7 @@ const useStyles = makeStyles((theme) => ({
   rightCol: {
     height: '100%',
     overflow: 'hidden',
+    paddingRight: '.2rem',
   },
 }));
 
