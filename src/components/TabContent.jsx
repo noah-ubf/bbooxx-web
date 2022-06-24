@@ -4,6 +4,7 @@ import { makeStyles } from '@mui/styles';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import LanguageIcon from '@mui/icons-material/Language';
 import { useTranslation } from "react-i18next";
 
 import ModuleList from '@components/ModuleList';
@@ -12,6 +13,7 @@ import Settings from '@components/Settings';
 import {useAppContext} from '@lib/appContext';
 import Memo from '@components/Memo';
 import TabList from '@components/TabList';
+import TabContentWeb from '@components/TabContentWeb';
 import classNames from 'classnames';
 
 const useStyles = makeStyles((theme) => ({
@@ -187,6 +189,33 @@ const TabContent = ({tab, active, isMobile}) => {
           </div>
         </div>
       );
+    } else if (tab?.source?.type === 'web') {
+      return(
+        <div className={classes.tools}>
+          <div className={classes.searchWrapper}>
+            <div className={classes.searchInputWrapper}>
+              <Input 
+                className={classes.searchInput}
+                onKeyDown={keyDown(handleRead)}
+                onChange={(e) => setDescriptor(e.target.value)}
+                value={descriptor ?? ''}
+                placeholder={t('read')}
+                multiline={true}
+                rows={inputFocused ? 4 : 1}
+                onFocus={() => setInputFocused(true)}
+                onBlur={() => setInputFocused(false)}
+              />
+              <IconButton
+                className={classes.iconButton}
+                onClick={handleRead}
+                aria-label="search"
+              >
+                <LanguageIcon />
+              </IconButton>
+            </div>
+          </div>
+        </div>
+      );
     } else {
     }
     return false;
@@ -197,6 +226,7 @@ const TabContent = ({tab, active, isMobile}) => {
     case 'modules': return <ModuleList/>;
     case 'settings': return <Settings/>;
     case 'tabs': return <TabList />;
+    case 'web': return <TabContentWeb tab={tab} />;
     default:
       return !!tab && (
         <div

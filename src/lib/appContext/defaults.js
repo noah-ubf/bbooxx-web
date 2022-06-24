@@ -1,4 +1,5 @@
 export const AREA_IDS = {
+  none: '@none',
   left: '@left',
   center: '@center',
   right: '@right',
@@ -12,6 +13,7 @@ export const defaultTabs = [
     description: {i18n: 'tablist'},
     locked: true,
     hidden: true,
+    areaId: AREA_IDS.none,
   },
   {
     id: 'modules',

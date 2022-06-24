@@ -11,6 +11,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import LanguageIcon from '@mui/icons-material/Language';
 import { useTranslation } from "react-i18next";
 
 import {useAppContext} from "@lib/appContext";
@@ -78,6 +79,15 @@ const useStyles = makeStyles((theme) => ({
     padding: '.2rem',
     marginRight: '.5rem',
   },
+  stretcher: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexGrow: 100,
+    flexShrink: 100,
+    alignItems: 'stretch',
+    justifyContent: 'stretch',
+    overflow: 'hidden',
+  },
   locked: {
     fontWeight: 'bold',
     fontSize: 'larger',
@@ -103,6 +113,9 @@ const useStyles = makeStyles((theme) => ({
     padding: '.1rem',
     background: theme.palette.background.main,
     textAlign: 'right',
+  },
+  hidden: {
+    display: 'none',
   },
 }));
 
@@ -183,6 +196,12 @@ const LayoutArea = ({ area }) => {
     handleRename(tab);
   }
   
+  const handleAddWebTab = () => {
+    const tab = createEmptyTab('web', area.id);
+    addTab.hide();
+    handleRename(tab);
+  }
+
   return (
     <div
       className={classNames(classes.layoutArea, {[classes.active]: isAreaActive})}
@@ -218,7 +237,7 @@ const LayoutArea = ({ area }) => {
 
                   {/* <ShareIcon onClick={() => shareTab(tab)} /> */}
 
-                  {(!isBasic(tab) && tab.custom && tab.activeInArea) && (
+                  {(!isBasic(tab) && (tab.custom || tab.type === 'web') && tab.activeInArea) && (
                     <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tab)}} />
                   )}
 
@@ -246,7 +265,14 @@ const LayoutArea = ({ area }) => {
         </div>
       </div>
       }
-      <TabContent tab={activeTabInArea} active={isAreaActive}/>
+      {
+        visibleTabs.map((tab, i) => (
+          <div className={classNames(classes.stretcher, {[classes.hidden]: tab.id !== activeTabInArea?.id})}>
+            <TabContent key={tab.id} tab={tab} active={isAreaActive} />
+          </div>
+        ))
+      }
+      {/* <TabContent tab={activeTabInArea} active={isAreaActive}/> */}
 
       {dialogOpen && <TabNameDialog
         open={dialogOpen}
@@ -267,6 +293,12 @@ const LayoutArea = ({ area }) => {
             <FormatListBulletedIcon/>
           </ListItemIcon>
           <ListItemText>{t('newList')}</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleAddWebTab}>
+          <ListItemIcon>
+            <LanguageIcon/>
+          </ListItemIcon>
+          <ListItemText>{t('newWeb')}</ListItemText>
         </MenuItem>
       </AddTabPopup>
     </div>

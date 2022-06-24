@@ -9,6 +9,7 @@ import LinkIcon from '@mui/icons-material/Link';
 import EditIcon from '@mui/icons-material/Edit';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import TagIcon from '@mui/icons-material/Tag';
+import LanguageIcon from '@mui/icons-material/Language';
 import { useTranslation } from "react-i18next";
 import { Divider } from "@mui/material";
 import List from '@mui/material/List';
@@ -86,6 +87,11 @@ const TabList = () => {
     handleRename(tab);
   }
 
+  const handleAddWebTab = () => {
+    const tab = createEmptyTab('web', AREA_IDS.right, false);
+    handleRename(tab);
+  }
+
   const renderTabIcon = (tab) => {
     if (tab?.source?.type === 'search') return (
       <ListItemIcon>
@@ -137,7 +143,7 @@ const TabList = () => {
               <ListItemButton>
                 { renderTabIcon(tab) }
                 <ListItemText primary={limited(tab.description)} onClick={() => toggleTab(tab.id)}/>
-                {(tab.id !== 'collection' && tab.custom) && (
+                {((tab.id !== 'collection' && tab.custom) || tab.type === 'web') && (
                   <ListItemIcon>
                     <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tab)}} />
                   </ListItemIcon>
@@ -168,6 +174,12 @@ const TabList = () => {
             <FormatListBulletedIcon/>
           </ListItemIcon>
           <ListItemText>{t('newList')}</ListItemText>
+        </ListItem>
+        <ListItem onClick={handleAddWebTab}>
+          <ListItemIcon>
+            <LanguageIcon/>
+          </ListItemIcon>
+          <ListItemText>{t('newWeb')}</ListItemText>
         </ListItem>
       </List>
 

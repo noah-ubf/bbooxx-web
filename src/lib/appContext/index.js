@@ -179,6 +179,7 @@ export const AppContextProvider = ({ children }) => {
           const tabId = getId();
           const newTab = {
             id: tabId,
+            type,
             loaded: true,
             areaId,
             descriptor: '',
@@ -190,6 +191,8 @@ export const AppContextProvider = ({ children }) => {
           } else if (type === 'custom') {
             newTab.custom = true;
             newTab.description = {i18n: 'newList'};
+          } else if (type === 'web') {
+            newTab.description = {i18n: 'website'};
           } else return;
 
           const tabs = [...allData.tabs, newTab];
@@ -218,16 +221,19 @@ export const AppContextProvider = ({ children }) => {
           if (!text || text === '') return;
           const isNewTab = !getTab(tabIdDest);
           const tabId = isNewTab ? getId() : tabIdDest;
-          const newTab = {
-            id: tabId,
+          const newData = {
             source: {type: 'search', module, text},
             loaded: false,
             description: {i18n: 'searchResults', params: {module, text}},
-            areaId: AREA_IDS.center
+          };
+          const newTab = {
+            id: tabId,
+            areaId: AREA_IDS.center,
+            ...newData,
           };
           const tabs2 = isNewTab
             ? [ ...allData.tabs, newTab ]
-            : allData.tabs.map((t) => t.id === tabId ? {...t, ...newTab} : t);
+            : allData.tabs.map((t) => t.id === tabId ? {...t, ...newData} : t);
           const tabs3 = focusTab(tabId, tabs2);
           const tabs4 = fixActiveInArea(AREA_IDS.center, tabs3);
           setTabsRef.current(tabs4);
@@ -404,9 +410,16 @@ export const AppContextProvider = ({ children }) => {
             '</div>',
           ].join('');
           setTabsRef.current(allData.tabs.map((t) => t.id === 'memo' ? {...tab, content} : t));
-        }
+        },
+
+        loadUrl: (tabId, url) => {
+          const tab = getTab(tabId);
+          if (!tab || tab.type !== 'web') return;
+          setTabsRef.current(allData.tabs.map((t) => t.id === tabId ? {...tab, url} : t));
+          console.log('loadUrl:', tabId, tab, url)
+        },
       },
-    })}, [allData, setTabs]
+    })}, [allData]
   );
 
   return <AppContext.Provider value={context}>{children}</AppContext.Provider>
