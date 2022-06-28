@@ -20,6 +20,7 @@ import TabContent from "@components/TabContent";
 import TabNameDialog from '@components/TabNameDialog';
 import "@translations/i18n";
 import usePopup from "../lib/usePopup";
+import TabIcon from '@components/TabIcon';
 
 const useStyles = makeStyles((theme) => ({
   layoutArea: {
@@ -227,6 +228,8 @@ const LayoutArea = ({ area }) => {
               value={tab.id}
               label={
                 <div className={classes.tabContent}>
+                  <TabIcon tab={tab} />
+
                   <span className={classNames(classes.tabTitle, {[classes.locked]: tab.locked})}>
                     { tr(tab.description) }
                   </span>
@@ -267,8 +270,8 @@ const LayoutArea = ({ area }) => {
       }
       {
         visibleTabs.map((tab, i) => (
-          <div className={classNames(classes.stretcher, {[classes.hidden]: tab.id !== activeTabInArea?.id})}>
-            <TabContent key={tab.id} tab={tab} active={isAreaActive} />
+          <div key={tab.id} className={classNames(classes.stretcher, {[classes.hidden]: tab.id !== activeTabInArea?.id})}>
+            <TabContent tab={tab} active={isAreaActive} />
           </div>
         ))
       }

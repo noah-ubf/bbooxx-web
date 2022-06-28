@@ -328,7 +328,7 @@ const MenuWrapper = ({children}) => {
           <div className={classes.popupTitle}>
             {activeTabTitle}
           </div>
-          <ViewOptions/>
+          <ViewOptions onClose={viewOptions.hide}/>
         </div>
       </ViewOptionsPopup>
 

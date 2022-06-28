@@ -100,7 +100,7 @@ const TabContentWeb = ({ tab }) => {
           </div>
         </div>
         { url
-          ? <iframe ref={iframeRef} className={classes.iframe} title='iframe' />
+          ? <iframe ref={iframeRef} className={classes.iframe} title='iframe' sandbox={'true'} />
           : <div>No URL specified</div>
         }
     </div>
