@@ -131,11 +131,11 @@ const LayoutArea = ({ area }) => {
   const { tabs } = area;
   const visibleTabs = tabs.filter((t) => !t.hidden);
   const {
-    handlers: { createEmptyTab, getActiveTab, toggleTab, closeTab, moveTab, cloneTab, renameTab }
+    handlers: { createEmptyTab, getActiveTab, getAreaActiveTab, toggleTab, closeTab, moveTab, cloneTab, renameTab }
   } = useAppContext();
-  const activeTab = getActiveTab()
-  const activeTabInArea = area.tabs.find((t) => t.activeInArea) || area.tabs[0];
-  const activeTabInAreaValue = visibleTabs.find((t) => t.id === activeTabInArea?.id) ? activeTabInArea.id : false;
+  const activeTab = getActiveTab();
+  const activeTabInArea = getAreaActiveTab(area.id);
+  const activeTabInAreaValue = activeTabInArea?.id || false;
   const isAreaActive = activeTab?.id === activeTabInArea?.id;
   const isAreaActiveRef = useRef(isAreaActive);
   isAreaActiveRef.current = isAreaActive;
@@ -240,11 +240,11 @@ const LayoutArea = ({ area }) => {
 
                   {/* <ShareIcon onClick={() => shareTab(tab)} /> */}
 
-                  {(!isBasic(tab) && (tab.custom || tab.type === 'web') && tab.activeInArea) && (
+                  {(!isBasic(tab) && (tab.custom || tab.type === 'web') && tab.id === activeTabInAreaValue) && (
                     <DriveFileRenameOutlineIcon onClick={(e) => {e.stopPropagation(); handleRename(tab)}} />
                   )}
 
-                  {(!tab.locked && tab.activeInArea) && (
+                  {(!tab.locked && tab.id === activeTabInAreaValue) && (
                     <CloseIcon onClick={(e) => {e.stopPropagation(); closeTab(tab.id)}} />
                   )}
                 </div>

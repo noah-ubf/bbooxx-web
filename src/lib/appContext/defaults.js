@@ -21,8 +21,6 @@ export const defaultTabs = [
     description: {i18n: 'library'},
     locked: true,
     areaId: AREA_IDS.left,
-    active: true,
-    activeInArea: true,
   },
   {
     id: 'initial',
@@ -30,8 +28,6 @@ export const defaultTabs = [
     description: '*',
     verses: [],
     areaId: AREA_IDS.center,
-    active: false,
-    activeInArea: true,
   },
   {
     id: 'collection',
@@ -40,8 +36,6 @@ export const defaultTabs = [
     verses: [],
     custom: true,
     areaId: AREA_IDS.right,
-    active: false,
-    activeInArea: false,
   },
   {
     id: 'memo',
@@ -49,8 +43,6 @@ export const defaultTabs = [
     description: {i18n: 'notes'},
     locked: true,
     areaId: AREA_IDS.right,
-    active: false,
-    activeInArea: true,
   },
   {
     id: 'settings',
@@ -66,8 +58,6 @@ export const defaultTabs = [
     locked: true,
     verses: [],
     areaId: AREA_IDS.bottom,
-    active: false,
-    activeInArea: true,
   },
 ];
 
