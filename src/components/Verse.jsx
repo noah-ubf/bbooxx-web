@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { makeStyles } from "@mui/styles";
 import { Menu } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -61,6 +61,7 @@ const Verse = ({tab, vOrder, verse, onRemove, highlightedWords, isMobile}) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [draggable, setDraggable] = useState(false);
   const [vid] = useState(getVID());
+  const ref = useRef();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -86,33 +87,36 @@ const Verse = ({tab, vOrder, verse, onRemove, highlightedWords, isMobile}) => {
   const open = Boolean(anchorEl);
 
   return (
-    <div
-      key={verse.descriptor}
-      className={classes.verse}
-      draggable={draggable}
-      onDragStart={drag}
-      id={ [vOrder, tab.id].join(':') }
-    >
-      <span
-        aria-describedby={vid}
-        className={classes.verseMenuToggler}
-        onClick={handleClick}
-        onMouseEnter={() => setDraggable(true)}
-        onMouseLeave={() => setDraggable(false)}
+    <>
+      <div
+        ref={ref}
+        key={verse.descriptor}
+        className={classes.verse}
+        draggable={draggable}
+        onDragStart={drag}
+        id={ [vOrder, tab.id].join(':') }
       >
         <span
-          className={classes.verseNumber}
-          onMouseEnter={() => setDraggable(false)}
-          onMouseLeave={() => setDraggable(true)}
-        >{verse.num}</span>
-      </span>
-      <span className={classes.verseContent}>
-        <LexemList
-          lexems={verse.lexems}
-          displayStrong={(showStrongs || verse.module==='Strongs') ? handleDisplayStrongs : null}
-          highlightedWords={highlightedWords}
-        />
-      </span>
+          aria-describedby={vid}
+          className={classes.verseMenuToggler}
+          onClick={handleClick}
+          onMouseEnter={() => setDraggable(true)}
+          onMouseLeave={() => setDraggable(false)}
+        >
+          <span
+            className={classes.verseNumber}
+            onMouseEnter={() => setDraggable(false)}
+            onMouseLeave={() => setDraggable(true)}
+          >{verse.num}</span>
+        </span>
+        <span className={classes.verseContent}>
+          <LexemList
+            lexems={verse.lexems}
+            displayStrong={(showStrongs || verse.module==='Strongs') ? handleDisplayStrongs : null}
+            highlightedWords={highlightedWords}
+          />
+        </span>
+      </div>
       <Menu
         id={vid}
         open={open}
@@ -124,6 +128,7 @@ const Verse = ({tab, vOrder, verse, onRemove, highlightedWords, isMobile}) => {
         }}
       >
         <VerseMenuContent
+          vRef={ref}
           tab={tab}
           vOrder={vOrder}
           verse={verse}
@@ -133,7 +138,7 @@ const Verse = ({tab, vOrder, verse, onRemove, highlightedWords, isMobile}) => {
           isMobile={isMobile}
         />
       </Menu>
-    </div>
+    </>
   );
 }
 

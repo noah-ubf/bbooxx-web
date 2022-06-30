@@ -6,12 +6,14 @@ export const ViewContextProvider = ({ children }) => {
   const [showStrongs, setShowStrongs] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState(window.localStorage.getItem('mode') || 'light');
+  const [topTab, setTopTab] = useState(false);
 
   const context = useMemo(() => ({
     store: {
       showStrongs,
       loading,
       mode,
+      topTab,
     },
 
     handlers: {
@@ -22,12 +24,14 @@ export const ViewContextProvider = ({ children }) => {
         const newMode = mode === 'light' ? 'dark' : 'light';
         setMode(newMode);
         window.localStorage.setItem('mode', newMode);
-      }
+      },
+      setTopTab: (tab=false) => setTopTab(tab),
     }
   }), [
     loading,
     showStrongs,
     mode,
+    topTab,
   ]);
 
   return <ViewContext.Provider value={context}>{children}</ViewContext.Provider>

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { makeStyles } from "@mui/styles";
 import { IconButton } from "@mui/material";
@@ -12,6 +12,7 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import LanguageIcon from '@mui/icons-material/Language';
+import GridViewIcon from '@mui/icons-material/GridView';
 import { useTranslation } from "react-i18next";
 
 import {useAppContext} from "@lib/appContext";
@@ -21,6 +22,7 @@ import TabNameDialog from '@components/TabNameDialog';
 import "@translations/i18n";
 import usePopup from "../lib/usePopup";
 import TabIcon from '@components/TabIcon';
+import { useViewContext } from "../lib/viewContext";
 
 const useStyles = makeStyles((theme) => ({
   layoutArea: {
@@ -118,6 +120,35 @@ const useStyles = makeStyles((theme) => ({
   hidden: {
     display: 'none',
   },
+
+  wideTab: {
+    background: theme.palette.background.main,
+    position: 'fixed',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    padding: theme.spacing(1 ,1.5),
+  },
+  collapseIcon: {
+    background: theme.palette.background.active,
+    position: 'fixed',
+    top: 3,
+    right: 3,
+    borderRadius: 4,
+    zIndex: 101,
+    opacity: .5,
+    transition: 'opacity .4',
+    '& svg': {
+      height: 40,
+      width: 40,
+      cursor: 'pointer',
+    },
+    '&:hover': {
+      opacity: 1,
+    },
+  },
 }));
 
 const isBasic = (tab) => ['initial', 'collection'].includes(tab.id);
@@ -133,6 +164,7 @@ const LayoutArea = ({ area }) => {
   const {
     handlers: { createEmptyTab, getActiveTab, getAreaActiveTab, toggleTab, closeTab, moveTab, cloneTab, renameTab }
   } = useAppContext();
+  const { store: { topTab }, handlers: { setTopTab } } = useViewContext();
   const activeTab = getActiveTab();
   const activeTabInArea = getAreaActiveTab(area.id);
   const activeTabInAreaValue = activeTabInArea?.id || false;
@@ -142,6 +174,8 @@ const LayoutArea = ({ area }) => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [[tabId, dialogText, isRename], setDialogProps] = useState([]);
+
+  const [wideTabInfo, setWideTabInfo] = useState({});
 
   const addTabRef = useRef();
   const addTab = usePopup('addTabPopup');
@@ -203,6 +237,15 @@ const LayoutArea = ({ area }) => {
     handleRename(tab);
   }
 
+  useEffect((a,b) => {
+    if (!wideTabInfo.tab && topTab && topTab.areaId === area.id) {
+      setWideTabInfo({tab: topTab});
+    }
+    if (wideTabInfo.tab && (!topTab || topTab.areaId !== area.id)) {
+      setWideTabInfo({tab: false});
+    }
+  }, [area.id, topTab, wideTabInfo.tab]);
+
   return (
     <div
       className={classNames(classes.layoutArea, {[classes.active]: isAreaActive})}
@@ -228,7 +271,7 @@ const LayoutArea = ({ area }) => {
               value={tab.id}
               label={
                 <div className={classes.tabContent}>
-                  <TabIcon tab={tab} />
+                  <TabIcon tab={tab} onClick={() => setTopTab(tab)} />
 
                   <span className={classNames(classes.tabTitle, {[classes.locked]: tab.locked})}>
                     { tr(tab.description) }
@@ -270,12 +313,28 @@ const LayoutArea = ({ area }) => {
       }
       {
         visibleTabs.map((tab, i) => (
-          <div key={tab.id} className={classNames(classes.stretcher, {[classes.hidden]: tab.id !== activeTabInArea?.id})}>
+          <div
+            key={tab.id}
+            className={
+              classNames(
+                classes.stretcher,
+                {
+                  [classes.hidden]: tab.id !== activeTabInArea?.id,
+                  [classes.wideTab]: tab.id === wideTabInfo.tab?.id,
+                }
+              )
+            }
+          >
             <TabContent tab={tab} active={isAreaActive} />
           </div>
         ))
       }
       {/* <TabContent tab={activeTabInArea} active={isAreaActive}/> */}
+
+      {
+        wideTabInfo.tab &&
+        <div className={classes.collapseIcon}><GridViewIcon onClick={() => setTopTab()}/></div>
+      }
 
       {dialogOpen && <TabNameDialog
         open={dialogOpen}

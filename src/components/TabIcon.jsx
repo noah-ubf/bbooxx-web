@@ -6,27 +6,27 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import TagIcon from '@mui/icons-material/Tag';
 import LanguageIcon from '@mui/icons-material/Language';
 
-const TabIcon = ({tab}) => {
+const TabIcon = ({tab, onClick}) => {
   if (tab?.source?.type === 'search') return (
-    <SearchIcon/>
+    <SearchIcon onClick={onClick}/>
   );
   if (tab?.source?.type === 'xrefs') return (
-    <LinkIcon/>
+    <LinkIcon onClick={onClick}/>
   );
   if (tab?.type === 'memo') return (
-    <EditIcon/>
+    <EditIcon onClick={onClick}/>
   );
   if (tab?.custom) return (
-    <FormatListBulletedIcon/>
+    <FormatListBulletedIcon onClick={onClick}/>
   );
   if (tab?.type === 'strongs') return (
-    <TagIcon/>
+    <TagIcon onClick={onClick}/>
   );
   if (tab?.type === 'web') return (
-    <LanguageIcon/>
+    <LanguageIcon onClick={onClick}/>
   );
   if (!tab?.type) return (
-    <TextSnippetIcon/>
+    <TextSnippetIcon onClick={onClick}/>
   );
 
   return false;

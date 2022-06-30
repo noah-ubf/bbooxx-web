@@ -374,9 +374,9 @@ export const AppContextProvider = ({ children }) => {
           }
         },
 
-        addToMemo: (verse) => {
+        addToMemo: (html, verse) => {
           const tab = getTab('memo');
-          const content = [
+          const content = html || [
             '<div>',
             tab.content,
             verse.text,

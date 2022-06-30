@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAppContext } from "@lib/appContext";
 
-const VerseMenuContent = ({tab, vOrder, verse, isMobile, onRemove, onClose, onStrongs}) => {
+const VerseMenuContent = ({tab, vOrder, vRef, verse, isMobile, onRemove, onClose, onStrongs}) => {
   const { t } = useTranslation();
   const tr = (key) => (key.i18n ? t(key.i18n, key.params) : key);
   const {
@@ -42,7 +42,8 @@ const VerseMenuContent = ({tab, vOrder, verse, isMobile, onRemove, onClose, onSt
   }, [verse, copyToCollection, onClose])
 
   const handleAddToMemo = useCallback(() => {
-    addToMemo(verse);
+    console.log(vRef.current.innerHTML)
+    addToMemo(vRef.current.innerHTML, verse);
     onClose();
   }, [addToMemo, onClose, verse])
 

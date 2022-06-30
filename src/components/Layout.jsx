@@ -8,6 +8,7 @@ import Sizer from "@components/Sizer";
 import MobileContent from "@components/MobileContent";
 import useWindowSize from "@lib/useWindowSize";
 import { AREA_IDS } from "@lib/appContext/defaults";
+import { useViewContext } from "../lib/viewContext";
 
 const useStyles = makeStyles((theme) => ({
   layoutRoot: {
@@ -89,6 +90,7 @@ const Layout = () => {
   const md = +theme.breakpoints.values.md;
   const classes = useStyles();
   const { store: { loaded, areas }, handlers: { loadText, fetchModules } } = useAppContext();
+  // const { store: { topTab } } = useViewContext();
   const isMobile = loaded && (docWidth <= md);
   const isDesktop = loaded && (docWidth > md);
   const [loadedFromParams, setLoadedFromParams] = useState(false);
