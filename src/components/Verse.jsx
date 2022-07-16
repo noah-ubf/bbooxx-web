@@ -64,6 +64,7 @@ const Verse = ({tab, vOrder, verse, onRemove, highlightedWords, isMobile}) => {
   const ref = useRef();
 
   const handleClick = (event) => {
+    event.preventDefault();
     setAnchorEl(event.currentTarget);
   };
 
@@ -100,6 +101,7 @@ const Verse = ({tab, vOrder, verse, onRemove, highlightedWords, isMobile}) => {
           aria-describedby={vid}
           className={classes.verseMenuToggler}
           onClick={handleClick}
+          onContextMenu={handleClick}
           onMouseEnter={() => setDraggable(true)}
           onMouseLeave={() => setDraggable(false)}
         >

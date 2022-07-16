@@ -1,6 +1,8 @@
 import { useViewContext } from "@lib/viewContext";
 
-const API = `http://${window.location.hostname}:6069/api/`;
+// const API = `http://${window.location.hostname}:6069/api/`;
+const port = window.location.hostname === 'localhost' ? ':6069' : '';
+const API = `${window.location.protocol}//${window.location.hostname}${port}/api/`;
 const respCache = [];
 const CACHE_SIZE = 1000;
 

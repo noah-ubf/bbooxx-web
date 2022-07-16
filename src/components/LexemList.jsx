@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => {
     },
     
     strong: {
-      marginLeft: '0.25em',
+      // marginLeft: '0.25em',
       cursor: 'pointer',
       fontSize: '75%',
       color: theme.palette.text.strongs.main,
@@ -229,7 +229,7 @@ const LexemList = ({displayStrong, fireLink, lexems=[], highlightedWords}) => {
       case LEXEM_TYPE.space:
         return ' ';
       case LEXEM_TYPE.strong:
-        if (displayStrong) return <span key={i} className={classes.strong} onClick={() => displayStrong(data.trim())}>{data}</span>;
+        if (displayStrong) return <span key={i} className={classes.strong} onClick={() => displayStrong(data.trim())}> {data}</span>;
         return false;
       default:
         return false;

@@ -45,7 +45,7 @@ const getStorageJSON = (key) => {
 }
 
 const getStoredTabs = () => {
-  const tabs = getStorageJSON('tabs');
+  const tabs = getStorageJSON('tabs') || [];
   defaultTabs.forEach((t) => {
     if (!tabs.find((tt) => tt.id === t.id)) {
       tabs.push(t);

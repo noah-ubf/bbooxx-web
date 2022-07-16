@@ -121,9 +121,11 @@ const VerseList = ({tab, onRemove, isMobile}) => {
   }, [verses, tab, loadTabContentRef])
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    if (ref.current) ref.current.scrollTop = 0;
-  }, [tab.source])
+    if (!tab.loaded) {
+      window.scrollTo(0, 0);
+      if (ref.current) ref.current.scrollTop = 0;
+    }
+  }, [tab.loaded])
 
   const handleDrop = (e) => {
     e.preventDefault();
